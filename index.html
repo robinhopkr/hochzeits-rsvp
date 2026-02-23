@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hochzeit – Antwortformular (RSVP)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple:       #673ab7;
+      --purple-dark:  #512da8;
+      --purple-light: #ede7f6;
+      --bg:           #f0ebf8;
+      --white:        #ffffff;
+      --border:       #dadce0;
+      --text:         #202124;
+      --text-sec:     #5f6368;
+      --error:        #d93025;
+      --radius:       8px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px 16px 60px;
+    }
+
+    .form-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* ── Header Card ──────────────────────────────────────── */
+    .header-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border-top: 10px solid var(--purple);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 32px 28px 20px;
+      margin-bottom: 12px;
+    }
+
+    .header-card h1 {
+      font-family: 'Roboto', sans-serif;
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.3;
+      margin-bottom: 16px;
+    }
+
+    .header-card .desc {
+      font-size: 0.9rem;
+      color: var(--text-sec);
+      line-height: 1.65;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+
+    .header-card .required-note {
+      font-size: 0.8rem;
+      color: var(--error);
+      margin-top: 12px;
+    }
+
+    /* ── Question Card ────────────────────────────────────── */
+    .question-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 24px 28px 28px;
+      margin-bottom: 12px;
+      border-left: 4px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .question-card:focus-within {
+      border-left-color: var(--purple);
+    }
+
+    .question-card .q-label {
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .q-label .req {
+      color: var(--error);
+      margin-left: 2px;
+    }
+
+    /* ── Text Input ───────────────────────────────────────── */
+    .gf-input {
+      width: 100%;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      font-size: 0.95rem;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      outline: none;
+      background: transparent;
+      transition: border-color 0.2s;
+    }
+
+    .gf-input:focus {
+      border-bottom: 2px solid var(--purple);
+      margin-bottom: -1px;
+    }
+
+    .gf-input::placeholder {
+      color: #bdc1c6;
+    }
+
+    /* ── Number Input ─────────────────────────────────────── */
+    .gf-number {
+      width: 120px;
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 0;
+      font-size: 0.95rem;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      outline: none;
+      background: transparent;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+
+    .gf-number::-webkit-outer-spin-button,
+    .gf-number::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    .gf-number:focus {
+      border-bottom: 2px solid var(--purple);
+      margin-bottom: -1px;
+    }
+
+    /* ── Radio Buttons ────────────────────────────────────── */
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .radio-option:hover {
+      background: #f8f9fa;
+    }
+
+    .radio-option input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text-sec);
+      border-radius: 50%;
+      flex-shrink: 0;
+      position: relative;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .radio-option input[type="radio"]::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--purple);
+      transform: scale(0);
+      transition: transform 0.15s;
+    }
+
+    .radio-option input[type="radio"]:checked {
+      border-color: var(--purple);
+    }
+
+    .radio-option input[type="radio"]:checked::after {
+      transform: scale(1);
+    }
+
+    .radio-option span {
+      font-size: 0.9rem;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    /* ── Scale (1–7) ──────────────────────────────────────── */
+    .scale-container {
+      padding: 4px 0;
+    }
+
+    .scale-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 0;
+    }
+
+    .scale-row {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+
+    .scale-label-side {
+      font-size: 0.8rem;
+      color: var(--text-sec);
+      min-width: 52px;
+      padding: 0 4px;
+    }
+
+    .scale-label-side.left { text-align: right; }
+    .scale-label-side.right { text-align: left; }
+
+    .scale-options {
+      display: flex;
+      flex: 1;
+      justify-content: space-between;
+    }
+
+    .scale-option {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px 6px;
+    }
+
+    .scale-option .num {
+      font-size: 0.8rem;
+      color: var(--text-sec);
+    }
+
+    .scale-option input[type="radio"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--text-sec);
+      border-radius: 50%;
+      cursor: pointer;
+      position: relative;
+      transition: border-color 0.15s;
+    }
+
+    .scale-option input[type="radio"]::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--purple);
+      transform: scale(0);
+      transition: transform 0.15s;
+    }
+
+    .scale-option input[type="radio"]:checked {
+      border-color: var(--purple);
+    }
+
+    .scale-option input[type="radio"]:checked::after {
+      transform: scale(1);
+    }
+
+    /* ── Submit Area ──────────────────────────────────────── */
+    .submit-area {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }
+
+    .btn-submit {
+      background: var(--purple);
+      color: var(--white);
+      border: none;
+      border-radius: 4px;
+      padding: 10px 28px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.2s;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-submit:hover {
+      background: var(--purple-dark);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-clear {
+      background: none;
+      border: none;
+      color: var(--purple);
+      font-size: 0.85rem;
+      font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+
+    .btn-clear:hover {
+      background: var(--purple-light);
+    }
+
+    /* ── Validation ───────────────────────────────────────── */
+    .question-card.invalid {
+      border-left-color: var(--error);
+    }
+
+    .question-card.invalid .q-label {
+      color: var(--error);
+    }
+
+    .validation-msg {
+      font-size: 0.78rem;
+      color: var(--error);
+      margin-top: 8px;
+      display: none;
+    }
+
+    .question-card.invalid .validation-msg {
+      display: block;
+    }
+
+    /* ── Success Card ─────────────────────────────────────── */
+    .success-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border-top: 10px solid var(--purple);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 40px 28px;
+      text-align: center;
+      display: none;
+    }
+
+    .success-card.visible { display: block; }
+
+    .success-card .check-icon {
+      width: 64px;
+      height: 64px;
+      background: #e8f5e9;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .success-card .check-icon svg {
+      width: 32px;
+      height: 32px;
+      color: #34a853;
+    }
+
+    .success-card h2 {
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .success-card p {
+      font-size: 0.9rem;
+      color: var(--text-sec);
+      line-height: 1.6;
+    }
+
+    .success-card .btn-new {
+      margin-top: 24px;
+      background: none;
+      border: 1px solid var(--purple);
+      color: var(--purple);
+      border-radius: 4px;
+      padding: 10px 24px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .success-card .btn-new:hover {
+      background: var(--purple-light);
+    }
+
+    /* ── Error Toast ──────────────────────────────────────── */
+    .error-toast {
+      display: none;
+      background: #fce8e6;
+      border: 1px solid #f5c6cb;
+      border-radius: var(--radius);
+      padding: 14px 20px;
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--error);
+      line-height: 1.5;
+    }
+
+    .error-toast.visible { display: block; }
+
+    /* ── Footer ───────────────────────────────────────────── */
+    .gf-footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.75rem;
+      color: #9aa0a6;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 12px 8px 40px; }
+      .header-card,
+      .question-card { padding: 20px 18px 22px; }
+      .scale-label-side { font-size: 0.7rem; min-width: 40px; }
+      .scale-option { padding: 6px 3px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <div class="header-card">
+    <h1>Hochzeit von [Name des Brautpaares] – Antwortformular (RSVP)</h1>
+    <p class="desc">
+      Bitte teilen Sie uns bis zum <strong>[Datum einfügen]</strong> mit, ob Sie an unserer Hochzeit teilnehmen werden.
+      Wir freuen uns auf Sie!
+    </p>
+    <p class="required-note">* Pflichtfeld</p>
+  </div>
+
+  <!-- ── Form ───────────────────────────────────────────── -->
+  <form id="rsvpForm" novalidate autocomplete="off">
+
+    <!-- 1 · Name -->
+    <div class="question-card" id="q-name">
+      <p class="q-label">Name und Nachname des eingeladenen Gastes (oder des Haushalts) <span class="req">*</span></p>
+      <input type="text" class="gf-input" id="guestName" placeholder="Ihre Antwort" required />
+      <p class="validation-msg">Bitte geben Sie Ihren Namen ein.</p>
+    </div>
+
+    <!-- 2 · Teilnahme -->
+    <div class="question-card" id="q-teilnahme">
+      <p class="q-label">Werde ich an der Hochzeit am 03.11.2026 teilnehmen? <span class="req">*</span></p>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="teilnahme" value="Ja, ich nehme gerne teil." required />
+          <span>Ja, ich nehme gerne teil.</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="teilnahme" value="Nein, leider kann ich nicht teilnehmen." />
+          <span>Nein, leider kann ich nicht teilnehmen.</span>
+        </label>
+      </div>
+      <p class="validation-msg">Bitte wählen Sie eine Option.</p>
+    </div>
+
+    <!-- 3 · Anzahl Personen -->
+    <div class="question-card" id="q-anzahl">
+      <p class="q-label">Wie viele Personen umfasst Ihre Zusage (einschließlich Ihnen selbst)? <span class="req">*</span></p>
+      <input type="number" class="gf-number" id="personCount" placeholder="1" min="1" max="20" required />
+      <p class="validation-msg">Bitte geben Sie eine gültige Anzahl ein.</p>
+    </div>
+
+    <!-- 4 · Zeremonie -->
+    <div class="question-card" id="q-zeremonie">
+      <p class="q-label">Nehmen Sie an der kirchlichen/standesamtlichen Zeremonie teil? <span class="req">*</span></p>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="zeremonie" value="Ja" required />
+          <span>Ja</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="zeremonie" value="Nein" />
+          <span>Nein</span>
+        </label>
+      </div>
+      <p class="validation-msg">Bitte wählen Sie eine Option.</p>
+    </div>
+
+    <!-- 5 · Abendfeier -->
+    <div class="question-card" id="q-abendfeier">
+      <p class="q-label">Nehmen Sie an der abendlichen Feier/dem Empfang teil? <span class="req">*</span></p>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="abendfeier" value="Ja" required />
+          <span>Ja</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="abendfeier" value="Nein" />
+          <span>Nein</span>
+        </label>
+      </div>
+      <p class="validation-msg">Bitte wählen Sie eine Option.</p>
+    </div>
+
+    <!-- 6 · Ernährung -->
+    <div class="question-card" id="q-ernaehrung">
+      <p class="q-label">Haben Sie spezielle Ernährungsbedürfnisse oder Allergien (z.B. vegetarisch, vegan, Glutenunverträglichkeit)?</p>
+      <input type="text" class="gf-input" id="ernaehrung" placeholder="Ihre Antwort" />
+    </div>
+
+    <!-- 7 · Liedwunsch -->
+    <div class="question-card" id="q-lied">
+      <p class="q-label">Möchten Sie uns ein Lied für die Playlist der Feier vorschlagen?</p>
+      <input type="text" class="gf-input" id="liedwunsch" placeholder="Ihre Antwort" />
+    </div>
+
+    <!-- 8 · Vorfreude-Skala -->
+    <div class="question-card" id="q-vorfreude">
+      <p class="q-label">Wie schätzen Sie die allgemeine Vorfreude auf unsere Hochzeit auf einer Skala von 1 (gering) bis 7 (riesig!) ein? <span class="req">*</span></p>
+      <div class="scale-container">
+        <div class="scale-row">
+          <span class="scale-label-side left">Gering</span>
+          <div class="scale-options">
+            <label class="scale-option">
+              <span class="num">1</span>
+              <input type="radio" name="vorfreude" value="1" required />
+            </label>
+            <label class="scale-option">
+              <span class="num">2</span>
+              <input type="radio" name="vorfreude" value="2" />
+            </label>
+            <label class="scale-option">
+              <span class="num">3</span>
+              <input type="radio" name="vorfreude" value="3" />
+            </label>
+            <label class="scale-option">
+              <span class="num">4</span>
+              <input type="radio" name="vorfreude" value="4" />
+            </label>
+            <label class="scale-option">
+              <span class="num">5</span>
+              <input type="radio" name="vorfreude" value="5" />
+            </label>
+            <label class="scale-option">
+              <span class="num">6</span>
+              <input type="radio" name="vorfreude" value="6" />
+            </label>
+            <label class="scale-option">
+              <span class="num">7</span>
+              <input type="radio" name="vorfreude" value="7" />
+            </label>
+          </div>
+          <span class="scale-label-side right">Riesig!</span>
+        </div>
+      </div>
+      <p class="validation-msg">Bitte wählen Sie einen Wert.</p>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-area">
+      <button type="submit" class="btn-submit" id="submitBtn">Senden</button>
+      <button type="button" class="btn-clear" id="clearBtn">Formular löschen</button>
+    </div>
+
+    <div class="error-toast" id="errorToast"></div>
+
+  </form>
+
+  <!-- ── Success ────────────────────────────────────────── -->
+  <div class="success-card" id="successCard">
+    <div class="check-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </div>
+    <h2>Ihre Antwort wurde gespeichert.</h2>
+    <p>Vielen Dank für Ihre Rückmeldung!<br>Wir freuen uns sehr.</p>
+    <button class="btn-new" id="btnNew">Weitere Antwort senden</button>
+  </div>
+
+  <div class="gf-footer">Hochzeits-RSVP Formular</div>
+
+</div>
+
+<!-- ── Supabase Client ──────────────────────────────────── -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+<script>
+  const SUPABASE_URL = 'https://jecxkfpsqfznyydvrrut.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_qLhhtoZca8lDHgtdGSVNxw_r437hhfp';
+
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const form        = document.getElementById('rsvpForm');
+  const submitBtn   = document.getElementById('submitBtn');
+  const clearBtn    = document.getElementById('clearBtn');
+  const successCard = document.getElementById('successCard');
+  const errorToast  = document.getElementById('errorToast');
+  const btnNew      = document.getElementById('btnNew');
+
+  function getVal(id) { return document.getElementById(id).value.trim(); }
+  function getRadio(name) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : null;
+  }
+
+  function clearInvalid() {
+    document.querySelectorAll('.question-card.invalid').forEach(c => c.classList.remove('invalid'));
+    errorToast.classList.remove('visible');
+  }
+
+  function markInvalid(cardId) {
+    document.getElementById(cardId).classList.add('invalid');
+  }
+
+  // ── Validation ──────────────────────────────────────────
+  function validate() {
+    clearInvalid();
+    let ok = true;
+    let firstBad = null;
+
+    if (!getVal('guestName'))   { markInvalid('q-name');       ok = false; firstBad ??= 'q-name'; }
+    if (!getRadio('teilnahme')) { markInvalid('q-teilnahme');   ok = false; firstBad ??= 'q-teilnahme'; }
+
+    const count = getVal('personCount');
+    if (!count || parseInt(count) < 1) { markInvalid('q-anzahl'); ok = false; firstBad ??= 'q-anzahl'; }
+
+    if (!getRadio('zeremonie'))  { markInvalid('q-zeremonie');  ok = false; firstBad ??= 'q-zeremonie'; }
+    if (!getRadio('abendfeier')) { markInvalid('q-abendfeier'); ok = false; firstBad ??= 'q-abendfeier'; }
+    if (!getRadio('vorfreude'))  { markInvalid('q-vorfreude');  ok = false; firstBad ??= 'q-vorfreude'; }
+
+    if (firstBad) {
+      document.getElementById(firstBad).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    return ok;
+  }
+
+  // ── Clear form on input ─────────────────────────────────
+  form.addEventListener('input', () => clearInvalid());
+
+  // ── Submit ──────────────────────────────────────────────
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Wird gesendet…';
+    errorToast.classList.remove('visible');
+
+    const row = {
+      name:             getVal('guestName'),
+      teilnahme:        getRadio('teilnahme'),
+      anzahl_personen:  parseInt(getVal('personCount'), 10),
+      zeremonie:        getRadio('zeremonie'),
+      abendfeier:       getRadio('abendfeier'),
+      ernaehrung:       getVal('ernaehrung')  || null,
+      liedwunsch:       getVal('liedwunsch')  || null,
+      vorfreude:        parseInt(getRadio('vorfreude'), 10),
+    };
+
+    const { error } = await db.from('rsvp_antworten').insert([row]);
+
+    if (error) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Senden';
+      errorToast.textContent = 'Fehler beim Speichern: ' + error.message;
+      errorToast.classList.add('visible');
+      return;
+    }
+
+    form.style.display = 'none';
+    successCard.classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ── Clear ───────────────────────────────────────────────
+  clearBtn.addEventListener('click', () => {
+    form.reset();
+    clearInvalid();
+  });
+
+  // ── New response ────────────────────────────────────────
+  btnNew.addEventListener('click', () => {
+    form.reset();
+    clearInvalid();
+    form.style.display = '';
+    successCard.classList.remove('visible');
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Senden';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
+
+</body>
+</html>
