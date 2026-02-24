@@ -18,6 +18,7 @@
       --text:         #202124;
       --text-sec:     #5f6368;
       --error:        #d93025;
+      --success:      #34a853;
       --radius:       8px;
     }
 
@@ -96,6 +97,8 @@
       color: var(--error);
       margin-left: 2px;
     }
+
+    .question-hidden { display: none !important; }
 
     /* ── Text Input ───────────────────────────────────────── */
     .gf-input {
@@ -432,42 +435,1239 @@
       color: #9aa0a6;
     }
 
+    .admin-link {
+      color: #d0d0d0;
+      text-decoration: none;
+      font-size: 0.65rem;
+      margin-left: 8px;
+      transition: color 0.2s;
+    }
+
+    .admin-link:hover {
+      color: var(--purple);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       ADMIN STYLES
+       ══════════════════════════════════════════════════════════ */
+
+    .admin-container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .admin-tabs {
+      display: flex;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .admin-tab {
+      flex: 1;
+      padding: 14px 20px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      background: var(--white);
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--text-sec);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .admin-tab:hover {
+      background: #f8f9fa;
+    }
+
+    .admin-tab.active {
+      color: var(--purple);
+      border-bottom-color: var(--purple);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--purple);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 8px 0;
+      margin-bottom: 8px;
+      transition: opacity 0.2s;
+    }
+
+    .back-link:hover { opacity: 0.7; }
+
+    .question-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f1f3f4;
+      gap: 12px;
+    }
+
+    .question-row:last-child { border-bottom: none; }
+
+    .question-row .q-text {
+      font-size: 0.88rem;
+      color: var(--text);
+      flex: 1;
+    }
+
+    .question-row .q-type-badge {
+      font-size: 0.7rem;
+      color: var(--text-sec);
+      background: #f1f3f4;
+      padding: 2px 8px;
+      border-radius: 10px;
+      white-space: nowrap;
+    }
+
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      inset: 0;
+      background: #ccc;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked + .toggle-slider {
+      background: var(--purple);
+    }
+
+    .toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+    }
+
+    .btn-remove {
+      background: none;
+      border: none;
+      color: var(--error);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .btn-remove:hover {
+      background: #fce8e6;
+    }
+
+    .add-question-area {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .add-question-area .gf-input {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .gf-select {
+      border: none;
+      border-bottom: 1px solid var(--border);
+      padding: 8px 4px;
+      font-size: 0.88rem;
+      font-family: 'Roboto', sans-serif;
+      color: var(--text);
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+      min-width: 120px;
+    }
+
+    .gf-select:focus {
+      border-bottom: 2px solid var(--purple);
+    }
+
+    .btn-small {
+      padding: 8px 18px;
+      font-size: 0.82rem;
+    }
+
+    .save-notice {
+      display: inline-block;
+      margin-left: 16px;
+      color: var(--success);
+      font-size: 0.85rem;
+      font-weight: 500;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .summary-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .summary-item {
+      flex: 1;
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .summary-num {
+      display: block;
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--purple);
+      margin-bottom: 4px;
+    }
+
+    .summary-label {
+      font-size: 0.8rem;
+      color: var(--text-sec);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .table-wrapper {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+
+    .data-table th {
+      background: #f8f9fa;
+      font-weight: 500;
+      color: var(--text-sec);
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 2px solid var(--border);
+      position: sticky;
+      top: 0;
+    }
+
+    .data-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid #f1f3f4;
+      color: var(--text);
+    }
+
+    .data-table tbody tr:hover {
+      background: #f8f6ff;
+    }
+
+    .data-table .badge-ja {
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .data-table .badge-nein {
+      background: #fce8e6;
+      color: var(--error);
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-sec);
+      font-size: 0.9rem;
+    }
+
+    .loading-text {
+      text-align: center;
+      padding: 30px;
+      color: var(--text-sec);
+      font-size: 0.85rem;
+    }
+
+    .btn-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn-outline {
+      background: none;
+      border: 1px solid var(--purple);
+      color: var(--purple);
+      border-radius: 4px;
+      padding: 8px 18px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-outline:hover {
+      background: var(--purple-light);
+    }
+
+    .settings-actions {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+      gap: 8px;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       PHOTOGRAPHER & GALLERY STYLES
+       ══════════════════════════════════════════════════════════ */
+
+    .foto-container {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Dropzone ─────────────────────────────────────────── */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s;
+      background: var(--white);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--purple);
+      background: var(--purple-light);
+      transform: scale(1.005);
+    }
+
+    .dropzone-icon {
+      margin: 0 auto 14px;
+      color: var(--text-sec);
+    }
+
+    .dropzone p {
+      font-size: 0.95rem;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .dropzone .hint {
+      font-size: 0.78rem;
+      color: var(--text-sec);
+    }
+
+    /* ── Upload Progress ──────────────────────────────────── */
+    .upload-progress {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 20px 24px;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #e8e8e8;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple), var(--purple-dark));
+      border-radius: 4px;
+      transition: width 0.15s ease;
+      width: 0%;
+    }
+
+    .progress-text {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+    }
+
+    /* ── Photo Grid ───────────────────────────────────────── */
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
+    }
+
+    .photo-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+
+    .photo-card:hover {
+      box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+    }
+
+    .photo-thumb {
+      position: relative;
+      aspect-ratio: 1;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .photo-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s;
+    }
+
+    .photo-card:hover .photo-thumb img {
+      transform: scale(1.05);
+    }
+
+    .photo-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .photo-card:hover .photo-overlay {
+      opacity: 1;
+    }
+
+    .photo-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+
+    .photo-btn:hover {
+      background: white;
+      transform: scale(1.1);
+    }
+
+    .photo-btn.delete-btn:hover {
+      background: #fce8e6;
+      color: var(--error);
+    }
+
+    .photo-info {
+      padding: 10px 12px;
+    }
+
+    .photo-name {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .photo-date {
+      font-size: 0.7rem;
+      color: var(--text-sec);
+    }
+
+    .photo-count {
+      font-size: 0.85rem;
+      color: var(--text-sec);
+      margin-bottom: 14px;
+    }
+
+    /* ── Lightbox ─────────────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    .lightbox img {
+      max-width: 92vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 4px;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.8);
+      font-size: 2.4rem;
+      cursor: pointer;
+      padding: 8px;
+      line-height: 1;
+      transition: color 0.2s;
+      z-index: 1;
+    }
+
+    .lightbox-close:hover { color: white; }
+
+    .lightbox-actions {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .lightbox-btn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: white;
+      padding: 9px 22px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lightbox-btn:hover {
+      background: rgba(255,255,255,0.22);
+    }
+
+    /* ── Galerie-specific ─────────────────────────────────── */
+    .galerie-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .galerie-empty {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 60px 24px;
+      text-align: center;
+      color: var(--text-sec);
+    }
+
+    .galerie-empty svg {
+      width: 48px;
+      height: 48px;
+      color: var(--border);
+      margin-bottom: 16px;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       COOKIE BANNER
+       ══════════════════════════════════════════════════════════ */
+    .cookie-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10000;
+      background: var(--white);
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to   { transform: translateY(0); }
+    }
+
+    .cookie-banner p {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.5;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .cookie-banner .cookie-btns {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .cookie-banner .btn-cookie {
+      padding: 9px 20px;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      font-family: 'Roboto', sans-serif;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s;
+    }
+
+    .cookie-banner .btn-cookie.accept {
+      background: var(--purple);
+      color: white;
+    }
+
+    .cookie-banner .btn-cookie.accept:hover {
+      background: var(--purple-dark);
+    }
+
+    .cookie-banner .btn-cookie.necessary {
+      background: #f1f3f4;
+      color: var(--text);
+    }
+
+    .cookie-banner .btn-cookie.necessary:hover {
+      background: #e8e8e8;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       CONSENT CHECKBOX
+       ══════════════════════════════════════════════════════════ */
+    .consent-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 20px 28px;
+      margin-bottom: 12px;
+      border-left: 4px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .consent-card.invalid {
+      border-left-color: var(--error);
+    }
+
+    .consent-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    .consent-label input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      min-width: 20px;
+      border: 2px solid var(--text-sec);
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+      margin-top: 2px;
+      transition: all 0.15s;
+    }
+
+    .consent-label input[type="checkbox"]:checked {
+      background: var(--purple);
+      border-color: var(--purple);
+    }
+
+    .consent-label input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 6px;
+      height: 11px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .consent-card.invalid .consent-label {
+      color: var(--error);
+    }
+
+    .consent-card .validation-msg {
+      font-size: 0.78rem;
+      color: var(--error);
+      margin-top: 8px;
+      margin-left: 32px;
+      display: none;
+    }
+
+    .consent-card.invalid .validation-msg {
+      display: block;
+    }
+
+    .consent-label a {
+      color: var(--purple);
+      text-decoration: underline;
+    }
+
+    .consent-label a:hover {
+      color: var(--purple-dark);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       LEGAL PAGES (Datenschutz / Impressum)
+       ══════════════════════════════════════════════════════════ */
+    .legal-container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .legal-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 28px 32px;
+      margin-bottom: 12px;
+    }
+
+    .legal-card h2 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f3f4;
+    }
+
+    .legal-card p,
+    .legal-card li {
+      font-size: 0.88rem;
+      color: var(--text-sec);
+      line-height: 1.7;
+      margin-bottom: 8px;
+    }
+
+    .legal-card ul {
+      padding-left: 20px;
+      margin-bottom: 8px;
+    }
+
+    .legal-card a {
+      color: var(--purple);
+      text-decoration: underline;
+    }
+
+    .legal-card a:hover {
+      color: var(--purple-dark);
+    }
+
+    .legal-card strong {
+      color: var(--text);
+    }
+
+    /* ── Upload Notice ────────────────────────────────────── */
+    .upload-notice {
+      background: var(--purple-light);
+      border-radius: var(--radius);
+      padding: 12px 18px;
+      margin-bottom: 12px;
+      font-size: 0.82rem;
+      color: var(--purple-dark);
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .upload-notice svg {
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── Unified Footer ───────────────────────────────────── */
+    .legal-footer {
+      text-align: center;
+      padding: 20px 0 8px;
+      font-size: 0.75rem;
+      color: #9aa0a6;
+    }
+
+    .legal-footer a {
+      color: #9aa0a6;
+      text-decoration: none;
+      transition: color 0.2s;
+      margin: 0 6px;
+    }
+
+    .legal-footer a:hover {
+      color: var(--purple);
+    }
+
+    .legal-footer .sep {
+      color: #d0d0d0;
+    }
+
     @media (max-width: 480px) {
       body { padding: 12px 8px 40px; }
       .header-card,
       .question-card { padding: 20px 18px 22px; }
       .scale-label-side { font-size: 0.7rem; min-width: 40px; }
       .scale-option { padding: 6px 3px; }
+      .summary-bar { flex-direction: column; }
+      .summary-item { padding: 14px; }
+      .summary-num { font-size: 1.5rem; }
+      .add-question-area { flex-direction: column; }
+      .admin-tabs { flex-direction: column; }
+      .admin-tab { border-bottom: none; border-left: 3px solid transparent; }
+      .admin-tab.active { border-left-color: var(--purple); border-bottom: none; }
+      .photo-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+      .dropzone { padding: 32px 16px; }
+      .legal-card { padding: 20px 18px; }
+      .cookie-banner { padding: 16px; }
     }
   </style>
 </head>
 <body>
 
-<div class="form-container">
-
-  <!-- ── Header ─────────────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════════
+     ADMIN LOGIN
+     ══════════════════════════════════════════════════════════════ -->
+<div id="adminLogin" class="form-container" style="display:none">
   <div class="header-card">
-    <h1>Hochzeit von [Name des Brautpaares] – Antwortformular (RSVP)</h1>
-    <p class="desc">
-      Bitte teilen Sie uns bis zum <strong>[Datum einfügen]</strong> mit, ob Sie an unserer Hochzeit teilnehmen werden.
+    <h1>Admin-Bereich</h1>
+    <p class="desc">Bitte melden Sie sich an, um auf die Verwaltung zuzugreifen.</p>
+  </div>
+  <div class="question-card">
+    <p class="q-label">Passwort <span class="req">*</span></p>
+    <input type="password" class="gf-input" id="adminPw" placeholder="Passwort eingeben" />
+    <p class="validation-msg" id="pwError">Falsches Passwort. Bitte versuchen Sie es erneut.</p>
+    <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center;">
+      <button class="btn-submit" id="btnAdminLogin">Anmelden</button>
+      <a href="?" class="btn-clear" style="text-decoration:none;">Zurück zum Formular</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     ADMIN PANEL
+     ══════════════════════════════════════════════════════════════ -->
+<div id="adminPanel" class="admin-container" style="display:none">
+  <a href="?" class="back-link">← Zurück zum Formular</a>
+
+  <div class="header-card">
+    <h1>Admin-Bereich</h1>
+    <p class="desc">Einstellungen verwalten und eingesendete Antworten einsehen.</p>
+  </div>
+
+  <div class="admin-tabs">
+    <button class="admin-tab active" data-tab="settings">Einstellungen</button>
+    <button class="admin-tab" data-tab="answers">Antworten / Datenbank</button>
+  </div>
+
+  <div id="tabSettings" class="tab-content">
+    <div class="question-card">
+      <p class="q-label">Name des Brautpaares</p>
+      <input type="text" class="gf-input" id="settCouple" placeholder="z. B. Anna & Robert" />
+    </div>
+    <div class="question-card">
+      <p class="q-label">Hochzeitsdatum</p>
+      <input type="text" class="gf-input" id="settDate" placeholder="z. B. 03.11.2026" />
+    </div>
+    <div class="question-card">
+      <p class="q-label">RSVP-Deadline (bis wann sollen Gäste antworten)</p>
+      <input type="text" class="gf-input" id="settDeadline" placeholder="z. B. 01.09.2026" />
+    </div>
+    <div class="question-card">
+      <p class="q-label">Eigene Fragen verwalten</p>
+      <div id="questionsList"></div>
+      <div class="add-question-area">
+        <input type="text" class="gf-input" id="newQText" placeholder="Neue Frage eingeben…" />
+        <select class="gf-select" id="newQType">
+          <option value="text">Textfeld</option>
+          <option value="yesno">Ja / Nein</option>
+          <option value="scale">Skala 1–7</option>
+        </select>
+        <button class="btn-submit btn-small" id="btnAddQ">Hinzufügen</button>
+      </div>
+    </div>
+    <div class="settings-actions">
+      <button class="btn-submit" id="btnSaveSettings">Einstellungen speichern</button>
+      <span id="saveNotice" class="save-notice" style="display:none">✓ Gespeichert!</span>
+    </div>
+  </div>
+
+  <div id="tabAnswers" class="tab-content" style="display:none">
+    <div class="summary-bar">
+      <div class="summary-item">
+        <span class="summary-num" id="sumZusagen">–</span>
+        <span class="summary-label">Zusagen</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-num" id="sumAbsagen">–</span>
+        <span class="summary-label">Absagen</span>
+      </div>
+      <div class="summary-item">
+        <span class="summary-num" id="sumPersonen">–</span>
+        <span class="summary-label">Personen gesamt</span>
+      </div>
+    </div>
+    <div class="btn-bar">
+      <button class="btn-submit btn-small" id="btnRefresh">Aktualisieren</button>
+      <button class="btn-outline btn-small" id="btnCSV">Als CSV exportieren</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="answersTable">
+        <thead>
+          <tr>
+            <th>Name</th><th>Teilnahme</th><th>Personen</th><th>Zeremonie</th>
+            <th>Abendfeier</th><th>Ernährung</th><th>Liedwunsch</th><th>Vorfreude</th><th>Datum</th>
+          </tr>
+        </thead>
+        <tbody id="answersBody">
+          <tr><td colspan="9" class="loading-text">Daten werden geladen…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHOTOGRAPHER LOGIN
+     ══════════════════════════════════════════════════════════════ -->
+<div id="fotoLogin" class="form-container" style="display:none">
+  <div class="header-card">
+    <h1>Fotografen-Bereich</h1>
+    <p class="desc">Bitte melden Sie sich an, um Fotos hochzuladen und zu verwalten.</p>
+  </div>
+  <div class="question-card">
+    <p class="q-label">Passwort <span class="req">*</span></p>
+    <input type="password" class="gf-input" id="fotoPw" placeholder="Passwort eingeben" />
+    <p class="validation-msg">Falsches Passwort. Bitte versuchen Sie es erneut.</p>
+    <div style="margin-top: 20px; display: flex; gap: 12px; align-items: center;">
+      <button class="btn-submit" id="btnFotoLogin">Anmelden</button>
+      <a href="?" class="btn-clear" style="text-decoration:none;">Zurück zum Formular</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PHOTOGRAPHER PANEL
+     ══════════════════════════════════════════════════════════════ -->
+<div id="fotoPanel" class="foto-container" style="display:none">
+  <a href="?" class="back-link">← Zurück zum Formular</a>
+
+  <div class="header-card">
+    <h1>Fotografen-Bereich</h1>
+    <p class="desc">Hochzeitsfotos hochladen, verwalten und herunterladen.</p>
+  </div>
+
+  <!-- Drag & Drop Upload -->
+  <div class="dropzone" id="dropzone">
+    <div class="dropzone-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <p>Fotos hierher ziehen oder klicken zum Auswählen</p>
+    <p class="hint">JPG, PNG, GIF, WebP, HEIC – max. 50 MB pro Datei</p>
+    <input type="file" id="fileInput" multiple accept="image/*,.heic" style="display:none" />
+  </div>
+
+  <!-- Upload Notice -->
+  <div class="upload-notice">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Durch den Upload bestätigen Sie, dass alle abgebildeten Personen der Veröffentlichung zugestimmt haben.
+  </div>
+
+  <!-- Upload Progress -->
+  <div class="upload-progress" id="uploadProgress" style="display:none">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <p class="progress-text" id="progressText">Vorbereitung…</p>
+  </div>
+
+  <!-- Actions Bar -->
+  <div class="btn-bar" id="fotoActions" style="display:none">
+    <button class="btn-submit btn-small" id="btnZipDownload">
+      Alle Fotos als ZIP herunterladen
+    </button>
+    <button class="btn-outline btn-small" id="btnFotoRefresh">Aktualisieren</button>
+    <span class="photo-count" id="fotoCount"></span>
+  </div>
+
+  <!-- Photo Grid -->
+  <div class="photo-grid" id="fotoGrid"></div>
+  <p class="loading-text" id="fotoLoading">Fotos werden geladen…</p>
+
+  <div class="legal-footer">
+    <a href="?galerie">Zur öffentlichen Galerie</a>
+    <span class="sep">|</span>
+    <a href="?datenschutz">Datenschutz</a>
+    <span class="sep">|</span>
+    <a href="?impressum">Impressum</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PUBLIC GALLERY
+     ══════════════════════════════════════════════════════════════ -->
+<div id="galerieView" class="galerie-container" style="display:none">
+  <a href="?" class="back-link">← Zurück zum Formular</a>
+
+  <div class="header-card" style="text-align:center;">
+    <h1 id="galerieTitle">Hochzeitsfotos</h1>
+    <p class="desc" style="border:none;padding-top:8px;" id="galerieDesc">
+      Hier finden Sie alle Fotos unserer Hochzeit. Klicken Sie auf ein Bild, um es in voller Größe anzusehen und herunterzuladen.
+    </p>
+  </div>
+
+  <p class="photo-count" id="galerieCount" style="text-align:center;"></p>
+
+  <div class="photo-grid" id="galerieGrid"></div>
+  <p class="loading-text" id="galerieLoading">Fotos werden geladen…</p>
+
+  <div id="galerieEmpty" class="galerie-empty" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/>
+      <polyline points="21 15 16 10 5 21"/>
+    </svg>
+    <p>Noch keine Fotos vorhanden.</p>
+  </div>
+
+  <div class="legal-footer">
+    <a href="?datenschutz">Datenschutz</a>
+    <span class="sep">|</span>
+    <a href="?impressum">Impressum</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     LIGHTBOX (shared)
+     ══════════════════════════════════════════════════════════════ -->
+<div id="lightbox" class="lightbox" style="display:none">
+  <button class="lightbox-close" id="lightboxClose">&times;</button>
+  <img id="lightboxImg" alt="" />
+  <div class="lightbox-actions">
+    <button class="lightbox-btn" id="lightboxDownload">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Herunterladen
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     DATENSCHUTZERKLÄRUNG
+     ══════════════════════════════════════════════════════════════ -->
+<div id="datenschutzView" class="legal-container" style="display:none">
+  <a href="?" class="back-link">← Zurück zum Formular</a>
+
+  <div class="header-card">
+    <h1>Datenschutzerklärung</h1>
+    <p class="desc" style="border:none;padding-top:0;">Informationen zum Umgang mit Ihren personenbezogenen Daten.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Verantwortlicher</h2>
+    <p><strong>DJ Robinho</strong>, Inh. Robin Kolb<br>
+    Carrer de S'Illot 13<br>
+    07400 Alcúdia, Spanien<br>
+    E-Mail: <a href="mailto:robinho@the-agency.de">robinho@the-agency.de</a></p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Zweck der Datenerhebung</h2>
+    <p>Die über dieses Formular erhobenen Daten dienen ausschließlich der Verwaltung der Hochzeitseinladungen und der RSVP-Rückmeldungen. Es handelt sich um eine rein private Hochzeitsorganisation.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Erhobene Daten</h2>
+    <ul>
+      <li>Name des Gastes / Haushalts</li>
+      <li>Teilnahmebestätigung (Zu- oder Absage)</li>
+      <li>Anzahl der Personen</li>
+      <li>Teilnahme an Zeremonie und Abendfeier</li>
+      <li>Ernährungsbedürfnisse und Allergien</li>
+      <li>Liedwünsche für die Playlist</li>
+      <li>Einschätzung der Vorfreude (Skala 1–7)</li>
+    </ul>
+  </div>
+
+  <div class="legal-card">
+    <h2>Speicherort</h2>
+    <p>Ihre Daten werden bei <strong>Supabase</strong> gespeichert. Die Server befinden sich in der <strong>Europäischen Union (EU)</strong> und unterliegen der Datenschutz-Grundverordnung (DSGVO).</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Speicherdauer</h2>
+    <p>Alle erhobenen Daten werden nach der Hochzeit am <strong>03.11.2026</strong> gelöscht.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Lokale Speicherung (localStorage)</h2>
+    <p>Diese Website verwendet die lokale Speicherung Ihres Browsers (localStorage), um Formulareinstellungen darzustellen. Es werden <strong>keine Tracking-Cookies</strong> gesetzt und keine Daten an Dritte weitergegeben.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Fotos</h2>
+    <p>Fotos werden nur mit Einwilligung der abgebildeten Personen hochgeladen und in der Galerie veröffentlicht. Wenn Sie möchten, dass ein Foto entfernt wird, wenden Sie sich bitte per E-Mail an uns.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Ihre Rechte</h2>
+    <p>Sie haben das Recht auf <strong>Auskunft</strong>, <strong>Löschung</strong> und <strong>Widerspruch</strong> bezüglich Ihrer gespeicherten Daten. Bitte kontaktieren Sie uns per E-Mail:</p>
+    <p><a href="mailto:robinho@the-agency.de">robinho@the-agency.de</a></p>
+  </div>
+
+  <div class="legal-footer">
+    <a href="?">Zum Formular</a>
+    <span class="sep">|</span>
+    <a href="?impressum">Impressum</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     IMPRESSUM
+     ══════════════════════════════════════════════════════════════ -->
+<div id="impressumView" class="legal-container" style="display:none">
+  <a href="?" class="back-link">← Zurück zum Formular</a>
+
+  <div class="header-card">
+    <h1>Impressum</h1>
+    <p class="desc" style="border:none;padding-top:0;">Angaben gemäß gesetzlicher Informationspflichten.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Anbieter</h2>
+    <p><strong>DJ Robinho</strong>, Inh. Robin Kolb<br>
+    Carrer de S'Illot 13<br>
+    07400 Alcúdia, Spanien</p>
+    <p>Telefon: <a href="tel:+34657847794">+34 657 847 794</a><br>
+    E-Mail: <a href="mailto:robinho@the-agency.de">robinho@the-agency.de</a><br>
+    Website: <a href="https://www.dj-robinho.com" target="_blank" rel="noopener">www.dj-robinho.com</a></p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Steuerliche Angaben</h2>
+    <p>VAT-ID Spanien: <strong>ESZ0974508A</strong><br>
+    Umsatzsteuer-ID Deutschland: <strong>DE352796316</strong></p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Hinweis</h2>
+    <p>Diese App wurde von Robin Kolb (DJ Robinho) entwickelt und bereitgestellt. Sie dient ausschließlich der privaten Hochzeitsorganisation und ist kein kommerzielles Angebot.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Online-Streitbeilegung</h2>
+    <p>Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener">https://ec.europa.eu/consumers/odr/</a></p>
+    <p>Wir sind nicht verpflichtet und nicht bereit, an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+  </div>
+
+  <div class="legal-card">
+    <h2>Haftung für Inhalte</h2>
+    <p>Die Inhalte dieser Seite wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte kann jedoch keine Gewähr übernommen werden.</p>
+  </div>
+
+  <div class="legal-footer">
+    <a href="?">Zum Formular</a>
+    <span class="sep">|</span>
+    <a href="?datenschutz">Datenschutz</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     GUEST VIEW (Formular)
+     ══════════════════════════════════════════════════════════════ -->
+<div id="guestView" class="form-container">
+
+  <div class="header-card">
+    <h1 id="formTitle">Hochzeit von [Name des Brautpaares] – Antwortformular (RSVP)</h1>
+    <p class="desc" id="formDesc">
+      Bitte teilen Sie uns bis zum <strong id="formDeadline">[Datum einfügen]</strong> mit, ob Sie an unserer Hochzeit teilnehmen werden.
       Wir freuen uns auf Sie!
     </p>
     <p class="required-note">* Pflichtfeld</p>
   </div>
 
-  <!-- ── Form ───────────────────────────────────────────── -->
   <form id="rsvpForm" novalidate autocomplete="off">
 
-    <!-- 1 · Name -->
-    <div class="question-card" id="q-name">
+    <div class="question-card" id="q-name" data-qid="name">
       <p class="q-label">Name und Nachname des eingeladenen Gastes (oder des Haushalts) <span class="req">*</span></p>
       <input type="text" class="gf-input" id="guestName" placeholder="Ihre Antwort" required />
       <p class="validation-msg">Bitte geben Sie Ihren Namen ein.</p>
     </div>
 
-    <!-- 2 · Teilnahme -->
-    <div class="question-card" id="q-teilnahme">
-      <p class="q-label">Werde ich an der Hochzeit am 03.11.2026 teilnehmen? <span class="req">*</span></p>
+    <div class="question-card" id="q-teilnahme" data-qid="teilnahme">
+      <p class="q-label" id="labelTeilnahme">Werde ich an der Hochzeit am 03.11.2026 teilnehmen? <span class="req">*</span></p>
       <div class="radio-group">
         <label class="radio-option">
           <input type="radio" name="teilnahme" value="Ja, ich nehme gerne teil." required />
@@ -481,92 +1681,53 @@
       <p class="validation-msg">Bitte wählen Sie eine Option.</p>
     </div>
 
-    <!-- 3 · Anzahl Personen -->
-    <div class="question-card" id="q-anzahl">
+    <div class="question-card" id="q-anzahl" data-qid="anzahl">
       <p class="q-label">Wie viele Personen umfasst Ihre Zusage (einschließlich Ihnen selbst)? <span class="req">*</span></p>
       <input type="number" class="gf-number" id="personCount" placeholder="1" min="1" max="20" required />
       <p class="validation-msg">Bitte geben Sie eine gültige Anzahl ein.</p>
     </div>
 
-    <!-- 4 · Zeremonie -->
-    <div class="question-card" id="q-zeremonie">
+    <div class="question-card" id="q-zeremonie" data-qid="zeremonie">
       <p class="q-label">Nehmen Sie an der kirchlichen/standesamtlichen Zeremonie teil? <span class="req">*</span></p>
       <div class="radio-group">
-        <label class="radio-option">
-          <input type="radio" name="zeremonie" value="Ja" required />
-          <span>Ja</span>
-        </label>
-        <label class="radio-option">
-          <input type="radio" name="zeremonie" value="Nein" />
-          <span>Nein</span>
-        </label>
+        <label class="radio-option"><input type="radio" name="zeremonie" value="Ja" required /><span>Ja</span></label>
+        <label class="radio-option"><input type="radio" name="zeremonie" value="Nein" /><span>Nein</span></label>
       </div>
       <p class="validation-msg">Bitte wählen Sie eine Option.</p>
     </div>
 
-    <!-- 5 · Abendfeier -->
-    <div class="question-card" id="q-abendfeier">
+    <div class="question-card" id="q-abendfeier" data-qid="abendfeier">
       <p class="q-label">Nehmen Sie an der abendlichen Feier/dem Empfang teil? <span class="req">*</span></p>
       <div class="radio-group">
-        <label class="radio-option">
-          <input type="radio" name="abendfeier" value="Ja" required />
-          <span>Ja</span>
-        </label>
-        <label class="radio-option">
-          <input type="radio" name="abendfeier" value="Nein" />
-          <span>Nein</span>
-        </label>
+        <label class="radio-option"><input type="radio" name="abendfeier" value="Ja" required /><span>Ja</span></label>
+        <label class="radio-option"><input type="radio" name="abendfeier" value="Nein" /><span>Nein</span></label>
       </div>
       <p class="validation-msg">Bitte wählen Sie eine Option.</p>
     </div>
 
-    <!-- 6 · Ernährung -->
-    <div class="question-card" id="q-ernaehrung">
+    <div class="question-card" id="q-ernaehrung" data-qid="ernaehrung">
       <p class="q-label">Haben Sie spezielle Ernährungsbedürfnisse oder Allergien (z.B. vegetarisch, vegan, Glutenunverträglichkeit)?</p>
       <input type="text" class="gf-input" id="ernaehrung" placeholder="Ihre Antwort" />
     </div>
 
-    <!-- 7 · Liedwunsch -->
-    <div class="question-card" id="q-lied">
+    <div class="question-card" id="q-lied" data-qid="lied">
       <p class="q-label">Möchten Sie uns ein Lied für die Playlist der Feier vorschlagen?</p>
       <input type="text" class="gf-input" id="liedwunsch" placeholder="Ihre Antwort" />
     </div>
 
-    <!-- 8 · Vorfreude-Skala -->
-    <div class="question-card" id="q-vorfreude">
+    <div class="question-card" id="q-vorfreude" data-qid="vorfreude">
       <p class="q-label">Wie schätzen Sie die allgemeine Vorfreude auf unsere Hochzeit auf einer Skala von 1 (gering) bis 7 (riesig!) ein? <span class="req">*</span></p>
       <div class="scale-container">
         <div class="scale-row">
           <span class="scale-label-side left">Gering</span>
           <div class="scale-options">
-            <label class="scale-option">
-              <span class="num">1</span>
-              <input type="radio" name="vorfreude" value="1" required />
-            </label>
-            <label class="scale-option">
-              <span class="num">2</span>
-              <input type="radio" name="vorfreude" value="2" />
-            </label>
-            <label class="scale-option">
-              <span class="num">3</span>
-              <input type="radio" name="vorfreude" value="3" />
-            </label>
-            <label class="scale-option">
-              <span class="num">4</span>
-              <input type="radio" name="vorfreude" value="4" />
-            </label>
-            <label class="scale-option">
-              <span class="num">5</span>
-              <input type="radio" name="vorfreude" value="5" />
-            </label>
-            <label class="scale-option">
-              <span class="num">6</span>
-              <input type="radio" name="vorfreude" value="6" />
-            </label>
-            <label class="scale-option">
-              <span class="num">7</span>
-              <input type="radio" name="vorfreude" value="7" />
-            </label>
+            <label class="scale-option"><span class="num">1</span><input type="radio" name="vorfreude" value="1" required /></label>
+            <label class="scale-option"><span class="num">2</span><input type="radio" name="vorfreude" value="2" /></label>
+            <label class="scale-option"><span class="num">3</span><input type="radio" name="vorfreude" value="3" /></label>
+            <label class="scale-option"><span class="num">4</span><input type="radio" name="vorfreude" value="4" /></label>
+            <label class="scale-option"><span class="num">5</span><input type="radio" name="vorfreude" value="5" /></label>
+            <label class="scale-option"><span class="num">6</span><input type="radio" name="vorfreude" value="6" /></label>
+            <label class="scale-option"><span class="num">7</span><input type="radio" name="vorfreude" value="7" /></label>
           </div>
           <span class="scale-label-side right">Riesig!</span>
         </div>
@@ -574,17 +1735,25 @@
       <p class="validation-msg">Bitte wählen Sie einen Wert.</p>
     </div>
 
-    <!-- Submit -->
+    <div id="customQuestionsContainer"></div>
+
+    <!-- Einwilligung Datenschutz -->
+    <div class="consent-card" id="q-consent">
+      <label class="consent-label">
+        <input type="checkbox" id="consentCheck" />
+        <span>Ich habe die <a href="?datenschutz" target="_blank">Datenschutzerklärung</a> gelesen und bin damit einverstanden, dass meine Angaben zur Organisation der Hochzeit gespeichert werden.</span>
+      </label>
+      <p class="validation-msg">Bitte stimmen Sie der Datenschutzerklärung zu.</p>
+    </div>
+
     <div class="submit-area">
       <button type="submit" class="btn-submit" id="submitBtn">Senden</button>
       <button type="button" class="btn-clear" id="clearBtn">Formular löschen</button>
     </div>
 
     <div class="error-toast" id="errorToast"></div>
-
   </form>
 
-  <!-- ── Success ────────────────────────────────────────── -->
   <div class="success-card" id="successCard">
     <div class="check-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -596,20 +1765,399 @@
     <button class="btn-new" id="btnNew">Weitere Antwort senden</button>
   </div>
 
-  <div class="gf-footer">Hochzeits-RSVP Formular</div>
+  <div class="legal-footer">
+    <a href="?datenschutz">Datenschutz</a>
+    <span class="sep">|</span>
+    <a href="?impressum">Impressum</a>
+    <span class="sep">|</span>
+    <a href="?galerie" title="Fotogalerie" style="color:#ccc;">◆</a>
+    <a href="?fotograf" title="Fotografen-Bereich" style="color:#d0d0d0;">◉</a>
+    <a href="?admin" title="Administration" style="color:#d0d0d0;">•</a>
+  </div>
 
 </div>
 
-<!-- ── Supabase Client ──────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════════
+     COOKIE BANNER
+     ══════════════════════════════════════════════════════════════ -->
+<div id="cookieBanner" class="cookie-banner" style="display:none">
+  <p>Diese Website verwendet lokale Speicherung (localStorage) zur Darstellung des Formulars. Es werden keine Tracking-Cookies gesetzt.</p>
+  <div class="cookie-btns">
+    <button class="btn-cookie accept" id="cookieAccept">Verstanden &amp; Akzeptieren</button>
+    <button class="btn-cookie necessary" id="cookieNecessary">Nur notwendige</button>
+  </div>
+</div>
+
+<!-- ── Libraries ────────────────────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js"></script>
 
 <script>
-  const SUPABASE_URL = 'https://jecxkfpsqfznyydvrrut.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_qLhhtoZca8lDHgtdGSVNxw_r437hhfp';
+  /* ══════════════════════════════════════════════════════════
+     CONFIGURATION
+     ══════════════════════════════════════════════════════════ */
+  const SUPABASE_URL  = 'https://jecxkfpsqfznyydvrrut.supabase.co';
+  const SUPABASE_KEY  = 'sb_publishable_qLhhtoZca8lDHgtdGSVNxw_r437hhfp';
+  const ADMIN_PW      = 'Alcanada!23AR';
+  const FOTO_PW       = 'Fotograf!031126';
+  const LS_KEY        = 'rsvp_admin_settings';
+  const BUCKET        = 'hochzeitsfotos';
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  const DEFAULT_QUESTIONS = [
+    { id: 'name',       label: 'Name und Nachname',                 type: 'text',  required: true  },
+    { id: 'teilnahme',  label: 'Teilnahme an der Hochzeit',         type: 'yesno', required: true  },
+    { id: 'anzahl',     label: 'Anzahl Personen',                   type: 'text',  required: true  },
+    { id: 'zeremonie',  label: 'Teilnahme Zeremonie',               type: 'yesno', required: true  },
+    { id: 'abendfeier', label: 'Teilnahme Abendfeier',              type: 'yesno', required: true  },
+    { id: 'ernaehrung', label: 'Ernährungsbedürfnisse / Allergien', type: 'text',  required: false },
+    { id: 'lied',       label: 'Liedwunsch für die Playlist',       type: 'text',  required: false },
+    { id: 'vorfreude',  label: 'Vorfreude-Skala (1–7)',             type: 'scale', required: true  },
+  ];
+
+  /* ══════════════════════════════════════════════════════════
+     SETTINGS (localStorage)
+     ══════════════════════════════════════════════════════════ */
+  function loadSettings() {
+    try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function saveSettingsData(data) {
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     ROUTING
+     ══════════════════════════════════════════════════════════ */
+  const ALL_VIEWS = ['adminLogin','adminPanel','fotoLogin','fotoPanel','galerieView','datenschutzView','impressumView','guestView'];
+  const urlParams = new URLSearchParams(window.location.search);
+
+  function showView(activeId) {
+    ALL_VIEWS.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = id === activeId ? '' : 'none';
+    });
+  }
+
+  if (urlParams.has('admin')) {
+    if (sessionStorage.getItem('rsvp_admin_auth') === '1') {
+      showView('adminPanel');
+      initAdminPanel();
+    } else {
+      showView('adminLogin');
+    }
+  } else if (urlParams.has('fotograf')) {
+    if (sessionStorage.getItem('rsvp_foto_auth') === '1') {
+      showView('fotoPanel');
+      initFotoPanel();
+    } else {
+      showView('fotoLogin');
+    }
+  } else if (urlParams.has('galerie')) {
+    showView('galerieView');
+    initGalerie();
+  } else if (urlParams.has('datenschutz')) {
+    showView('datenschutzView');
+  } else if (urlParams.has('impressum')) {
+    showView('impressumView');
+  } else {
+    showView('guestView');
+    applySettingsToForm();
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     HELPERS
+     ══════════════════════════════════════════════════════════ */
+  function escHtml(str) {
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function safeName(name) {
+    return name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  }
+
+  function displayName(storageName) {
+    return storageName.replace(/^\d+_/, '');
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '–';
+    return new Date(iso).toLocaleDateString('de-DE', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+  }
+
+  function getPublicUrl(fileName) {
+    const { data } = db.storage.from(BUCKET).getPublicUrl(fileName);
+    return data.publicUrl;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     ADMIN LOGIN
+     ══════════════════════════════════════════════════════════ */
+  document.getElementById('btnAdminLogin').addEventListener('click', attemptAdminLogin);
+  document.getElementById('adminPw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') attemptAdminLogin();
+  });
+
+  function attemptAdminLogin() {
+    const pw = document.getElementById('adminPw').value;
+    if (pw === ADMIN_PW) {
+      sessionStorage.setItem('rsvp_admin_auth', '1');
+      document.getElementById('adminPw').parentElement.classList.remove('invalid');
+      showView('adminPanel');
+      initAdminPanel();
+    } else {
+      document.getElementById('adminPw').parentElement.classList.add('invalid');
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     PHOTOGRAPHER LOGIN
+     ══════════════════════════════════════════════════════════ */
+  document.getElementById('btnFotoLogin').addEventListener('click', attemptFotoLogin);
+  document.getElementById('fotoPw').addEventListener('keydown', e => {
+    if (e.key === 'Enter') attemptFotoLogin();
+  });
+
+  function attemptFotoLogin() {
+    const pw = document.getElementById('fotoPw').value;
+    if (pw === FOTO_PW) {
+      sessionStorage.setItem('rsvp_foto_auth', '1');
+      document.getElementById('fotoPw').parentElement.classList.remove('invalid');
+      showView('fotoPanel');
+      initFotoPanel();
+    } else {
+      document.getElementById('fotoPw').parentElement.classList.add('invalid');
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     ADMIN PANEL – Tabs
+     ══════════════════════════════════════════════════════════ */
+  document.querySelectorAll('.admin-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.tab;
+      document.getElementById('tabSettings').style.display = target === 'settings' ? '' : 'none';
+      document.getElementById('tabAnswers').style.display  = target === 'answers'  ? '' : 'none';
+      if (target === 'answers') loadAnswers();
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     TAB 1 – EINSTELLUNGEN
+     ══════════════════════════════════════════════════════════ */
+  function initAdminPanel() {
+    const s = loadSettings();
+    document.getElementById('settCouple').value   = s.coupleName || '';
+    document.getElementById('settDate').value      = s.weddingDate || '';
+    document.getElementById('settDeadline').value  = s.deadline || '';
+    renderQuestionsList(s);
+  }
+
+  function renderQuestionsList(settings) {
+    const container = document.getElementById('questionsList');
+    const disabled  = settings.disabledQuestions || [];
+    const custom    = settings.customQuestions   || [];
+
+    let html = '<p style="font-size:0.78rem;color:var(--text-sec);margin-bottom:8px;">Standard-Fragen</p>';
+
+    DEFAULT_QUESTIONS.forEach(q => {
+      const active = !disabled.includes(q.id);
+      const typeLabel = q.type === 'yesno' ? 'Ja/Nein' : q.type === 'scale' ? 'Skala 1–7' : 'Textfeld';
+      html += `
+        <div class="question-row">
+          <span class="q-text">${q.label}</span>
+          <span class="q-type-badge">${typeLabel}</span>
+          <label class="toggle">
+            <input type="checkbox" data-default-id="${q.id}" ${active ? 'checked' : ''} />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>`;
+    });
+
+    if (custom.length) {
+      html += '<p style="font-size:0.78rem;color:var(--text-sec);margin:16px 0 8px;">Eigene Fragen</p>';
+      custom.forEach((q, i) => {
+        const typeLabel = q.type === 'yesno' ? 'Ja/Nein' : q.type === 'scale' ? 'Skala 1–7' : 'Textfeld';
+        const active = q.active !== false;
+        html += `
+          <div class="question-row">
+            <span class="q-text">${escHtml(q.text)}</span>
+            <span class="q-type-badge">${typeLabel}</span>
+            <label class="toggle">
+              <input type="checkbox" data-custom-idx="${i}" ${active ? 'checked' : ''} />
+              <span class="toggle-slider"></span>
+            </label>
+            <button type="button" class="btn-remove" data-remove-idx="${i}" title="Frage entfernen">✕</button>
+          </div>`;
+      });
+    }
+
+    container.innerHTML = html;
+
+    container.querySelectorAll('.btn-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const idx = parseInt(btn.dataset.removeIdx);
+        const s = loadSettings();
+        s.customQuestions = s.customQuestions || [];
+        s.customQuestions.splice(idx, 1);
+        saveSettingsData(s);
+        renderQuestionsList(s);
+      });
+    });
+  }
+
+  document.getElementById('btnAddQ').addEventListener('click', () => {
+    const text = document.getElementById('newQText').value.trim();
+    const type = document.getElementById('newQType').value;
+    if (!text) return;
+    const s = loadSettings();
+    s.customQuestions = s.customQuestions || [];
+    s.customQuestions.push({ text, type, active: true });
+    saveSettingsData(s);
+    renderQuestionsList(s);
+    document.getElementById('newQText').value = '';
+  });
+
+  document.getElementById('btnSaveSettings').addEventListener('click', () => {
+    const s = loadSettings();
+    s.coupleName  = document.getElementById('settCouple').value.trim();
+    s.weddingDate = document.getElementById('settDate').value.trim();
+    s.deadline    = document.getElementById('settDeadline').value.trim();
+    s.disabledQuestions = [];
+    document.querySelectorAll('[data-default-id]').forEach(cb => {
+      if (!cb.checked) s.disabledQuestions.push(cb.dataset.defaultId);
+    });
+    s.customQuestions = s.customQuestions || [];
+    document.querySelectorAll('[data-custom-idx]').forEach(cb => {
+      const idx = parseInt(cb.dataset.customIdx);
+      if (s.customQuestions[idx]) s.customQuestions[idx].active = cb.checked;
+    });
+    saveSettingsData(s);
+    const notice = document.getElementById('saveNotice');
+    notice.style.display = 'inline-block';
+    setTimeout(() => { notice.style.display = 'none'; }, 2500);
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     TAB 2 – ANTWORTEN / DATENBANK
+     ══════════════════════════════════════════════════════════ */
+  let answersData = [];
+
+  async function loadAnswers() {
+    const tbody = document.getElementById('answersBody');
+    tbody.innerHTML = '<tr><td colspan="9" class="loading-text">Daten werden geladen…</td></tr>';
+    const { data, error } = await db
+      .from('rsvp_antworten').select('*').order('created_at', { ascending: false });
+    if (error) {
+      tbody.innerHTML = `<tr><td colspan="9" class="no-data">Fehler: ${escHtml(error.message)}</td></tr>`;
+      return;
+    }
+    answersData = data || [];
+    renderAnswers();
+    updateSummary();
+  }
+
+  function renderAnswers() {
+    const tbody = document.getElementById('answersBody');
+    if (!answersData.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="no-data">Noch keine Antworten vorhanden.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = answersData.map(r => {
+      const isJa = (r.teilnahme || '').toLowerCase().includes('ja');
+      const badge = isJa ? '<span class="badge-ja">Zusage</span>' : '<span class="badge-nein">Absage</span>';
+      return `<tr>
+        <td>${escHtml(r.name || '–')}</td><td>${badge}</td><td>${r.anzahl_personen ?? '–'}</td>
+        <td>${escHtml(r.zeremonie || '–')}</td><td>${escHtml(r.abendfeier || '–')}</td>
+        <td>${escHtml(r.ernaehrung || '–')}</td><td>${escHtml(r.liedwunsch || '–')}</td>
+        <td>${r.vorfreude ?? '–'}</td><td>${fmtDate(r.created_at)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function updateSummary() {
+    let zusagen = 0, absagen = 0, personen = 0;
+    answersData.forEach(r => {
+      const isJa = (r.teilnahme || '').toLowerCase().includes('ja');
+      if (isJa) { zusagen++; personen += (r.anzahl_personen || 1); }
+      else { absagen++; }
+    });
+    document.getElementById('sumZusagen').textContent  = zusagen;
+    document.getElementById('sumAbsagen').textContent  = absagen;
+    document.getElementById('sumPersonen').textContent = personen;
+  }
+
+  document.getElementById('btnRefresh').addEventListener('click', loadAnswers);
+
+  document.getElementById('btnCSV').addEventListener('click', () => {
+    if (!answersData.length) return alert('Keine Daten vorhanden.');
+    const headers = ['Name','Teilnahme','Personen','Zeremonie','Abendfeier','Ernährung','Liedwunsch','Vorfreude','Datum'];
+    const rows = answersData.map(r => [
+      r.name || '', r.teilnahme || '', r.anzahl_personen ?? '', r.zeremonie || '',
+      r.abendfeier || '', r.ernaehrung || '', r.liedwunsch || '', r.vorfreude ?? '',
+      r.created_at ? new Date(r.created_at).toLocaleDateString('de-DE') : ''
+    ].map(v => `"${String(v).replace(/"/g, '""')}"`).join(';'));
+    const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `rsvp_antworten_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     GUEST VIEW – Settings auf Formular anwenden
+     ══════════════════════════════════════════════════════════ */
+  function applySettingsToForm() {
+    const s = loadSettings();
+    if (s.coupleName)  document.getElementById('formTitle').textContent = `Hochzeit von ${s.coupleName} – Antwortformular (RSVP)`;
+    if (s.deadline)    document.getElementById('formDeadline').textContent = s.deadline;
+    if (s.weddingDate) document.getElementById('labelTeilnahme').innerHTML = `Werde ich an der Hochzeit am ${escHtml(s.weddingDate)} teilnehmen? <span class="req">*</span>`;
+
+    const disabled = s.disabledQuestions || [];
+    disabled.forEach(qid => {
+      const el = document.querySelector(`[data-qid="${qid}"]`);
+      if (el) el.classList.add('question-hidden');
+    });
+
+    const custom = (s.customQuestions || []).filter(q => q.active !== false);
+    const container = document.getElementById('customQuestionsContainer');
+    container.innerHTML = '';
+    custom.forEach((q, i) => {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `q-custom-${i}`;
+      card.dataset.qid = `custom-${i}`;
+      let inputHtml = '';
+      if (q.type === 'text') {
+        inputHtml = `<input type="text" class="gf-input" data-custom-input="${i}" placeholder="Ihre Antwort" />`;
+      } else if (q.type === 'yesno') {
+        inputHtml = `<div class="radio-group"><label class="radio-option"><input type="radio" name="custom_${i}" value="Ja" /><span>Ja</span></label><label class="radio-option"><input type="radio" name="custom_${i}" value="Nein" /><span>Nein</span></label></div>`;
+      } else if (q.type === 'scale') {
+        let opts = '';
+        for (let n = 1; n <= 7; n++) opts += `<label class="scale-option"><span class="num">${n}</span><input type="radio" name="custom_${i}" value="${n}" /></label>`;
+        inputHtml = `<div class="scale-container"><div class="scale-row"><span class="scale-label-side left">1</span><div class="scale-options">${opts}</div><span class="scale-label-side right">7</span></div></div>`;
+      }
+      card.innerHTML = `<p class="q-label">${escHtml(q.text)}</p>${inputHtml}`;
+      container.appendChild(card);
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     GUEST VIEW – Form Logic
+     ══════════════════════════════════════════════════════════ */
   const form        = document.getElementById('rsvpForm');
   const submitBtn   = document.getElementById('submitBtn');
   const clearBtn    = document.getElementById('clearBtn');
@@ -617,69 +2165,53 @@
   const errorToast  = document.getElementById('errorToast');
   const btnNew      = document.getElementById('btnNew');
 
-  function getVal(id) { return document.getElementById(id).value.trim(); }
-  function getRadio(name) {
-    const el = document.querySelector(`input[name="${name}"]:checked`);
-    return el ? el.value : null;
-  }
+  function getVal(id)     { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+  function getRadio(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : null; }
+  function isVisible(qid) { const el = document.querySelector(`[data-qid="${qid}"]`); return el && !el.classList.contains('question-hidden'); }
 
   function clearInvalid() {
-    document.querySelectorAll('.question-card.invalid').forEach(c => c.classList.remove('invalid'));
+    document.querySelectorAll('.question-card.invalid, .consent-card.invalid').forEach(c => c.classList.remove('invalid'));
     errorToast.classList.remove('visible');
   }
+  function markInvalid(cardId) { document.getElementById(cardId).classList.add('invalid'); }
 
-  function markInvalid(cardId) {
-    document.getElementById(cardId).classList.add('invalid');
-  }
-
-  // ── Validation ──────────────────────────────────────────
   function validate() {
     clearInvalid();
-    let ok = true;
-    let firstBad = null;
-
-    if (!getVal('guestName'))   { markInvalid('q-name');       ok = false; firstBad ??= 'q-name'; }
-    if (!getRadio('teilnahme')) { markInvalid('q-teilnahme');   ok = false; firstBad ??= 'q-teilnahme'; }
-
-    const count = getVal('personCount');
-    if (!count || parseInt(count) < 1) { markInvalid('q-anzahl'); ok = false; firstBad ??= 'q-anzahl'; }
-
-    if (!getRadio('zeremonie'))  { markInvalid('q-zeremonie');  ok = false; firstBad ??= 'q-zeremonie'; }
-    if (!getRadio('abendfeier')) { markInvalid('q-abendfeier'); ok = false; firstBad ??= 'q-abendfeier'; }
-    if (!getRadio('vorfreude'))  { markInvalid('q-vorfreude');  ok = false; firstBad ??= 'q-vorfreude'; }
-
-    if (firstBad) {
-      document.getElementById(firstBad).scrollIntoView({ behavior: 'smooth', block: 'center' });
+    let ok = true, firstBad = null;
+    if (isVisible('name') && !getVal('guestName'))         { markInvalid('q-name');       ok = false; firstBad ??= 'q-name'; }
+    if (isVisible('teilnahme') && !getRadio('teilnahme'))   { markInvalid('q-teilnahme');  ok = false; firstBad ??= 'q-teilnahme'; }
+    if (isVisible('anzahl')) { const c = getVal('personCount'); if (!c || parseInt(c) < 1) { markInvalid('q-anzahl'); ok = false; firstBad ??= 'q-anzahl'; } }
+    if (isVisible('zeremonie') && !getRadio('zeremonie'))   { markInvalid('q-zeremonie');  ok = false; firstBad ??= 'q-zeremonie'; }
+    if (isVisible('abendfeier') && !getRadio('abendfeier')) { markInvalid('q-abendfeier'); ok = false; firstBad ??= 'q-abendfeier'; }
+    if (isVisible('vorfreude') && !getRadio('vorfreude'))   { markInvalid('q-vorfreude');  ok = false; firstBad ??= 'q-vorfreude'; }
+    if (!document.getElementById('consentCheck').checked) {
+      document.getElementById('q-consent').classList.add('invalid');
+      ok = false; firstBad ??= 'q-consent';
     }
-
+    if (firstBad) document.getElementById(firstBad).scrollIntoView({ behavior: 'smooth', block: 'center' });
     return ok;
   }
 
-  // ── Clear form on input ─────────────────────────────────
   form.addEventListener('input', () => clearInvalid());
 
-  // ── Submit ──────────────────────────────────────────────
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validate()) return;
-
     submitBtn.disabled = true;
     submitBtn.textContent = 'Wird gesendet…';
     errorToast.classList.remove('visible');
 
-    const row = {
-      name:             getVal('guestName'),
-      teilnahme:        getRadio('teilnahme'),
-      anzahl_personen:  parseInt(getVal('personCount'), 10),
-      zeremonie:        getRadio('zeremonie'),
-      abendfeier:       getRadio('abendfeier'),
-      ernaehrung:       getVal('ernaehrung')  || null,
-      liedwunsch:       getVal('liedwunsch')  || null,
-      vorfreude:        parseInt(getRadio('vorfreude'), 10),
-    };
+    const row = {};
+    if (isVisible('name'))       row.name            = getVal('guestName');
+    if (isVisible('teilnahme'))  row.teilnahme       = getRadio('teilnahme');
+    if (isVisible('anzahl'))     row.anzahl_personen = parseInt(getVal('personCount'), 10);
+    if (isVisible('zeremonie'))  row.zeremonie       = getRadio('zeremonie');
+    if (isVisible('abendfeier')) row.abendfeier      = getRadio('abendfeier');
+    if (isVisible('ernaehrung')) row.ernaehrung      = getVal('ernaehrung') || null;
+    if (isVisible('lied'))       row.liedwunsch      = getVal('liedwunsch') || null;
+    if (isVisible('vorfreude'))  row.vorfreude       = parseInt(getRadio('vorfreude'), 10);
 
     const { error } = await db.from('rsvp_antworten').insert([row]);
-
     if (error) {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Senden';
@@ -687,28 +2219,390 @@
       errorToast.classList.add('visible');
       return;
     }
-
     form.style.display = 'none';
     successCard.classList.add('visible');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // ── Clear ───────────────────────────────────────────────
-  clearBtn.addEventListener('click', () => {
-    form.reset();
-    clearInvalid();
-  });
+  clearBtn.addEventListener('click', () => { form.reset(); clearInvalid(); });
 
-  // ── New response ────────────────────────────────────────
   btnNew.addEventListener('click', () => {
-    form.reset();
-    clearInvalid();
+    form.reset(); clearInvalid();
     form.style.display = '';
     successCard.classList.remove('visible');
     submitBtn.disabled = false;
     submitBtn.textContent = 'Senden';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
+
+  /* ══════════════════════════════════════════════════════════
+     PHOTOGRAPHER PANEL
+     ══════════════════════════════════════════════════════════ */
+  let fotoFiles = [];
+
+  function initFotoPanel() {
+    loadFotos();
+    setupDragDrop();
+  }
+
+  /* ── Drag & Drop + File Input ───────────────────────────── */
+  function setupDragDrop() {
+    const dz    = document.getElementById('dropzone');
+    const input = document.getElementById('fileInput');
+
+    dz.addEventListener('click', () => input.click());
+
+    dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+    dz.addEventListener('dragleave', ()  => { dz.classList.remove('dragover'); });
+    dz.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dz.classList.remove('dragover');
+      const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('image/') || f.name.toLowerCase().endsWith('.heic'));
+      if (files.length) handleUpload(files);
+    });
+
+    input.addEventListener('change', () => {
+      const files = [...input.files];
+      if (files.length) handleUpload(files);
+      input.value = '';
+    });
+  }
+
+  /* ── Upload with Progress ───────────────────────────────── */
+  async function handleUpload(files) {
+    const tooLarge = files.filter(f => f.size > MAX_FILE_SIZE);
+    if (tooLarge.length) {
+      alert(`${tooLarge.length} Datei(en) überschreiten 50 MB und werden übersprungen.`);
+      files = files.filter(f => f.size <= MAX_FILE_SIZE);
+    }
+    if (!files.length) return;
+
+    const progressEl = document.getElementById('uploadProgress');
+    const fillEl     = document.getElementById('progressFill');
+    const textEl     = document.getElementById('progressText');
+    progressEl.style.display = '';
+
+    let completed = 0;
+    const total = files.length;
+
+    for (const file of files) {
+      textEl.textContent = `${completed + 1} von ${total}: ${file.name}`;
+      try {
+        await uploadFileXHR(file, (pct) => {
+          const overall = ((completed + pct) / total) * 100;
+          fillEl.style.width = overall + '%';
+        });
+        completed++;
+      } catch (err) {
+        console.error('Upload error:', err);
+        textEl.textContent = `Fehler bei ${file.name}: ${err.message}`;
+        await new Promise(r => setTimeout(r, 2000));
+        completed++;
+      }
+    }
+
+    fillEl.style.width = '100%';
+    textEl.textContent = `${completed} von ${total} Fotos hochgeladen!`;
+    setTimeout(() => { progressEl.style.display = 'none'; fillEl.style.width = '0%'; }, 3000);
+
+    loadFotos();
+  }
+
+  function uploadFileXHR(file, onProgress) {
+    return new Promise((resolve, reject) => {
+      const path = `${Date.now()}_${safeName(file.name)}`;
+      const xhr  = new XMLHttpRequest();
+
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) onProgress(e.loaded / e.total);
+      });
+
+      xhr.addEventListener('load', () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(path);
+        else reject(new Error(`HTTP ${xhr.status}`));
+      });
+
+      xhr.addEventListener('error', () => reject(new Error('Netzwerkfehler')));
+
+      xhr.open('POST', `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${path}`);
+      xhr.setRequestHeader('Authorization', `Bearer ${SUPABASE_KEY}`);
+      xhr.setRequestHeader('apikey', SUPABASE_KEY);
+      xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+      xhr.send(file);
+    });
+  }
+
+  /* ── Load & Display Photos ──────────────────────────────── */
+  async function loadFotos() {
+    const grid    = document.getElementById('fotoGrid');
+    const loading = document.getElementById('fotoLoading');
+    const actions = document.getElementById('fotoActions');
+    loading.style.display = '';
+    grid.innerHTML = '';
+
+    const { data, error } = await db.storage.from(BUCKET).list('', {
+      limit: 1000,
+      sortBy: { column: 'created_at', order: 'desc' }
+    });
+
+    loading.style.display = 'none';
+
+    if (error) {
+      grid.innerHTML = `<p class="no-data">Fehler: ${escHtml(error.message)}</p>`;
+      return;
+    }
+
+    fotoFiles = (data || []).filter(f => f.id);
+    document.getElementById('fotoCount').textContent = `${fotoFiles.length} Foto${fotoFiles.length !== 1 ? 's' : ''}`;
+    actions.style.display = fotoFiles.length ? '' : 'none';
+
+    fotoFiles.forEach(f => {
+      const url  = getPublicUrl(f.name);
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.innerHTML = `
+        <div class="photo-thumb" data-url="${escHtml(url)}" data-name="${escHtml(f.name)}">
+          <img src="${url}" alt="${escHtml(displayName(f.name))}" loading="lazy" />
+          <div class="photo-overlay">
+            <button class="photo-btn" title="Herunterladen" data-dl="${escHtml(url)}" data-dlname="${escHtml(displayName(f.name))}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="photo-btn delete-btn" title="Löschen" data-del="${escHtml(f.name)}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="photo-info">
+          <span class="photo-name" title="${escHtml(displayName(f.name))}">${escHtml(displayName(f.name))}</span>
+          <span class="photo-date">${fmtDate(f.created_at)}</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    // Lightbox click
+    grid.querySelectorAll('.photo-thumb').forEach(thumb => {
+      thumb.addEventListener('click', (e) => {
+        if (e.target.closest('.photo-btn')) return;
+        openLightbox(thumb.dataset.url, thumb.dataset.name);
+      });
+    });
+
+    // Download click
+    grid.querySelectorAll('[data-dl]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        downloadSinglePhoto(btn.dataset.dl, btn.dataset.dlname);
+      });
+    });
+
+    // Delete click
+    grid.querySelectorAll('[data-del]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const name = btn.dataset.del;
+        if (!confirm(`"${displayName(name)}" wirklich löschen?`)) return;
+        const { error } = await db.storage.from(BUCKET).remove([name]);
+        if (error) alert('Fehler beim Löschen: ' + error.message);
+        else loadFotos();
+      });
+    });
+  }
+
+  document.getElementById('btnFotoRefresh').addEventListener('click', loadFotos);
+
+  /* ── ZIP Download ───────────────────────────────────────── */
+  document.getElementById('btnZipDownload').addEventListener('click', async () => {
+    if (!fotoFiles.length) return alert('Keine Fotos vorhanden.');
+
+    const btn = document.getElementById('btnZipDownload');
+    btn.disabled = true;
+    btn.textContent = 'ZIP wird erstellt…';
+
+    const progressEl = document.getElementById('uploadProgress');
+    const fillEl     = document.getElementById('progressFill');
+    const textEl     = document.getElementById('progressText');
+    progressEl.style.display = '';
+    fillEl.style.width = '0%';
+
+    try {
+      const zip = new JSZip();
+      for (let i = 0; i < fotoFiles.length; i++) {
+        const f   = fotoFiles[i];
+        const url = getPublicUrl(f.name);
+        textEl.textContent = `Lade ${i + 1} von ${fotoFiles.length}: ${displayName(f.name)}`;
+        fillEl.style.width = ((i / fotoFiles.length) * 80) + '%';
+
+        const resp = await fetch(url);
+        const blob = await resp.blob();
+        zip.file(displayName(f.name), blob);
+      }
+
+      textEl.textContent = 'ZIP wird komprimiert…';
+      fillEl.style.width = '85%';
+
+      const content = await zip.generateAsync({ type: 'blob' }, (meta) => {
+        fillEl.style.width = (85 + meta.percent * 0.15) + '%';
+      });
+
+      fillEl.style.width = '100%';
+      textEl.textContent = 'Download startet…';
+
+      const url = URL.createObjectURL(content);
+      const a   = document.createElement('a');
+      a.href     = url;
+      a.download = `hochzeitsfotos_${new Date().toISOString().slice(0,10)}.zip`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      alert('ZIP-Erstellung fehlgeschlagen: ' + err.message);
+    }
+
+    setTimeout(() => { progressEl.style.display = 'none'; fillEl.style.width = '0%'; }, 2000);
+    btn.disabled = false;
+    btn.textContent = 'Alle Fotos als ZIP herunterladen';
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     PUBLIC GALLERY
+     ══════════════════════════════════════════════════════════ */
+  async function initGalerie() {
+    const s = loadSettings();
+    if (s.coupleName) {
+      document.getElementById('galerieTitle').textContent = `Hochzeitsfotos – ${s.coupleName}`;
+    }
+
+    const grid    = document.getElementById('galerieGrid');
+    const loading = document.getElementById('galerieLoading');
+    const empty   = document.getElementById('galerieEmpty');
+    loading.style.display = '';
+    grid.innerHTML = '';
+    empty.style.display = 'none';
+
+    const { data, error } = await db.storage.from(BUCKET).list('', {
+      limit: 1000,
+      sortBy: { column: 'created_at', order: 'desc' }
+    });
+
+    loading.style.display = 'none';
+
+    if (error) {
+      grid.innerHTML = `<p class="no-data">Fehler beim Laden der Fotos.</p>`;
+      return;
+    }
+
+    const files = (data || []).filter(f => f.id);
+    if (!files.length) {
+      empty.style.display = '';
+      return;
+    }
+
+    document.getElementById('galerieCount').textContent = `${files.length} Foto${files.length !== 1 ? 's' : ''}`;
+
+    files.forEach(f => {
+      const url  = getPublicUrl(f.name);
+      const card = document.createElement('div');
+      card.className = 'photo-card';
+      card.innerHTML = `
+        <div class="photo-thumb" data-url="${escHtml(url)}" data-name="${escHtml(f.name)}">
+          <img src="${url}" alt="${escHtml(displayName(f.name))}" loading="lazy" />
+          <div class="photo-overlay">
+            <button class="photo-btn" title="Herunterladen" data-dl="${escHtml(url)}" data-dlname="${escHtml(displayName(f.name))}">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="photo-info">
+          <span class="photo-name" title="${escHtml(displayName(f.name))}">${escHtml(displayName(f.name))}</span>
+          <span class="photo-date">${fmtDate(f.created_at)}</span>
+        </div>`;
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll('.photo-thumb').forEach(thumb => {
+      thumb.addEventListener('click', (e) => {
+        if (e.target.closest('.photo-btn')) return;
+        openLightbox(thumb.dataset.url, thumb.dataset.name);
+      });
+    });
+
+    grid.querySelectorAll('[data-dl]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        downloadSinglePhoto(btn.dataset.dl, btn.dataset.dlname);
+      });
+    });
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     LIGHTBOX
+     ══════════════════════════════════════════════════════════ */
+  const lightbox    = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  let currentLbName = '';
+
+  function openLightbox(url, name) {
+    lightboxImg.src = url;
+    currentLbName   = name;
+    lightbox.style.display = '';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    lightbox.style.display = 'none';
+    lightboxImg.src = '';
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e) => {
+    if (e.target === lightbox) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && lightbox.style.display !== 'none') closeLightbox();
+  });
+
+  document.getElementById('lightboxDownload').addEventListener('click', () => {
+    downloadSinglePhoto(lightboxImg.src, displayName(currentLbName));
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     SINGLE PHOTO DOWNLOAD
+     ══════════════════════════════════════════════════════════ */
+  async function downloadSinglePhoto(url, filename) {
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href     = blobUrl;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(url, '_blank');
+    }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     COOKIE BANNER
+     ══════════════════════════════════════════════════════════ */
+  (function initCookieBanner() {
+    const consent = localStorage.getItem('rsvp_cookie_consent');
+    if (consent) return;
+
+    const banner = document.getElementById('cookieBanner');
+    banner.style.display = '';
+
+    document.getElementById('cookieAccept').addEventListener('click', () => {
+      localStorage.setItem('rsvp_cookie_consent', 'all');
+      banner.style.display = 'none';
+    });
+
+    document.getElementById('cookieNecessary').addEventListener('click', () => {
+      localStorage.setItem('rsvp_cookie_consent', 'necessary');
+      banner.style.display = 'none';
+    });
+  })();
 </script>
 
 </body>
