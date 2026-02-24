@@ -1802,7 +1802,6 @@
   const SUPABASE_KEY  = 'sb_publishable_qLhhtoZca8lDHgtdGSVNxw_r437hhfp';
   const ADMIN_PW      = 'Alcanada!23AR';
   const FOTO_PW       = 'Fotograf!031126';
-  const LS_KEY        = 'rsvp_admin_settings';
   const BUCKET        = 'hochzeitsfotos';
   const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
@@ -1821,15 +1820,35 @@
   ];
 
   /* ══════════════════════════════════════════════════════════
-     SETTINGS (localStorage)
+     SETTINGS (Supabase: app_einstellungen)
      ══════════════════════════════════════════════════════════ */
-  function loadSettings() {
-    try { return JSON.parse(localStorage.getItem(LS_KEY)) || {}; }
-    catch { return {}; }
+  async function loadSettings() {
+    try {
+      const { data, error } = await db
+        .from('app_einstellungen').select('*').eq('id', 1).single();
+      if (error || !data) return {};
+      return {
+        coupleName: data.brautpaar || '',
+        weddingDate: data.hochzeitsdatum || '',
+        deadline: data.rsvp_deadline || '',
+        disabledQuestions: data.fragen?.disabledQuestions || [],
+        customQuestions: data.fragen?.customQuestions || [],
+      };
+    } catch { return {}; }
   }
 
-  function saveSettingsData(data) {
-    localStorage.setItem(LS_KEY, JSON.stringify(data));
+  async function saveSettingsData(s) {
+    const row = {
+      id: 1,
+      brautpaar: s.coupleName || '',
+      hochzeitsdatum: s.weddingDate || '',
+      rsvp_deadline: s.deadline || '',
+      fragen: {
+        disabledQuestions: s.disabledQuestions || [],
+        customQuestions: s.customQuestions || [],
+      },
+    };
+    await db.from('app_einstellungen').upsert(row);
   }
 
   /* ══════════════════════════════════════════════════════════
@@ -1957,8 +1976,8 @@
   /* ══════════════════════════════════════════════════════════
      TAB 1 – EINSTELLUNGEN
      ══════════════════════════════════════════════════════════ */
-  function initAdminPanel() {
-    const s = loadSettings();
+  async function initAdminPanel() {
+    const s = await loadSettings();
     document.getElementById('settCouple').value   = s.coupleName || '';
     document.getElementById('settDate').value      = s.weddingDate || '';
     document.getElementById('settDeadline').value  = s.deadline || '';
@@ -2007,31 +2026,31 @@
     container.innerHTML = html;
 
     container.querySelectorAll('.btn-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', async () => {
         const idx = parseInt(btn.dataset.removeIdx);
-        const s = loadSettings();
+        const s = await loadSettings();
         s.customQuestions = s.customQuestions || [];
         s.customQuestions.splice(idx, 1);
-        saveSettingsData(s);
+        await saveSettingsData(s);
         renderQuestionsList(s);
       });
     });
   }
 
-  document.getElementById('btnAddQ').addEventListener('click', () => {
+  document.getElementById('btnAddQ').addEventListener('click', async () => {
     const text = document.getElementById('newQText').value.trim();
     const type = document.getElementById('newQType').value;
     if (!text) return;
-    const s = loadSettings();
+    const s = await loadSettings();
     s.customQuestions = s.customQuestions || [];
     s.customQuestions.push({ text, type, active: true });
-    saveSettingsData(s);
+    await saveSettingsData(s);
     renderQuestionsList(s);
     document.getElementById('newQText').value = '';
   });
 
-  document.getElementById('btnSaveSettings').addEventListener('click', () => {
-    const s = loadSettings();
+  document.getElementById('btnSaveSettings').addEventListener('click', async () => {
+    const s = await loadSettings();
     s.coupleName  = document.getElementById('settCouple').value.trim();
     s.weddingDate = document.getElementById('settDate').value.trim();
     s.deadline    = document.getElementById('settDeadline').value.trim();
@@ -2044,7 +2063,7 @@
       const idx = parseInt(cb.dataset.customIdx);
       if (s.customQuestions[idx]) s.customQuestions[idx].active = cb.checked;
     });
-    saveSettingsData(s);
+    await saveSettingsData(s);
     const notice = document.getElementById('saveNotice');
     notice.style.display = 'inline-block';
     setTimeout(() => { notice.style.display = 'none'; }, 2500);
@@ -2122,8 +2141,8 @@
   /* ══════════════════════════════════════════════════════════
      GUEST VIEW – Settings auf Formular anwenden
      ══════════════════════════════════════════════════════════ */
-  function applySettingsToForm() {
-    const s = loadSettings();
+  async function applySettingsToForm() {
+    const s = await loadSettings();
     if (s.coupleName)  document.getElementById('formTitle').textContent = `Hochzeit von ${s.coupleName} – Antwortformular (RSVP)`;
     if (s.deadline)    document.getElementById('formDeadline').textContent = s.deadline;
     if (s.weddingDate) document.getElementById('labelTeilnahme').innerHTML = `Werde ich an der Hochzeit am ${escHtml(s.weddingDate)} teilnehmen? <span class="req">*</span>`;
@@ -2468,7 +2487,7 @@
      PUBLIC GALLERY
      ══════════════════════════════════════════════════════════ */
   async function initGalerie() {
-    const s = loadSettings();
+    const s = await loadSettings();
     if (s.coupleName) {
       document.getElementById('galerieTitle').textContent = `Hochzeitsfotos – ${s.coupleName}`;
     }
