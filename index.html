@@ -1398,6 +1398,293 @@
       .settings-actions { flex-direction: column; align-items: stretch; }
       .settings-actions .btn-submit { width: 100%; text-align: center; }
       .settings-actions .save-notice { text-align: center; }
+
+      /* Countdown & QR */
+      .countdown-bar { flex-direction: column; gap: 8px; }
+      .countdown-item { min-width: unset; padding: 10px 14px; }
+      .countdown-num { font-size: 1.5rem; }
+      .qr-section img { max-width: 160px; }
+
+      /* Einladung */
+      .einladung-hero h1 { font-size: 1.5rem; }
+      .einladung-hero .einladung-date { font-size: 1rem; }
+      .timeline-item { padding-left: 20px; }
+      .timeline-item::before { left: -6px; }
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       QR CODE
+       ══════════════════════════════════════════════════════════ */
+    .qr-section {
+      text-align: center;
+      padding: 16px 0 8px;
+    }
+
+    .qr-section img,
+    .qr-section canvas {
+      max-width: 200px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       COUNTDOWN TIMER
+       ══════════════════════════════════════════════════════════ */
+    .countdown-bar {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .countdown-item {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 14px 18px;
+      text-align: center;
+      min-width: 72px;
+    }
+
+    .countdown-num {
+      display: block;
+      font-size: 2rem;
+      font-weight: 500;
+      color: var(--purple);
+    }
+
+    .countdown-label {
+      font-size: 0.72rem;
+      color: var(--text-sec);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .countdown-past {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      color: var(--purple);
+      font-weight: 500;
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       TIMELINE
+       ══════════════════════════════════════════════════════════ */
+    .timeline-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 24px 28px;
+      margin-bottom: 12px;
+    }
+
+    .timeline-card h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-list {
+      position: relative;
+      padding-left: 28px;
+    }
+
+    .timeline-list::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--purple-light);
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+      padding-left: 8px;
+    }
+
+    .timeline-item:last-child { padding-bottom: 0; }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -26px;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--purple);
+      border: 2px solid var(--white);
+      box-shadow: 0 0 0 2px var(--purple-light);
+    }
+
+    .timeline-zeit {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--purple);
+      margin-bottom: 2px;
+    }
+
+    .timeline-titel {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .timeline-desc {
+      font-size: 0.82rem;
+      color: var(--text-sec);
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       ADMIN TIMELINE EDITOR
+       ══════════════════════════════════════════════════════════ */
+    .timeline-editor-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f3f4;
+      flex-wrap: wrap;
+    }
+
+    .timeline-editor-row:last-child { border-bottom: none; }
+
+    .timeline-editor-row .gf-input { flex: 1; min-width: 100px; }
+    .timeline-editor-row .zeit-input { max-width: 80px; flex: 0 0 80px; }
+
+    /* ══════════════════════════════════════════════════════════
+       DIGITAL INVITATION CARD
+       ══════════════════════════════════════════════════════════ */
+    .einladung-container {
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .einladung-hero {
+      background: var(--white);
+      border-radius: var(--radius);
+      border-top: 10px solid var(--purple);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 40px 28px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .einladung-hero .einladung-overline {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-sec);
+      margin-bottom: 8px;
+    }
+
+    .einladung-hero h1 {
+      font-family: 'Google Sans', 'Roboto', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: 12px;
+    }
+
+    .einladung-hero .einladung-date {
+      font-size: 1.2rem;
+      color: var(--purple);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .einladung-hero .einladung-ort {
+      font-size: 0.9rem;
+      color: var(--text-sec);
+    }
+
+    .einladung-cover {
+      width: 100%;
+      max-height: 400px;
+      object-fit: cover;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      margin-bottom: 12px;
+    }
+
+    .einladung-story {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 28px;
+      margin-bottom: 12px;
+    }
+
+    .einladung-story h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    .einladung-story p {
+      font-size: 0.9rem;
+      color: var(--text-sec);
+      line-height: 1.7;
+    }
+
+    .einladung-cta {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .einladung-cta .btn-submit {
+      padding: 14px 40px;
+      font-size: 1rem;
+    }
+
+    .einladung-menu-preview {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+      padding: 24px 28px;
+      margin-bottom: 12px;
+    }
+
+    .einladung-menu-preview h3 {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .einladung-menu-preview .menu-item {
+      padding: 8px 0;
+      font-size: 0.9rem;
+      color: var(--text-sec);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .einladung-menu-preview .menu-item::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--purple-light);
+      border: 2px solid var(--purple);
+      flex-shrink: 0;
     }
   </style>
 </head>
@@ -1500,6 +1787,22 @@
       </div>
       <p style="font-size:0.75rem;color:var(--text-sec);margin-top:8px;">Alternativ koennen Gaeste diesen Code auf der Startseite eingeben.</p>
     </div>
+    <div class="question-card">
+      <p class="q-label">QR-Code fuer Einladungskarten</p>
+      <div class="qr-section" id="dashQrCode"></div>
+      <div style="text-align:center;margin-top:8px;">
+        <button class="btn-outline btn-small" id="btnDownloadQr">QR-Code herunterladen</button>
+      </div>
+      <p style="font-size:0.75rem;color:var(--text-sec);margin-top:8px;text-align:center;">Drucken Sie diesen QR-Code auf Ihre Einladungskarten. Gaeste scannen ihn und gelangen direkt zum RSVP-Formular.</p>
+    </div>
+    <div class="question-card">
+      <p class="q-label">Digitale Einladungskarte</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" class="gf-input" id="dashEinladungLink" readonly style="flex:1;min-width:200px;font-size:0.85rem;cursor:pointer;color:var(--purple);" />
+        <button class="btn-outline btn-small" id="btnCopyEinladung">Link kopieren</button>
+      </div>
+      <p style="font-size:0.75rem;color:var(--text-sec);margin-top:8px;">Teilen Sie die digitale Einladungskarte als Link. Inhalte koennen Sie unter Einstellungen &rarr; Texte anpassen.</p>
+    </div>
     <div class="summary-bar" id="dashSummary"></div>
     <div class="dash-actions">
       <a class="btn-submit" id="dashAdminLink" href="?admin">Einstellungen &amp; Antworten verwalten</a>
@@ -1596,6 +1899,49 @@
       <p class="q-label">Galerie-Beschreibung</p>
       <textarea class="gf-input" id="txtGalerieDesc" rows="2" style="resize:vertical;border:1px solid var(--border);border-radius:4px;padding:10px;" placeholder="Hier finden Sie alle Fotos unserer Hochzeit."></textarea>
     </div>
+
+    <div class="question-card">
+      <p class="q-label" style="font-weight:500;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;">Digitale Einladungskarte</p>
+      <p class="q-label">Unsere Geschichte (About-Text)</p>
+      <textarea class="gf-input" id="txtEinladungStory" rows="3" style="resize:vertical;border:1px solid var(--border);border-radius:4px;padding:10px;" placeholder="Wir haben uns 2018 kennengelernt..."></textarea>
+      <p style="font-size:0.75rem;color:var(--text-sec);margin-top:6px;">Wird auf der digitalen Einladungskarte angezeigt.</p>
+      <div style="margin-top:14px;">
+        <p class="q-label">Ort der Hochzeit</p>
+        <input type="text" class="gf-input" id="txtEinladungOrt" placeholder="z. B. Schloss Hohenkammer" />
+      </div>
+      <div style="margin-top:14px;">
+        <p class="q-label">Adresse</p>
+        <input type="text" class="gf-input" id="txtEinladungAdresse" placeholder="z. B. Schlossstr. 1, 85411 Hohenkammer" />
+      </div>
+      <div style="margin-top:14px;">
+        <p class="q-label">Coverbild-URL (optional)</p>
+        <input type="text" class="gf-input" id="txtEinladungCover" placeholder="https://example.com/bild.jpg" />
+        <p style="font-size:0.75rem;color:var(--text-sec);margin-top:6px;">Link zu einem Bild, das oben auf der Einladungskarte angezeigt wird.</p>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <p class="q-label" style="font-weight:500;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;">Tagesablauf / Timeline</p>
+      <p style="font-size:0.78rem;color:var(--text-sec);margin-bottom:10px;">Wird auf der Einladungskarte und im Gast-Formular angezeigt.</p>
+      <div id="timelineEditor"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap;align-items:flex-end;">
+        <input type="text" class="gf-input zeit-input" id="newTlZeit" placeholder="14:00" style="max-width:80px;" />
+        <input type="text" class="gf-input" id="newTlTitel" placeholder="Titel (z. B. Trauung)" style="flex:1;min-width:100px;" />
+        <input type="text" class="gf-input" id="newTlBeschr" placeholder="Beschreibung (optional)" style="flex:1;min-width:100px;" />
+        <button class="btn-submit btn-small" id="btnAddTl">Hinzufuegen</button>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <p class="q-label" style="font-weight:500;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;">Menue-Optionen</p>
+      <p style="font-size:0.78rem;color:var(--text-sec);margin-bottom:10px;">Gaeste koennen beim RSVP ihr Menue waehlen. Leer lassen = keine Menuewahl im Formular.</p>
+      <div id="menuEditor"></div>
+      <div style="display:flex;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);align-items:flex-end;">
+        <input type="text" class="gf-input" id="newMenuOption" placeholder="z. B. Rinderfilet mit Rosmarin" style="flex:1;" />
+        <button class="btn-submit btn-small" id="btnAddMenu">Hinzufuegen</button>
+      </div>
+    </div>
+
     <div class="settings-actions">
       <button class="btn-submit" id="btnSaveTexte">Texte speichern</button>
       <span id="saveTexteNotice" class="save-notice" style="display:none">✓ Gespeichert!</span>
@@ -1626,11 +1972,11 @@
         <thead>
           <tr>
             <th>Name</th><th>Teilnahme</th><th>Personen</th><th>Zeremonie</th>
-            <th>Abendfeier</th><th>Ernährung</th><th>Liedwunsch</th><th>Vorfreude</th><th>Datum</th>
+            <th>Abendfeier</th><th>Menue</th><th>Ernaehrung</th><th>Liedwunsch</th><th>Vorfreude</th><th>Datum</th>
           </tr>
         </thead>
         <tbody id="answersBody">
-          <tr><td colspan="9" class="loading-text">Daten werden geladen…</td></tr>
+          <tr><td colspan="10" class="loading-text">Daten werden geladen…</td></tr>
         </tbody>
       </table>
     </div>
@@ -1885,9 +2231,52 @@
 </div>
 
 <!-- ══════════════════════════════════════════════════════════════
+     DIGITAL INVITATION CARD
+     ══════════════════════════════════════════════════════════════ -->
+<div id="einladungView" class="einladung-container" style="display:none">
+  <img id="einladungCover" class="einladung-cover" style="display:none" alt="" />
+
+  <div class="einladung-hero">
+    <p class="einladung-overline">Herzliche Einladung zur Hochzeit von</p>
+    <h1 id="einladungName">Brautpaar</h1>
+    <p class="einladung-date" id="einladungDate"></p>
+    <p class="einladung-ort" id="einladungOrt"></p>
+  </div>
+
+  <div id="einladungCountdown"></div>
+
+  <div id="einladungStorySection" class="einladung-story" style="display:none">
+    <h3>Unsere Geschichte</h3>
+    <p id="einladungStoryText"></p>
+  </div>
+
+  <div id="einladungTimeline" class="timeline-card" style="display:none">
+    <h3>Tagesablauf</h3>
+    <div class="timeline-list" id="einladungTimelineList"></div>
+  </div>
+
+  <div id="einladungMenuSection" class="einladung-menu-preview" style="display:none">
+    <h3>Menue</h3>
+    <div id="einladungMenuList"></div>
+  </div>
+
+  <div class="einladung-cta">
+    <button class="btn-submit" id="einladungRsvpBtn">Jetzt zusagen</button>
+  </div>
+
+  <div class="legal-footer">
+    <a href="?datenschutz">Datenschutz</a>
+    <span class="sep">|</span>
+    <a href="?impressum">Impressum</a>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
      GUEST VIEW (Formular)
      ══════════════════════════════════════════════════════════════ -->
 <div id="guestView" class="form-container" style="display:none">
+
+  <div id="guestCountdown"></div>
 
   <div class="header-card">
     <h1 id="formTitle">Hochzeit von [Name des Brautpaares] – Antwortformular (RSVP)</h1>
@@ -1975,6 +2364,17 @@
       <p class="validation-msg">Bitte wählen Sie einen Wert.</p>
     </div>
 
+    <div class="question-card question-hidden" id="q-menuwahl" data-qid="menuwahl">
+      <p class="q-label">Menuewahl <span class="req">*</span></p>
+      <div class="radio-group" id="menuwahlOptions"></div>
+      <p class="validation-msg">Bitte waehlen Sie ein Menue.</p>
+    </div>
+
+    <div id="guestTimeline" class="timeline-card" style="display:none">
+      <h3>Tagesablauf</h3>
+      <div class="timeline-list" id="guestTimelineList"></div>
+    </div>
+
     <div id="customQuestionsContainer"></div>
 
     <!-- Einwilligung Datenschutz -->
@@ -2029,6 +2429,7 @@
 <!-- ── Libraries ────────────────────────────────────────── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 
 <script>
   /* ══════════════════════════════════════════════════════════
@@ -2104,7 +2505,7 @@
   const ALL_VIEWS = [
     'landingView','coupleLoginView','dashboardView',
     'adminPanel','fotoLogin','fotoPanel','galerieView',
-    'datenschutzView','impressumView','guestView'
+    'datenschutzView','impressumView','guestView','einladungView'
   ];
 
   function showView(activeId) {
@@ -2156,6 +2557,10 @@
     } else if (p.has('admin')) {
       if (session) { showView('adminPanel'); initAdminPanel(); }
       else window.location.search = 'login';
+    } else if (p.get('einladung')) {
+      await loadWeddingByCode(p.get('einladung'));
+      if (currentWedding) { showView('einladungView'); initEinladung(); }
+      else showView('landingView');
     } else if (p.get('galerie')) {
       await loadWeddingByCode(p.get('galerie'));
       if (currentWedding) { showView('galerieView'); initGalerie(); }
@@ -2267,11 +2672,14 @@
     document.getElementById('existingWeddingSection').style.display = wedding ? '' : 'none';
     if (wedding) {
       const directLink = window.location.origin + window.location.pathname + '?code=' + wedding.gastcode;
+      const einladungLink = window.location.origin + window.location.pathname + '?einladung=' + wedding.gastcode;
       document.getElementById('dashDirectLink').value = directLink;
+      document.getElementById('dashEinladungLink').value = einladungLink;
       document.getElementById('dashGastcode').textContent = wedding.gastcode;
       document.getElementById('dashAdminLink').href = '?admin';
       document.getElementById('dashGalerieLink').href = '?galerie=' + wedding.gastcode;
       document.getElementById('dashTestLink').href = '?code=' + wedding.gastcode;
+      generateQrCode(directLink);
       const { count } = await db.from('rsvp_antworten')
         .select('*', { count: 'exact', head: true })
         .eq('hochzeit_id', wedding.id);
@@ -2323,10 +2731,147 @@
     });
   });
 
+  document.getElementById('btnCopyEinladung').addEventListener('click', () => {
+    const link = document.getElementById('dashEinladungLink').value;
+    navigator.clipboard.writeText(link).then(() => {
+      const btn = document.getElementById('btnCopyEinladung');
+      btn.textContent = 'Kopiert!';
+      setTimeout(() => { btn.textContent = 'Link kopieren'; }, 2000);
+    });
+  });
+
+  document.getElementById('dashEinladungLink').addEventListener('click', function() {
+    this.select();
+    navigator.clipboard.writeText(this.value);
+  });
+
+  document.getElementById('btnDownloadQr').addEventListener('click', () => {
+    const img = document.querySelector('#dashQrCode img');
+    if (!img) return;
+    const a = document.createElement('a');
+    a.href = img.src;
+    a.download = 'qr-code-einladung.png';
+    a.click();
+  });
+
   document.getElementById('btnLogout').addEventListener('click', async () => {
     await db.auth.signOut();
     window.location.search = '';
   });
+
+  /* ══════════════════════════════════════════════════════════
+     QR CODE GENERATION
+     ══════════════════════════════════════════════════════════ */
+  function generateQrCode(url) {
+    const container = document.getElementById('dashQrCode');
+    if (!container || typeof qrcode === 'undefined') return;
+    container.innerHTML = '';
+    const qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    const imgTag = qr.createImgTag(5, 8);
+    container.innerHTML = imgTag;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     COUNTDOWN TIMER
+     ══════════════════════════════════════════════════════════ */
+  function parseGermanDate(str) {
+    if (!str) return null;
+    const parts = str.match(/(\d{1,2})\.(\d{1,2})\.(\d{4})/);
+    if (!parts) return null;
+    return new Date(parseInt(parts[3]), parseInt(parts[2]) - 1, parseInt(parts[1]));
+  }
+
+  function renderCountdown(containerId, dateStr) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const target = parseGermanDate(dateStr);
+    if (!target) { container.innerHTML = ''; return; }
+
+    function update() {
+      const now = new Date();
+      const diff = target.getTime() - now.getTime();
+      if (diff <= 0) {
+        container.innerHTML = '<div class="countdown-past">Der grosse Tag ist da!</div>';
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+      container.innerHTML =
+        '<div class="countdown-bar">' +
+          '<div class="countdown-item"><span class="countdown-num">' + days + '</span><span class="countdown-label">Tage</span></div>' +
+          '<div class="countdown-item"><span class="countdown-num">' + hours + '</span><span class="countdown-label">Stunden</span></div>' +
+          '<div class="countdown-item"><span class="countdown-num">' + mins + '</span><span class="countdown-label">Minuten</span></div>' +
+          '<div class="countdown-item"><span class="countdown-num">' + secs + '</span><span class="countdown-label">Sekunden</span></div>' +
+        '</div>';
+    }
+    update();
+    setInterval(update, 1000);
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     TIMELINE RENDERING (guest & einladung)
+     ══════════════════════════════════════════════════════════ */
+  function renderTimelineList(containerId, items) {
+    const el = document.getElementById(containerId);
+    if (!el || !items || !items.length) return;
+    el.innerHTML = items.map(function(item) {
+      return '<div class="timeline-item">' +
+        '<div class="timeline-zeit">' + escHtml(item.zeit || '') + '</div>' +
+        '<div class="timeline-titel">' + escHtml(item.titel || '') + '</div>' +
+        (item.beschreibung ? '<div class="timeline-desc">' + escHtml(item.beschreibung) + '</div>' : '') +
+      '</div>';
+    }).join('');
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     DIGITAL INVITATION CARD
+     ══════════════════════════════════════════════════════════ */
+  function initEinladung() {
+    if (!currentWedding) return;
+    const w = currentWedding;
+    const t = w.texte || {};
+
+    document.getElementById('einladungName').textContent = w.brautpaar_name || 'Brautpaar';
+    document.getElementById('einladungDate').textContent = w.hochzeitsdatum || '';
+
+    const ortParts = [];
+    if (t.einladungOrt) ortParts.push(t.einladungOrt);
+    if (t.einladungAdresse) ortParts.push(t.einladungAdresse);
+    document.getElementById('einladungOrt').textContent = ortParts.join(' – ');
+
+    if (t.einladungCover) {
+      const cover = document.getElementById('einladungCover');
+      cover.src = t.einladungCover;
+      cover.style.display = '';
+    }
+
+    if (t.einladungStory) {
+      document.getElementById('einladungStorySection').style.display = '';
+      document.getElementById('einladungStoryText').innerHTML = escHtml(t.einladungStory).replace(/\n/g, '<br>');
+    }
+
+    if (t.tagesablauf && t.tagesablauf.length) {
+      document.getElementById('einladungTimeline').style.display = '';
+      renderTimelineList('einladungTimelineList', t.tagesablauf);
+    }
+
+    if (t.menuoptionen && t.menuoptionen.length) {
+      document.getElementById('einladungMenuSection').style.display = '';
+      document.getElementById('einladungMenuList').innerHTML = t.menuoptionen.map(function(m) {
+        return '<div class="menu-item">' + escHtml(m) + '</div>';
+      }).join('');
+    }
+
+    renderCountdown('einladungCountdown', w.hochzeitsdatum);
+
+    document.getElementById('einladungRsvpBtn').addEventListener('click', function() {
+      window.location.search = 'code=' + w.gastcode;
+    });
+  }
 
   /* ══════════════════════════════════════════════════════════
      PHOTOGRAPHER LOGIN
@@ -2490,10 +3035,106 @@
     document.getElementById('txtSuccessDesc').value   = t.successDesc || '';
     document.getElementById('txtGalerieTitle').value  = t.galerieTitle || '';
     document.getElementById('txtGalerieDesc').value   = t.galerieDesc || '';
+    document.getElementById('txtEinladungStory').value = t.einladungStory || '';
+    document.getElementById('txtEinladungOrt').value   = t.einladungOrt || '';
+    document.getElementById('txtEinladungAdresse').value = t.einladungAdresse || '';
+    document.getElementById('txtEinladungCover').value = t.einladungCover || '';
+    renderTimelineEditor(t.tagesablauf || []);
+    renderMenuEditor(t.menuoptionen || []);
   }
+
+  /* Timeline Editor */
+  function renderTimelineEditor(items) {
+    const container = document.getElementById('timelineEditor');
+    if (!items.length) { container.innerHTML = '<p style="font-size:0.82rem;color:var(--text-sec);">Noch keine Eintraege.</p>'; return; }
+    container.innerHTML = items.map(function(item, i) {
+      return '<div class="timeline-editor-row">' +
+        '<input type="text" class="gf-input zeit-input" data-tl-zeit="' + i + '" value="' + escHtml(item.zeit || '') + '" style="max-width:80px;" />' +
+        '<input type="text" class="gf-input" data-tl-titel="' + i + '" value="' + escHtml(item.titel || '') + '" placeholder="Titel" />' +
+        '<input type="text" class="gf-input" data-tl-beschr="' + i + '" value="' + escHtml(item.beschreibung || '') + '" placeholder="Beschreibung" />' +
+        '<button type="button" class="btn-remove" data-tl-remove="' + i + '" title="Entfernen">&#10005;</button>' +
+      '</div>';
+    }).join('');
+    container.querySelectorAll('[data-tl-remove]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const t = currentWedding.texte || {};
+        const arr = t.tagesablauf || [];
+        arr.splice(parseInt(btn.dataset.tlRemove), 1);
+        currentWedding.texte = { ...t, tagesablauf: arr };
+        renderTimelineEditor(arr);
+      });
+    });
+  }
+
+  document.getElementById('btnAddTl').addEventListener('click', function() {
+    const zeit = document.getElementById('newTlZeit').value.trim();
+    const titel = document.getElementById('newTlTitel').value.trim();
+    const beschr = document.getElementById('newTlBeschr').value.trim();
+    if (!titel) return;
+    const t = currentWedding.texte || {};
+    const arr = t.tagesablauf || [];
+    arr.push({ zeit: zeit, titel: titel, beschreibung: beschr });
+    currentWedding.texte = { ...t, tagesablauf: arr };
+    renderTimelineEditor(arr);
+    document.getElementById('newTlZeit').value = '';
+    document.getElementById('newTlTitel').value = '';
+    document.getElementById('newTlBeschr').value = '';
+  });
+
+  /* Menu Editor */
+  function renderMenuEditor(items) {
+    const container = document.getElementById('menuEditor');
+    if (!items.length) { container.innerHTML = '<p style="font-size:0.82rem;color:var(--text-sec);">Keine Menue-Optionen (Menuewahl deaktiviert).</p>'; return; }
+    container.innerHTML = items.map(function(item, i) {
+      return '<div class="timeline-editor-row">' +
+        '<input type="text" class="gf-input" data-menu-val="' + i + '" value="' + escHtml(item) + '" />' +
+        '<button type="button" class="btn-remove" data-menu-remove="' + i + '" title="Entfernen">&#10005;</button>' +
+      '</div>';
+    }).join('');
+    container.querySelectorAll('[data-menu-remove]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const t = currentWedding.texte || {};
+        const arr = t.menuoptionen || [];
+        arr.splice(parseInt(btn.dataset.menuRemove), 1);
+        currentWedding.texte = { ...t, menuoptionen: arr };
+        renderMenuEditor(arr);
+      });
+    });
+  }
+
+  document.getElementById('btnAddMenu').addEventListener('click', function() {
+    const val = document.getElementById('newMenuOption').value.trim();
+    if (!val) return;
+    const t = currentWedding.texte || {};
+    const arr = t.menuoptionen || [];
+    arr.push(val);
+    currentWedding.texte = { ...t, menuoptionen: arr };
+    renderMenuEditor(arr);
+    document.getElementById('newMenuOption').value = '';
+  });
 
   document.getElementById('btnSaveTexte').addEventListener('click', async () => {
     if (!currentWedding) return;
+    /* Collect timeline editor values */
+    const tagesablauf = currentWedding.texte?.tagesablauf || [];
+    document.querySelectorAll('[data-tl-zeit]').forEach(function(input) {
+      const i = parseInt(input.dataset.tlZeit);
+      if (tagesablauf[i]) tagesablauf[i].zeit = input.value.trim();
+    });
+    document.querySelectorAll('[data-tl-titel]').forEach(function(input) {
+      const i = parseInt(input.dataset.tlTitel);
+      if (tagesablauf[i]) tagesablauf[i].titel = input.value.trim();
+    });
+    document.querySelectorAll('[data-tl-beschr]').forEach(function(input) {
+      const i = parseInt(input.dataset.tlBeschr);
+      if (tagesablauf[i]) tagesablauf[i].beschreibung = input.value.trim();
+    });
+    /* Collect menu editor values */
+    const menuoptionen = currentWedding.texte?.menuoptionen || [];
+    document.querySelectorAll('[data-menu-val]').forEach(function(input) {
+      const i = parseInt(input.dataset.menuVal);
+      if (i < menuoptionen.length) menuoptionen[i] = input.value.trim();
+    });
     const texte = {
       formTitle:     document.getElementById('txtFormTitle').value.trim(),
       formDesc:      document.getElementById('txtFormDesc').value.trim(),
@@ -2501,6 +3142,12 @@
       successDesc:   document.getElementById('txtSuccessDesc').value.trim(),
       galerieTitle:  document.getElementById('txtGalerieTitle').value.trim(),
       galerieDesc:   document.getElementById('txtGalerieDesc').value.trim(),
+      einladungStory:   document.getElementById('txtEinladungStory').value.trim(),
+      einladungOrt:     document.getElementById('txtEinladungOrt').value.trim(),
+      einladungAdresse: document.getElementById('txtEinladungAdresse').value.trim(),
+      einladungCover:   document.getElementById('txtEinladungCover').value.trim(),
+      tagesablauf:  tagesablauf.filter(function(item) { return item.titel; }),
+      menuoptionen: menuoptionen.filter(function(item) { return item; }),
     };
     await db.from('hochzeiten').update({ texte }).eq('id', currentWedding.id);
     currentWedding.texte = texte;
@@ -2517,13 +3164,13 @@
   async function loadAnswers() {
     if (!currentWedding) return;
     const tbody = document.getElementById('answersBody');
-    tbody.innerHTML = '<tr><td colspan="9" class="loading-text">Daten werden geladen...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" class="loading-text">Daten werden geladen...</td></tr>';
     const { data, error } = await db
       .from('rsvp_antworten').select('*')
       .eq('hochzeit_id', currentWedding.id)
       .order('created_at', { ascending: false });
     if (error) {
-      tbody.innerHTML = '<tr><td colspan="9" class="no-data">Fehler: ' + escHtml(error.message) + '</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="no-data">Fehler: ' + escHtml(error.message) + '</td></tr>';
       return;
     }
     answersData = data || [];
@@ -2534,7 +3181,7 @@
   function renderAnswers() {
     const tbody = document.getElementById('answersBody');
     if (!answersData.length) {
-      tbody.innerHTML = '<tr><td colspan="9" class="no-data">Noch keine Antworten vorhanden.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="10" class="no-data">Noch keine Antworten vorhanden.</td></tr>';
       return;
     }
     tbody.innerHTML = answersData.map(r => {
@@ -2542,7 +3189,7 @@
       const badge = isJa ? '<span class="badge-ja">Zusage</span>' : '<span class="badge-nein">Absage</span>';
       return '<tr><td>' + escHtml(r.name || '–') + '</td><td>' + badge + '</td><td>' + (r.anzahl_personen ?? '–') + '</td>' +
         '<td>' + escHtml(r.zeremonie || '–') + '</td><td>' + escHtml(r.abendfeier || '–') + '</td>' +
-        '<td>' + escHtml(r.ernaehrung || '–') + '</td><td>' + escHtml(r.liedwunsch || '–') + '</td>' +
+        '<td>' + escHtml(r.menuwahl || '–') + '</td><td>' + escHtml(r.ernaehrung || '–') + '</td><td>' + escHtml(r.liedwunsch || '–') + '</td>' +
         '<td>' + (r.vorfreude ?? '–') + '</td><td>' + fmtDate(r.created_at) + '</td></tr>';
     }).join('');
   }
@@ -2563,10 +3210,10 @@
 
   document.getElementById('btnCSV').addEventListener('click', () => {
     if (!answersData.length) return alert('Keine Daten vorhanden.');
-    const headers = ['Name','Teilnahme','Personen','Zeremonie','Abendfeier','Ernaehrung','Liedwunsch','Vorfreude','Datum'];
+    const headers = ['Name','Teilnahme','Personen','Zeremonie','Abendfeier','Menue','Ernaehrung','Liedwunsch','Vorfreude','Datum'];
     const rows = answersData.map(r => [
       r.name || '', r.teilnahme || '', r.anzahl_personen ?? '', r.zeremonie || '',
-      r.abendfeier || '', r.ernaehrung || '', r.liedwunsch || '', r.vorfreude ?? '',
+      r.abendfeier || '', r.menuwahl || '', r.ernaehrung || '', r.liedwunsch || '', r.vorfreude ?? '',
       r.created_at ? new Date(r.created_at).toLocaleDateString('de-DE') : ''
     ].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(';'));
     const csv = '\uFEFF' + headers.join(';') + '\n' + rows.join('\n');
@@ -2612,6 +3259,25 @@
       const el = document.querySelector('[data-qid="' + qid + '"]');
       if (el) el.classList.add('question-hidden');
     });
+
+    /* Countdown */
+    renderCountdown('guestCountdown', w.hochzeitsdatum);
+
+    /* Timeline */
+    if (t.tagesablauf && t.tagesablauf.length) {
+      document.getElementById('guestTimeline').style.display = '';
+      renderTimelineList('guestTimelineList', t.tagesablauf);
+    }
+
+    /* Menu selection */
+    if (t.menuoptionen && t.menuoptionen.length) {
+      const menuCard = document.getElementById('q-menuwahl');
+      menuCard.classList.remove('question-hidden');
+      const menuGroup = document.getElementById('menuwahlOptions');
+      menuGroup.innerHTML = t.menuoptionen.map(function(opt, i) {
+        return '<label class="radio-option"><input type="radio" name="menuwahl" value="' + escHtml(opt) + '"' + (i === 0 ? '' : '') + ' /><span>' + escHtml(opt) + '</span></label>';
+      }).join('');
+    }
 
     const custom = (w.fragen?.customQuestions || []).filter(q => q.active !== false);
     const container = document.getElementById('customQuestionsContainer');
@@ -2665,6 +3331,7 @@
     if (isVisible('zeremonie') && !getRadio('zeremonie'))   { markInvalid('q-zeremonie');  ok = false; firstBad = firstBad || 'q-zeremonie'; }
     if (isVisible('abendfeier') && !getRadio('abendfeier')) { markInvalid('q-abendfeier'); ok = false; firstBad = firstBad || 'q-abendfeier'; }
     if (isVisible('vorfreude') && !getRadio('vorfreude'))   { markInvalid('q-vorfreude');  ok = false; firstBad = firstBad || 'q-vorfreude'; }
+    if (isVisible('menuwahl') && !getRadio('menuwahl'))    { markInvalid('q-menuwahl');   ok = false; firstBad = firstBad || 'q-menuwahl'; }
     if (!document.getElementById('consentCheck').checked) {
       document.getElementById('q-consent').classList.add('invalid');
       ok = false; firstBad = firstBad || 'q-consent';
@@ -2691,6 +3358,7 @@
     if (isVisible('ernaehrung')) row.ernaehrung      = getVal('ernaehrung') || null;
     if (isVisible('lied'))       row.liedwunsch      = getVal('liedwunsch') || null;
     if (isVisible('vorfreude'))  row.vorfreude       = parseInt(getRadio('vorfreude'), 10);
+    if (isVisible('menuwahl'))   row.menuwahl        = getRadio('menuwahl');
 
     const { error } = await db.from('rsvp_antworten').insert([row]);
     if (error) {
