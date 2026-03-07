@@ -1485,12 +1485,20 @@
   <!-- Existing wedding summary -->
   <div id="existingWeddingSection" style="display:none">
     <div class="question-card">
-      <p class="q-label">Einladungscode fuer Ihre Gaeste</p>
+      <p class="q-label">Direktlink fuer Ihre Gaeste</p>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" class="gf-input" id="dashDirectLink" readonly style="flex:1;min-width:200px;font-size:0.85rem;cursor:pointer;color:var(--purple);" />
+        <button class="btn-outline btn-small" id="btnCopyLink">Link kopieren</button>
+      </div>
+      <p style="font-size:0.75rem;color:var(--text-sec);margin-top:8px;">Teilen Sie diesen Link per WhatsApp, E-Mail oder Einladungskarte. Ihre Gaeste gelangen damit direkt zum RSVP-Formular.</p>
+    </div>
+    <div class="question-card">
+      <p class="q-label">Einladungscode</p>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <code class="gastcode-display" id="dashGastcode"></code>
-        <button class="btn-outline btn-small" id="btnCopyCode">Kopieren</button>
+        <button class="btn-outline btn-small" id="btnCopyCode">Code kopieren</button>
       </div>
-      <p style="font-size:0.75rem;color:var(--text-sec);margin-top:8px;">Teilen Sie diesen Code mit Ihren Gaesten.</p>
+      <p style="font-size:0.75rem;color:var(--text-sec);margin-top:8px;">Alternativ koennen Gaeste diesen Code auf der Startseite eingeben.</p>
     </div>
     <div class="summary-bar" id="dashSummary"></div>
     <div class="dash-actions">
@@ -2258,6 +2266,8 @@
     document.getElementById('createWeddingSection').style.display = wedding ? 'none' : '';
     document.getElementById('existingWeddingSection').style.display = wedding ? '' : 'none';
     if (wedding) {
+      const directLink = window.location.origin + window.location.pathname + '?code=' + wedding.gastcode;
+      document.getElementById('dashDirectLink').value = directLink;
       document.getElementById('dashGastcode').textContent = wedding.gastcode;
       document.getElementById('dashAdminLink').href = '?admin';
       document.getElementById('dashGalerieLink').href = '?galerie=' + wedding.gastcode;
@@ -2290,12 +2300,26 @@
     initDashboard();
   });
 
+  document.getElementById('btnCopyLink').addEventListener('click', () => {
+    const link = document.getElementById('dashDirectLink').value;
+    navigator.clipboard.writeText(link).then(() => {
+      const btn = document.getElementById('btnCopyLink');
+      btn.textContent = 'Kopiert!';
+      setTimeout(() => { btn.textContent = 'Link kopieren'; }, 2000);
+    });
+  });
+
+  document.getElementById('dashDirectLink').addEventListener('click', function() {
+    this.select();
+    navigator.clipboard.writeText(this.value);
+  });
+
   document.getElementById('btnCopyCode').addEventListener('click', () => {
     const code = document.getElementById('dashGastcode').textContent;
     navigator.clipboard.writeText(code).then(() => {
       const btn = document.getElementById('btnCopyCode');
       btn.textContent = 'Kopiert!';
-      setTimeout(() => { btn.textContent = 'Kopieren'; }, 2000);
+      setTimeout(() => { btn.textContent = 'Code kopieren'; }, 2000);
     });
   });
 
