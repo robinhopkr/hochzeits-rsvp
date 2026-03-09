@@ -246,6 +246,48 @@ function buildContentOverlayRow(row: WeddingContentRow | null): ConfigOverlayRow
   }
 }
 
+function buildLegacyOverlayRow(row: LegacyWeddingRow | null): ConfigOverlayRow | null {
+  if (!row) {
+    return null
+  }
+
+  return {
+    brautpaar: row.brautpaar_name,
+    hochzeitsdatum: row.hochzeitsdatum,
+    rsvp_deadline: row.rsvp_deadline,
+    fragen: row.fragen,
+    texte: row.texte,
+  }
+}
+
+function mergeOverlayRows(
+  primary: ConfigOverlayRow | null,
+  fallback: ConfigOverlayRow | null,
+): ConfigOverlayRow | null {
+  if (!primary && !fallback) {
+    return null
+  }
+
+  const primaryTexts = parseSettingsTexts(primary)
+  const fallbackTexts = parseSettingsTexts(fallback)
+  const primaryQuestions = parseSettingsQuestions(primary)
+  const fallbackQuestions = parseSettingsQuestions(fallback)
+
+  return {
+    brautpaar: primary?.brautpaar ?? fallback?.brautpaar ?? null,
+    hochzeitsdatum: primary?.hochzeitsdatum ?? fallback?.hochzeitsdatum ?? null,
+    rsvp_deadline: primary?.rsvp_deadline ?? fallback?.rsvp_deadline ?? null,
+    fragen:
+      Object.keys({ ...fallbackQuestions, ...primaryQuestions }).length > 0
+        ? { ...fallbackQuestions, ...primaryQuestions }
+        : null,
+    texte:
+      Object.keys({ ...fallbackTexts, ...primaryTexts }).length > 0
+        ? { ...fallbackTexts, ...primaryTexts }
+        : null,
+  }
+}
+
 function buildWeddingContentPayload(
   configId: string,
   input: {
@@ -624,8 +666,13 @@ async function getConfigOverlayRow(
     }
   }
 
-  if (config.source === 'legacy') {
-    return getCompatibilityAppSettingsRow(supabase, config)
+  if (config.source === 'legacy' && config.sourceId) {
+    const [legacyRow, compatibilityRow] = await Promise.all([
+      getLegacyWeddingRowById(supabase, config.sourceId),
+      getCompatibilityAppSettingsRow(supabase, config),
+    ])
+
+    return mergeOverlayRows(buildLegacyOverlayRow(legacyRow), compatibilityRow)
   }
 
   return getCompatibilityAppSettingsRow(supabase, config)
