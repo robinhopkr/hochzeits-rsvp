@@ -8,7 +8,7 @@ Diese Pipeline stellt Mobile-Builds online ueber GitHub Actions und GitHub Relea
 
 ## Was sofort funktioniert
 
-- Android: Debug-APK als GitHub-Artifact und bei Tags auch als Release-Download
+- Android: signiertes Release-APK und Release-AAB als GitHub-Artifact und bei Tags auch als Release-Download
 - iOS: Signiertes IPA als GitHub-Artifact und bei Tags auch als Release-Download, sobald Apple-Signing-Secrets gesetzt sind
 
 ## GitHub Workflows
@@ -18,11 +18,7 @@ Diese Pipeline stellt Mobile-Builds online ueber GitHub Actions und GitHub Relea
 
 ## Android
 
-### Ohne weitere Secrets
-
-Der Android-Workflow baut immer ein installierbares Debug-APK. Das ist fuer interne Tests und direkte Downloads geeignet.
-
-### Optional fuer signierte Release-Builds
+### Erforderliche Secrets fuer signierte Release-Builds
 
 Lege diese GitHub Secrets an:
 
@@ -31,10 +27,16 @@ Lege diese GitHub Secrets an:
 - `ANDROID_KEY_ALIAS`
 - `ANDROID_KEY_PASSWORD`
 
-Dann erzeugt der Workflow zusaetzlich:
+Dann erzeugt der Workflow:
 
 - signiertes Release-APK
 - signiertes Release-AAB
+
+### Wichtige Aenderung
+
+- GitHub Releases enthalten nur noch signierte Release-Dateien.
+- Oeffentliche Debug-APKs werden nicht mehr als Release-Download veroeffentlicht.
+- Fuer lokale Schnelltests kannst du Debug-Builds weiterhin direkt ueber Gradle oder Android Studio erzeugen.
 
 ## iOS
 

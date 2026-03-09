@@ -37,6 +37,11 @@ export const ENV = {
   adminEmail: process.env.ADMIN_EMAIL ?? null,
 } as const
 
+export const APP_BRAND_NAME = 'myWed by NiiRo AI'
+export const APP_SHORT_NAME = 'myWed'
+export const APP_DESCRIPTION =
+  'Die Hochzeits-App für stilvolle Einladungen, klare Rückmeldungen und eine Fotogalerie an einem Ort.'
+
 export const DEMO_NAV_ITEMS = [
   { href: '#programm', label: 'Programm' },
   { href: '#anfahrt', label: 'Anfahrt' },

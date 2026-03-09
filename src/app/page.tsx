@@ -6,13 +6,13 @@ import { FeatureGridSection } from '@/components/sections/FeatureGridSection'
 import { HowItWorksSection } from '@/components/sections/HowItWorksSection'
 import { ProductCtaSection } from '@/components/sections/ProductCtaSection'
 import { ProductHeroSection } from '@/components/sections/ProductHeroSection'
-import { MARKETING_NAV_ITEMS } from '@/lib/constants'
+import { APP_BRAND_NAME, MARKETING_NAV_ITEMS } from '@/lib/constants'
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-cream-50">
       <Header
-        brandLabel="NiiRo Hochzeits-RSVP"
+        brandLabel={APP_BRAND_NAME}
         navItems={MARKETING_NAV_ITEMS}
         ctaHref="/admin/login"
         ctaLabel="Login für Brautpaare"
@@ -23,7 +23,7 @@ export default function HomePage() {
       <BenefitsSection />
       <DemoTeaserSection />
       <ProductCtaSection />
-      <Footer coupleLabel="NiiRo Hochzeits-RSVP" />
+      <Footer coupleLabel={APP_BRAND_NAME} />
     </main>
   )
 }

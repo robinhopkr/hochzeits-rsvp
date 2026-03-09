@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { CalendarHeart, Camera, LayoutDashboard, MapPinned, MessageCircleHeart } from 'lucide-react'
 
 import { Divider } from '@/components/ui/Divider'
+import { APP_BRAND_NAME } from '@/lib/constants'
 
 const trustPoints = [
   'Digitale Einladung, RSVP und Fotogalerie an einem Ort',
@@ -20,7 +21,7 @@ export function ProductHeroSection() {
         <div className="space-y-8">
           <div className="space-y-5">
             <p className="text-sm uppercase tracking-[0.32em] text-sage-600">
-              NiiRo Hochzeits-RSVP
+              {APP_BRAND_NAME}
             </p>
             <h1 className="font-display text-hero text-charcoal-900">
               Die Hochzeitsapp für stilvolle Einladungen, klare Rückmeldungen und eine Galerie danach.

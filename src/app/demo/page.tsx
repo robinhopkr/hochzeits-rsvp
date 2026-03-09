@@ -9,6 +9,7 @@ import { LocationSection } from '@/components/sections/LocationSection'
 import { ProgramSection } from '@/components/sections/ProgramSection'
 import { RsvpSection } from '@/components/sections/RsvpSection'
 import { DEMO_NAV_ITEMS } from '@/lib/constants'
+import { APP_BRAND_NAME } from '@/lib/constants'
 import { createClient } from '@/lib/supabase/server'
 import {
   getActiveWeddingConfig,
@@ -29,7 +30,7 @@ export default async function DemoPage() {
   return (
     <main className="min-h-screen bg-cream-50">
       <Header
-        brandLabel="NiiRo Demo"
+        brandLabel={APP_BRAND_NAME}
         navItems={DEMO_NAV_ITEMS}
         brandHref="/"
         ctaHref="/admin/login"

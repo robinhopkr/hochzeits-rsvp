@@ -2,35 +2,35 @@ import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/react'
 import { Toaster } from 'sonner'
 
-import { ENV } from '@/lib/constants'
+import { APP_BRAND_NAME, APP_DESCRIPTION, ENV } from '@/lib/constants'
 import { fontBody, fontDisplay } from '@/lib/fonts'
 
 import './globals.css'
 
 export const metadata: Metadata = {
   metadataBase: new URL(ENV.appUrl),
-  applicationName: 'NiiRo Hochzeits-RSVP',
-  title: 'NiiRo Hochzeits-RSVP',
-  description: 'Elegante RSVP-App für Hochzeiten mit Gästeseite, Antwortformular und Admin-Übersicht.',
+  applicationName: APP_BRAND_NAME,
+  title: APP_BRAND_NAME,
+  description: APP_DESCRIPTION,
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    title: 'NiiRo Hochzeits-RSVP',
+    title: APP_BRAND_NAME,
     statusBarStyle: 'default',
   },
   formatDetection: {
     telephone: false,
   },
   openGraph: {
-    title: 'NiiRo Hochzeits-RSVP',
-    description: 'Elegante RSVP-App für Hochzeiten mit Gästeseite, Antwortformular und Admin-Übersicht.',
+    title: APP_BRAND_NAME,
+    description: APP_DESCRIPTION,
     url: ENV.appUrl,
     images: [
       {
         url: '/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'NiiRo Hochzeits-RSVP',
+        alt: APP_BRAND_NAME,
       },
     ],
   },

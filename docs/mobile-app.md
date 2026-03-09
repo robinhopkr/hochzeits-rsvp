@@ -14,7 +14,7 @@ Die Hochzeits-App basiert auf `next@15`, Server Components, API-Routen und Supab
 CAPACITOR_SERVER_URL=https://hochzeit.example.com
 CAPACITOR_APP_START_PATH=/demo
 CAPACITOR_APP_ID=com.niiro.hochzeitsapp
-CAPACITOR_APP_NAME=NiiRo Hochzeits App
+CAPACITOR_APP_NAME=myWed by NiiRo AI
 ```
 
 - `CAPACITOR_SERVER_URL`: Bevorzugte URL fuer die native App.

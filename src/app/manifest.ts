@@ -1,11 +1,12 @@
 import type { MetadataRoute } from 'next'
 
+import { APP_BRAND_NAME, APP_DESCRIPTION, APP_SHORT_NAME } from '@/lib/constants'
+
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'NiiRo Hochzeits-RSVP',
-    short_name: 'Hochzeits App',
-    description:
-      'Elegante RSVP-App für Hochzeiten mit Gästeseite, Antwortformular und Admin-Übersicht.',
+    name: APP_BRAND_NAME,
+    short_name: APP_SHORT_NAME,
+    description: APP_DESCRIPTION,
     start_url: '/demo',
     display: 'standalone',
     background_color: '#fffcf7',

@@ -72,7 +72,7 @@ if (!process.env.CAPACITOR_SERVER_URL && !process.env.NEXT_PUBLIC_APP_URL && !pr
 
 const config: CapacitorConfig = {
   appId: process.env.CAPACITOR_APP_ID ?? 'com.niiro.hochzeitsapp',
-  appName: process.env.CAPACITOR_APP_NAME ?? 'NiiRo Hochzeits App',
+  appName: process.env.CAPACITOR_APP_NAME ?? 'myWed by NiiRo AI',
   webDir: 'mobile-shell',
   bundledWebRuntime: false,
   server: {
