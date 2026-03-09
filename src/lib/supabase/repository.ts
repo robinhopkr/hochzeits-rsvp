@@ -10,7 +10,7 @@ import {
   type WeddingTemplateId,
 } from '@/lib/wedding-design'
 import { normaliseDateInput } from '@/lib/utils/date'
-import { normalizeProgramTimeLabel } from '@/lib/utils/time'
+import { normalizeProgramTimeLabel, sortProgramItemsChronologically } from '@/lib/utils/time'
 import type { Database, Json } from '@/types/database'
 import type {
   AdminSummary,
@@ -347,7 +347,7 @@ function sanitizeGalleryFileName(fileName: string): string {
 }
 
 function mapEditableProgramItems(items: ProgramItem[]): EditableProgramItem[] {
-  return items.map((item) => ({
+  return sortProgramItemsChronologically(items).map((item) => ({
     id: item.id,
     timeLabel: normalizeProgramTimeLabel(item.timeLabel),
     title: item.title,
@@ -1087,14 +1087,16 @@ function mapProgramItemsFromSettings(row: ConfigOverlayRow | null): ProgramItem[
     return null
   }
 
-  return items.map((item, index) => ({
-    id: `app-settings-program-${index + 1}`,
-    timeLabel: normalizeProgramTimeLabel(item.zeit ?? '00:00'),
-    title: item.titel ?? 'Programmpunkt',
-    description: item.beschreibung ?? null,
-    icon: null,
-    sortOrder: index + 1,
-  }))
+  return sortProgramItemsChronologically(
+    items.map((item, index) => ({
+      id: `app-settings-program-${index + 1}`,
+      timeLabel: normalizeProgramTimeLabel(item.zeit ?? '00:00'),
+      title: item.titel ?? 'Programmpunkt',
+      description: item.beschreibung ?? null,
+      icon: null,
+      sortOrder: index + 1,
+    })),
+  )
 }
 
 function mapFaqItemsFromSettings(row: ConfigOverlayRow | null): FaqItem[] | null {
@@ -1121,14 +1123,16 @@ function mapLegacyProgramItems(row: LegacyWeddingRow): ProgramItem[] {
     return DEFAULT_PROGRAM_ITEMS
   }
 
-  return items.map((item, index) => ({
-    id: `${row.id}-program-${index + 1}`,
-    timeLabel: normalizeProgramTimeLabel(item.zeit ?? '00:00'),
-    title: item.titel ?? 'Programmpunkt',
-    description: item.beschreibung ?? null,
-    icon: null,
-    sortOrder: index + 1,
-  }))
+  return sortProgramItemsChronologically(
+    items.map((item, index) => ({
+      id: `${row.id}-program-${index + 1}`,
+      timeLabel: normalizeProgramTimeLabel(item.zeit ?? '00:00'),
+      title: item.titel ?? 'Programmpunkt',
+      description: item.beschreibung ?? null,
+      icon: null,
+      sortOrder: index + 1,
+    })),
+  )
 }
 
 function mapLegacyFaqItems(row: LegacyWeddingRow): FaqItem[] {
@@ -1188,14 +1192,16 @@ function mapLegacyWeddingEditorValues(
 }
 
 function mapModernProgramItems(rows: Database['public']['Tables']['program_items']['Row'][]): ProgramItem[] {
-  return rows.map((row) => ({
-    id: row.id,
-    timeLabel: normalizeProgramTimeLabel(row.time_label),
-    title: row.title,
-    description: row.description,
-    icon: row.icon,
-    sortOrder: row.sort_order,
-  }))
+  return sortProgramItemsChronologically(
+    rows.map((row) => ({
+      id: row.id,
+      timeLabel: normalizeProgramTimeLabel(row.time_label),
+      title: row.title,
+      description: row.description,
+      icon: row.icon,
+      sortOrder: row.sort_order,
+    })),
+  )
 }
 
 function mapModernFaqItems(rows: Database['public']['Tables']['faq_items']['Row'][]): FaqItem[] {
@@ -1601,7 +1607,7 @@ export async function saveWeddingEditorValues(
       url: item.imageUrl,
       alt: item.altText || null,
     })),
-    tagesablauf: values.programItems.map((item) => ({
+    tagesablauf: sortProgramItemsChronologically(values.programItems).map((item) => ({
       zeit: normalizeProgramTimeLabel(item.timeLabel),
       titel: item.title,
       beschreibung: item.description || '',

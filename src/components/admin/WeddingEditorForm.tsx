@@ -8,7 +8,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { CONTENT_IMAGE_SECTION_OPTIONS, DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
-import { normalizeProgramTimeLabel } from '@/lib/utils/time'
+import { normalizeProgramTimeLabel, sortProgramItemsChronologically } from '@/lib/utils/time'
 import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-design'
 import { cn } from '@/lib/utils/cn'
 import { weddingEditorSchema, type WeddingEditorSchema } from '@/lib/validations/wedding-editor.schema'
@@ -225,6 +225,16 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
         shouldValidate: true,
       })
     }
+
+    const sortedItems = sortProgramItemsChronologically(
+      form.getValues('programItems').map((item, currentIndex) => ({
+        ...item,
+        timeLabel: currentIndex === index ? normalizedValue : normalizeProgramTimeLabel(item.timeLabel),
+        sortOrder: currentIndex,
+      })),
+    ).map(({ sortOrder, ...item }) => item)
+
+    programItems.replace(sortedItems)
   }
 
   function isEmbeddedImage(value: string | undefined): boolean {

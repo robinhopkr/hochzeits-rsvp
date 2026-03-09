@@ -6,7 +6,7 @@ import { CalendarHeart, GlassWater, Heart, Music4, Sparkles, UtensilsCrossed } f
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { normalizeProgramTimeLabel } from '@/lib/utils/time'
+import { normalizeProgramTimeLabel, sortProgramItemsChronologically } from '@/lib/utils/time'
 import type { ProgramItem, SectionImage } from '@/types/wedding'
 
 import { SectionImageGallery } from './SectionImageGallery'
@@ -29,6 +29,8 @@ export function ProgramSection({
   images?: SectionImage[]
   loading?: boolean
 }) {
+  const sortedItems = sortProgramItemsChronologically(items)
+
   if (loading) {
     return (
       <Section density="compact" id="programm" className="space-y-6">
@@ -46,9 +48,9 @@ export function ProgramSection({
     <Section density="compact" id="programm" className="space-y-6">
       <SectionHeading>Ablauf des Tages</SectionHeading>
       <SectionImageGallery images={images} />
-      {items.length ? (
+      {sortedItems.length ? (
         <div className="relative space-y-6 before:absolute before:left-5 before:top-3 before:h-[calc(100%-1.5rem)] before:w-px before:bg-gold-200">
-          {items.map((item) => {
+          {sortedItems.map((item) => {
             const Icon = item.icon && item.icon in iconMap ? iconMap[item.icon as keyof typeof iconMap] : CalendarHeart
 
             return (
