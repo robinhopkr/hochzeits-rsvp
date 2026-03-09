@@ -9,14 +9,23 @@ function escapeCsvValue(value: string | number | null): string {
 
 export function ExportButton({ rsvps }: { rsvps: RsvpRecord[] }) {
   function handleExport() {
-    const header = ['Gast', 'Status', 'Personen', 'Essensvarianten', 'Nachricht', 'Zeitpunkt']
+    const header = [
+      'Gast',
+      'Status',
+      'Personen',
+      'Essensvarianten',
+      'Allergien und Unvertraeglichkeiten',
+      'Nachricht',
+      'Zeitpunkt',
+    ]
     const rows = rsvps.map((rsvp) =>
       [
         rsvp.guestName,
         rsvp.isAttending ? 'Zusage' : 'Absage',
         rsvp.totalGuests,
         rsvp.menuChoice,
-        rsvp.message ?? rsvp.dietaryNotes,
+        rsvp.dietaryNotes,
+        rsvp.message,
         rsvp.createdAt,
       ]
         .map(escapeCsvValue)

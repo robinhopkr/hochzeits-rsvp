@@ -23,6 +23,7 @@ export function RsvpTable({ rsvps }: { rsvps: RsvpRecord[] }) {
               <th className="px-5 py-4 font-semibold">Status</th>
               <th className="px-5 py-4 font-semibold">Personen</th>
               <th className="px-5 py-4 font-semibold">Essensvarianten</th>
+              <th className="px-5 py-4 font-semibold">Allergien & Unverträglichkeiten</th>
               <th className="px-5 py-4 font-semibold">Nachricht</th>
               <th className="px-5 py-4 font-semibold">Zeitpunkt</th>
             </tr>
@@ -41,7 +42,8 @@ export function RsvpTable({ rsvps }: { rsvps: RsvpRecord[] }) {
                 </td>
                 <td className="px-5 py-4 text-charcoal-700">{rsvp.totalGuests}</td>
                 <td className="px-5 py-4 text-charcoal-700">{rsvp.menuChoice ?? '–'}</td>
-                <td className="px-5 py-4 text-charcoal-700">{rsvp.message ?? rsvp.dietaryNotes ?? '–'}</td>
+                <td className="px-5 py-4 text-charcoal-700">{rsvp.dietaryNotes ?? '–'}</td>
+                <td className="px-5 py-4 text-charcoal-700">{rsvp.message ?? '–'}</td>
                 <td className="px-5 py-4 text-charcoal-500">{formatGermanDateTime(rsvp.createdAt)}</td>
               </tr>
             ))}

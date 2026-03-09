@@ -105,16 +105,17 @@ export function RsvpForm({
               />
             )}
           />
+          <Textarea
+            label="Allergien und Unvertraeglichkeiten"
+            helperText="Optional. Bitte nennt hier Allergien, Unvertraeglichkeiten oder besondere Ernaehrungsbeduerfnisse fuer eure Gruppe."
+            error={errors.dietaryNotes?.message}
+            {...register('dietaryNotes')}
+          />
         </div>
       ) : null}
 
       {step === 3 ? (
         <div className="space-y-5">
-          <Textarea
-            label="Ernährungswünsche oder Allergien"
-            error={errors.dietaryNotes?.message}
-            {...register('dietaryNotes')}
-          />
           <Textarea
             label="Nachricht an das Brautpaar"
             error={errors.message?.message}
