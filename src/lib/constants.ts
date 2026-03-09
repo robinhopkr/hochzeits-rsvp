@@ -83,6 +83,7 @@ export const MENU_CHOICE_LABELS: Record<MenuChoice, string> = {
 export const DRESSCODE_COLOR_OPTIONS = [
   { value: 'pearl', label: 'Perlweiß', hex: '#F5EFE6' },
   { value: 'champagner', label: 'Champagner', hex: '#E8D7B8' },
+  { value: 'black', label: 'Schwarz', hex: '#171717' },
   { value: 'blush', label: 'Blush', hex: '#EEC8C3' },
   { value: 'sage', label: 'Sage', hex: '#A8B8A1' },
   { value: 'dusty-rose', label: 'Dusty Rose', hex: '#D8A7A6' },

@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+import { DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
 import {
   WEDDING_FONT_OPTIONS,
   WEDDING_TEMPLATE_OPTIONS,
@@ -72,7 +73,7 @@ export const weddingEditorSchema = z.object({
   dressCodeWomen: z.string().trim().max(1000),
   dressCodeMen: z.string().trim().max(1000),
   dressCodeExtras: z.string().trim().max(1000),
-  dressCodeColors: z.array(z.string().trim().min(1).max(50)).max(20),
+  dressCodeColors: z.array(z.string().trim().min(1).max(50)).max(DRESSCODE_COLOR_OPTIONS.length),
   templateId: z.enum(weddingTemplateIds),
   fontPresetId: z.enum(weddingFontPresetIds),
   coverImageUrl: z.string().trim().max(2_000_000),
