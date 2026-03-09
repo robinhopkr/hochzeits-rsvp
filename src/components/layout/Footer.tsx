@@ -1,5 +1,15 @@
-export function Footer({ coupleLabel }: { coupleLabel: string }) {
-  const year = new Date().getFullYear()
+export function Footer({
+  coupleLabel,
+  weddingDate,
+}: {
+  coupleLabel: string
+  weddingDate?: string | null
+}) {
+  const parsedWeddingDate = weddingDate ? new Date(weddingDate) : null
+  const year =
+    parsedWeddingDate && !Number.isNaN(parsedWeddingDate.getTime())
+      ? parsedWeddingDate.getFullYear()
+      : new Date().getFullYear()
 
   return (
     <footer className="wedding-footer">

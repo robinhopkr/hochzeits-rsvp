@@ -1,11 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
 import { getAdminWeddingConfig, uploadContentImageFile } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024
+const MAX_FILE_SIZE = 8 * 1024 * 1024
 const ALLOWED_FOLDERS = new Set(['cover', 'couple', 'section'])
 
 function isAllowedFolder(value: string): value is 'cover' | 'couple' | 'section' {
@@ -57,14 +58,14 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: 'Das Bild ist größer als 20 MB.',
+        error: 'Das Bild ist größer als 8 MB.',
         code: 'FILE_TOO_LARGE',
       },
       { status: 422 },
     )
   }
 
-  const supabase = createPublicClient()
+  const supabase = createAdminClient() ?? createPublicClient()
   const config = await getAdminWeddingConfig(supabase, undefined)
 
   if (!config.sourceId || config.sourceId !== sourceId) {

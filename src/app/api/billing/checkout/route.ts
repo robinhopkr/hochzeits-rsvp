@@ -5,6 +5,7 @@ import { ENV } from '@/lib/constants'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
+import { getActiveWeddingConfig } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 
 type CheckoutResponse = {
@@ -13,7 +14,8 @@ type CheckoutResponse = {
 
 export async function POST(): Promise<NextResponse<ApiResponse<CheckoutResponse>>> {
   const supabase = createAdminClient() ?? createPublicClient()
-  const access = await getBillingAccessState(supabase)
+  const config = await getActiveWeddingConfig(supabase)
+  const access = await getBillingAccessState(supabase, config)
 
   if (!access.billingEnabled) {
     return NextResponse.json(

@@ -7,7 +7,9 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { getServerSession } from '@/lib/auth/get-session'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { finalizeCheckoutSession, type FinalizeCheckoutResult } from '@/lib/billing/service'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { getAdminWeddingConfig } from '@/lib/supabase/repository'
 
 function getSearchParamValue(value: string | string[] | undefined): string | null {
   if (typeof value === 'string') {
@@ -64,8 +66,9 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
   const checkoutResult =
     billingState === 'success' ? await finalizeCheckoutSession(checkoutSessionId) : null
   const session = await getServerSession()
-  const supabase = await createClient()
-  const billingAccess = await getBillingAccessState(supabase)
+  const supabase = createAdminClient() ?? (await createClient())
+  const config = await getAdminWeddingConfig(supabase, undefined)
+  const billingAccess = await getBillingAccessState(supabase, config)
 
   if (session && !billingAccess.requiresPayment) {
     redirect('/admin')

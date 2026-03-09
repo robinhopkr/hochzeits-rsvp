@@ -10,6 +10,7 @@ import {
 import { getBillingAccessState } from '@/lib/billing/access'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
+import { getAdminWeddingConfig } from '@/lib/supabase/repository'
 import { loginSchema } from '@/lib/validations/admin.schema'
 import type { ApiResponse } from '@/types/api'
 
@@ -46,7 +47,8 @@ export async function POST(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
-  const billingAccess = await getBillingAccessState(supabase)
+  const config = await getAdminWeddingConfig(supabase, undefined)
+  const billingAccess = await getBillingAccessState(supabase, config)
 
   if (billingAccess.requiresPayment) {
     return NextResponse.json(

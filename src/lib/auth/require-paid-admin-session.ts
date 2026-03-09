@@ -4,6 +4,7 @@ import { getAdminSessionFromCookieStore } from '@/lib/auth/admin-session'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
+import { getAdminWeddingConfig } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 
 type RequirePaidAdminSessionResult =
@@ -35,7 +36,8 @@ export async function requirePaidAdminSession(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
-  const access = await getBillingAccessState(supabase)
+  const config = await getAdminWeddingConfig(supabase, undefined)
+  const access = await getBillingAccessState(supabase, config)
 
   if (access.requiresPayment) {
     return {

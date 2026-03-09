@@ -5,7 +5,7 @@ import type Stripe from 'stripe'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
-import { saveStoredBillingRecord } from '@/lib/supabase/repository'
+import { getActiveWeddingConfig, saveStoredBillingRecord } from '@/lib/supabase/repository'
 
 import { retrieveBillingCheckoutSession } from './stripe'
 
@@ -47,8 +47,9 @@ export async function syncBillingFromCheckoutSession(session: Stripe.Checkout.Se
   }
 
   const supabase = getBillingPersistenceClient()
+  const config = await getActiveWeddingConfig(supabase)
 
-  await saveStoredBillingRecord(supabase, {
+  await saveStoredBillingRecord(supabase, config, {
     status: 'paid',
     email: adminEmail,
     paidAt: new Date().toISOString(),
@@ -72,7 +73,8 @@ export async function finalizeCheckoutSession(
   sessionId: string | null | undefined,
 ): Promise<FinalizeCheckoutResult> {
   const supabase = getBillingPersistenceClient()
-  const accessBefore = await getBillingAccessState(supabase)
+  const config = await getActiveWeddingConfig(supabase)
+  const accessBefore = await getBillingAccessState(supabase, config)
 
   if (!sessionId) {
     return {
@@ -114,7 +116,7 @@ export async function finalizeCheckoutSession(
   await syncBillingFromCheckoutSession(checkoutSession)
 
   return {
-    access: await getBillingAccessState(supabase),
+    access: await getBillingAccessState(supabase, config),
     code: 'PAID',
   }
 }

@@ -29,6 +29,14 @@ type UploadFieldPath =
   | `couplePhotos.${number}.imageUrl`
   | `sectionImages.${number}.imageUrl`
 
+const MAX_IMAGE_DIMENSIONS: Record<'cover' | 'couple' | 'section', number> = {
+  cover: 2400,
+  couple: 1800,
+  section: 1800,
+}
+
+const OPTIMIZED_IMAGE_QUALITY = 0.84
+
 function toDateTimeLocalValue(value: string): string {
   const date = new Date(value)
 
@@ -227,7 +235,19 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
     })
   }
 
-  async function createEmbeddedImageDataUrl(file: File): Promise<string> {
+  function resolveOptimizedImageType(file: File): 'image/jpeg' | 'image/webp' {
+    return file.type === 'image/png' || file.type === 'image/webp' ? 'image/webp' : 'image/jpeg'
+  }
+
+  function replaceFileExtension(fileName: string, nextExtension: 'jpg' | 'webp'): string {
+    const sanitized = fileName.replace(/\.[a-z0-9]+$/i, '')
+    return `${sanitized || 'bild'}.${nextExtension}`
+  }
+
+  async function buildOptimizedImageAsset(
+    file: File,
+    folder: 'cover' | 'couple' | 'section',
+  ): Promise<{ dataUrl: string; file: File }> {
     const imageUrl = URL.createObjectURL(file)
 
     try {
@@ -238,7 +258,7 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
         element.src = imageUrl
       })
 
-      const maxDimension = 1800
+      const maxDimension = MAX_IMAGE_DIMENSIONS[folder]
       const longestSide = Math.max(image.width, image.height)
       const scale = longestSide > maxDimension ? maxDimension / longestSide : 1
       const width = Math.max(1, Math.round(image.width * scale))
@@ -254,10 +274,40 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
       canvas.height = height
       context.drawImage(image, 0, 0, width, height)
 
-      return canvas.toDataURL('image/jpeg', 0.82)
+      const outputType = resolveOptimizedImageType(file)
+      const dataUrl = canvas.toDataURL(outputType, OPTIMIZED_IMAGE_QUALITY)
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, outputType, OPTIMIZED_IMAGE_QUALITY)
+      })
+
+      if (!blob) {
+        throw new Error('Das Bild konnte nicht verarbeitet werden.')
+      }
+
+      const outputFile = new File(
+        [blob],
+        replaceFileExtension(file.name, outputType === 'image/webp' ? 'webp' : 'jpg'),
+        {
+          type: outputType,
+          lastModified: file.lastModified,
+        },
+      )
+
+      return {
+        dataUrl,
+        file: outputFile,
+      }
     } finally {
       URL.revokeObjectURL(imageUrl)
     }
+  }
+
+  async function createEmbeddedImageDataUrl(
+    file: File,
+    folder: 'cover' | 'couple' | 'section',
+  ): Promise<string> {
+    const asset = await buildOptimizedImageAsset(file, folder)
+    return asset.dataUrl
   }
 
   function mergePendingImages(nextValues: WeddingEditorSchema): WeddingEditorSchema {
@@ -303,7 +353,7 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
 
       if (!response.ok || !result.success) {
         if (!result.success && result.code === 'UPLOAD_FAILED') {
-          const embeddedImage = await createEmbeddedImageDataUrl(input.file)
+          const embeddedImage = await createEmbeddedImageDataUrl(input.file, input.folder)
 
           setPendingEmbeddedImages((current) => ({
             ...current,
@@ -334,7 +384,7 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
       })
       toast.success('Das Bild wurde hochgeladen. Bitte anschließend speichern.')
     } catch {
-      const embeddedImage = await createEmbeddedImageDataUrl(input.file)
+      const embeddedImage = await createEmbeddedImageDataUrl(input.file, input.folder)
 
       setPendingEmbeddedImages((current) => ({
         ...current,
@@ -370,8 +420,10 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
     }
 
     try {
+      const optimizedAsset = await buildOptimizedImageAsset(file, input.folder)
+
       await uploadImageFile({
-        file,
+        file: optimizedAsset.file,
         targetKey: input.targetKey,
         targetPath: input.targetPath,
         folder: input.folder,
@@ -480,7 +532,7 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
               <Input
                 label="Titelbild / Hero-Bild-URL"
                 error={errors.coverImageUrl?.message}
-                helperText="Optional. Dieses Bild erscheint als grosses Titelmotiv oberhalb eurer Begruessung. Weitere Brautpaarfotos koennen zusaetzlich rechts daneben oder darunter gezeigt werden."
+                helperText="Optional. Dieses Bild erscheint als grosses Titelmotiv oberhalb eurer Begruessung. Querformat oder weiche Illustrationen wirken hier meist am besten."
                 {...form.register('coverImageUrl')}
               />
             )}

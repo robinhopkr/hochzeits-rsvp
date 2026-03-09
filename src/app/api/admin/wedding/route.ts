@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
 import { saveWeddingEditorValues } from '@/lib/supabase/repository'
 import { weddingEditorSchema } from '@/lib/validations/wedding-editor.schema'
@@ -31,7 +32,7 @@ export async function POST(
     )
   }
 
-  const supabase = createPublicClient()
+  const supabase = createAdminClient() ?? createPublicClient()
 
   try {
     const config = await saveWeddingEditorValues(supabase, parseResult.data)

@@ -67,12 +67,22 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
         <div className="relative mx-auto max-w-[120rem] px-3 pt-3 sm:px-6 sm:pt-5 lg:px-8">
           <div className="overflow-hidden rounded-[2.3rem] border border-white/65 bg-white/45 shadow-elegant">
             <div className="relative h-[clamp(16rem,34vw,33rem)] w-full bg-white/45 px-4 py-4 sm:px-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full scale-105 object-cover object-center opacity-20 blur-2xl"
+                loading="eager"
+                src={heroCoverImage}
+              />
               <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/55 to-transparent" />
               <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-b from-transparent via-cream-50/60 to-cream-50" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 alt={`${config.coupleLabel} Titelmotiv`}
-                className="relative h-full w-full object-contain object-center"
+                className="relative h-full w-full object-cover object-center"
+                decoding="async"
+                fetchPriority="high"
                 loading="eager"
                 src={heroCoverImage}
               />

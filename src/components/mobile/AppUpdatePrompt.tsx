@@ -192,7 +192,7 @@ export function AppUpdatePrompt() {
   }
 
   return (
-    <aside className="fixed inset-x-4 bottom-4 z-[70] mx-auto w-full max-w-lg rounded-[2rem] border border-gold-200 bg-white/95 p-5 shadow-elegant backdrop-blur">
+    <aside className="fixed inset-x-3 bottom-3 z-[70] mx-auto w-full max-w-md rounded-[1.75rem] border border-gold-200 bg-white/95 p-4 shadow-elegant backdrop-blur sm:inset-x-4 sm:bottom-4 sm:max-w-lg sm:rounded-[2rem] sm:p-5">
       <div className="flex items-start gap-4">
         <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gold-100 text-gold-700">
           <RefreshCw className="h-5 w-5" />
@@ -203,10 +203,13 @@ export function AppUpdatePrompt() {
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-700">
               Update verfuegbar
             </p>
-            <h2 className="font-display text-xl text-charcoal-900">
+            <h2 className="font-display text-lg text-charcoal-900 sm:text-xl">
               Version {availableUpdate.latestVersion} ist bereit
             </h2>
-            <p className="text-sm text-charcoal-600">
+            <p className="text-sm text-charcoal-600 sm:hidden">
+              Aktuell installiert: {availableUpdate.currentVersion}
+            </p>
+            <p className="hidden text-sm text-charcoal-600 sm:block">
               Die Inhalte sind zwar immer live, dieses Update bringt aber neue native Verbesserungen
               fuer die App. Aktuell installiert: {availableUpdate.currentVersion}
             </p>
@@ -214,7 +217,7 @@ export function AppUpdatePrompt() {
 
           <div className="flex flex-wrap gap-3">
             <Button
-              className="min-w-[10rem]"
+              className="min-w-[9.5rem]"
               loading={isOpening}
               type="button"
               onClick={() => void openExternalUrl(availableUpdate.downloadUrl)}
@@ -222,16 +225,21 @@ export function AppUpdatePrompt() {
               <Download className="h-4 w-4" />
               Update laden
             </Button>
-            <Button type="button" variant="secondary" onClick={handleDismiss}>
+            <Button className="sm:hidden" type="button" variant="secondary" onClick={handleDismiss}>
               Spaeter
             </Button>
-            <button
-              className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-charcoal-600 transition hover:text-charcoal-900"
-              type="button"
-              onClick={() => void openExternalUrl(availableUpdate.releaseUrl)}
-            >
-              Release ansehen
-            </button>
+            <div className="hidden flex-wrap gap-3 sm:flex">
+              <Button type="button" variant="secondary" onClick={handleDismiss}>
+                Spaeter
+              </Button>
+              <button
+                className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-charcoal-600 transition hover:text-charcoal-900"
+                type="button"
+                onClick={() => void openExternalUrl(availableUpdate.releaseUrl)}
+              >
+                Release ansehen
+              </button>
+            </div>
           </div>
         </div>
 

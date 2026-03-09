@@ -63,7 +63,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
           />
         </Section>
 
-        <Footer coupleLabel={DEMO_WEDDING_CONFIG.coupleLabel} />
+        <Footer coupleLabel={DEMO_WEDDING_CONFIG.coupleLabel} weddingDate={DEMO_WEDDING_CONFIG.weddingDate} />
       </main>
     )
   }
@@ -119,7 +119,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
         />
       </Section>
 
-      <Footer coupleLabel={config.coupleLabel} />
+      <Footer coupleLabel={config.coupleLabel} weddingDate={config.weddingDate} />
     </main>
   )
 }

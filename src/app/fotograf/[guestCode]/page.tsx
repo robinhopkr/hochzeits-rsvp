@@ -67,7 +67,7 @@ export default async function PhotographerPage({ params }: PhotographerPageProps
         )}
       </Section>
 
-      <Footer coupleLabel={config.coupleLabel} />
+      <Footer coupleLabel={config.coupleLabel} weddingDate={config.weddingDate} />
     </main>
   )
 }

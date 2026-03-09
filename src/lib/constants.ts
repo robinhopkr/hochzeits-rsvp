@@ -74,18 +74,28 @@ export const MENU_CHOICES = [
 ] as const
 
 export const DRESSCODE_COLOR_OPTIONS = [
+  { value: 'pearl', label: 'Perlweiß', hex: '#F5EFE6' },
   { value: 'champagner', label: 'Champagner', hex: '#E8D7B8' },
+  { value: 'blush', label: 'Blush', hex: '#EEC8C3' },
   { value: 'sage', label: 'Sage', hex: '#A8B8A1' },
   { value: 'dusty-rose', label: 'Dusty Rose', hex: '#D8A7A6' },
+  { value: 'mauve', label: 'Mauve', hex: '#B99AAD' },
   { value: 'terracotta', label: 'Terrakotta', hex: '#C77458' },
+  { value: 'apricot', label: 'Apricot', hex: '#E6B18E' },
   { value: 'burgundy', label: 'Burgunder', hex: '#7D2E3A' },
+  { value: 'plum', label: 'Pflaume', hex: '#6E476C' },
   { value: 'navy', label: 'Navy', hex: '#2D4364' },
+  { value: 'powder-blue', label: 'Puderblau', hex: '#C7D7E8' },
   { value: 'forest', label: 'Tannengrün', hex: '#365845' },
+  { value: 'eucalyptus', label: 'Eukalyptus', hex: '#8FA89A' },
   { value: 'lavender', label: 'Lavendel', hex: '#B7A6D8' },
   { value: 'sand', label: 'Sand', hex: '#DCC7A1' },
+  { value: 'taupe', label: 'Taupe', hex: '#B9A99A' },
+  { value: 'mocha', label: 'Mocca', hex: '#8A6B58' },
   { value: 'charcoal', label: 'Anthrazit', hex: '#44484F' },
   { value: 'sky', label: 'Himmelblau', hex: '#A9C7E8' },
   { value: 'olive', label: 'Oliv', hex: '#7D8455' },
+  { value: 'emerald', label: 'Smaragd', hex: '#2F7467' },
 ] as const
 
 export const CONTENT_IMAGE_SECTION_OPTIONS = [

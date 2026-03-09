@@ -7,7 +7,7 @@ import { Section } from '../ui/Section'
 import { SectionHeading } from '../ui/SectionHeading'
 import { SectionImageGallery } from './SectionImageGallery'
 
-const defaultColors = ['champagner', 'sage', 'dusty-rose']
+const defaultColors = ['pearl', 'champagner', 'sage', 'dusty-rose', 'navy']
 
 function buildStyleCards(config: WeddingConfig) {
   return [

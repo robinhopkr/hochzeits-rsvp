@@ -86,7 +86,7 @@ export function WeddingInvitationPage({
         items={faqItems}
         images={config.sectionImages.filter((image) => image.section === 'faq')}
       />
-      <Footer coupleLabel={config.coupleLabel} />
+      <Footer coupleLabel={config.coupleLabel} weddingDate={config.weddingDate} />
     </WeddingThemeFrame>
   )
 }

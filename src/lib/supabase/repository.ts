@@ -74,10 +74,19 @@ function query(client: DbClient, relation: string): SupabaseQuery {
   return client.from(relation) as SupabaseQuery
 }
 type LegacyWeddingRow = Database['public']['Tables']['hochzeiten']['Row']
+type WeddingContentRow = Database['public']['Tables']['wedding_content']['Row']
 type AppSettingsRow = Database['public']['Tables']['app_einstellungen']['Row']
 const GALLERY_BUCKET = 'hochzeitsfotos'
 const APP_SETTINGS_ID = 1
 const CONTENT_ASSET_PREFIX = 'content'
+
+interface ConfigOverlayRow {
+  brautpaar?: string | null
+  hochzeitsdatum?: string | null
+  rsvp_deadline?: string | null
+  fragen?: Json | null
+  texte?: Json | null
+}
 
 interface LegacyTexts {
   formTitle?: string
@@ -158,6 +167,10 @@ function isMissingRelation(error: PostgrestError | null): boolean {
   )
 }
 
+function isMissingRelationError(error: unknown): boolean {
+  return Boolean(error && typeof error === 'object' && isMissingRelation(error as PostgrestError))
+}
+
 function splitCoupleLabel(label: string | null | undefined): { partner1Name: string; partner2Name: string | null } {
   if (!label) {
     return { partner1Name: 'Euer', partner2Name: 'Brautpaar' }
@@ -189,20 +202,20 @@ function parseLegacyTexts(row: LegacyWeddingRow): LegacyTexts {
   return row.texte as unknown as LegacyTexts
 }
 
-function parseAppSettingsTexts(row: AppSettingsRow | null): AppSettingsTexts {
-  if (!row || !isObject(row.texte)) {
+function parseSettingsTexts(row: ConfigOverlayRow | null): AppSettingsTexts {
+  if (!row || !isObject(row.texte ?? null)) {
     return {}
   }
 
   return row.texte as unknown as AppSettingsTexts
 }
 
-function parseAppSettingsQuestions(row: AppSettingsRow | null): Record<string, Json | undefined> {
-  if (!row || !isObject(row.fragen)) {
+function parseSettingsQuestions(row: ConfigOverlayRow | null): Record<string, Json | undefined> {
+  if (!row || !isObject(row.fragen ?? null)) {
     return {}
   }
 
-  return row.fragen
+  return row.fragen as Record<string, Json | undefined>
 }
 
 function normalizeOptionalString(value: string | null | undefined): string | null {
@@ -210,8 +223,8 @@ function normalizeOptionalString(value: string | null | undefined): string | nul
   return normalized ? normalized : null
 }
 
-function parseStoredBillingRecord(row: AppSettingsRow | null): StoredBillingRecord {
-  const texts = parseAppSettingsTexts(row)
+function parseStoredBillingRecord(row: ConfigOverlayRow | null): StoredBillingRecord {
+  const texts = parseSettingsTexts(row)
 
   return {
     status: texts.billingStatus === 'paid' ? 'paid' : 'unpaid',
@@ -219,6 +232,31 @@ function parseStoredBillingRecord(row: AppSettingsRow | null): StoredBillingReco
     paidAt: normalizeOptionalString(texts.billingPaidAt),
     stripeCheckoutSessionId: normalizeOptionalString(texts.billingStripeSessionId),
     stripePaymentIntentId: normalizeOptionalString(texts.billingStripePaymentIntentId),
+  }
+}
+
+function buildContentOverlayRow(row: WeddingContentRow | null): ConfigOverlayRow | null {
+  if (!row) {
+    return null
+  }
+
+  return {
+    fragen: row.fragen,
+    texte: row.texte,
+  }
+}
+
+function buildWeddingContentPayload(
+  configId: string,
+  input: {
+    fragen?: Json | null
+    texte?: Json | null
+  },
+): Database['public']['Tables']['wedding_content']['Insert'] {
+  return {
+    config_id: configId,
+    fragen: input.fragen ?? null,
+    texte: input.texte ?? null,
   }
 }
 
@@ -284,7 +322,7 @@ function mapEditableSectionImages(items: SectionImage[]): EditableSectionImage[]
 }
 
 function getDefaultDressCodeColors(): string[] {
-  return ['champagner', 'sage', 'dusty-rose']
+  return ['pearl', 'champagner', 'sage', 'dusty-rose', 'navy']
 }
 
 function getNormalizedTemplateId(value: string | null | undefined): WeddingTemplateId {
@@ -499,38 +537,106 @@ async function getAppSettingsRow(supabase: DbClient): Promise<AppSettingsRow | n
   return null
 }
 
-export async function getStoredBillingRecord(supabase: DbClient): Promise<StoredBillingRecord> {
-  return parseStoredBillingRecord(await getAppSettingsRow(supabase))
+async function getWeddingContentRow(
+  supabase: DbClient,
+  configId: string,
+): Promise<WeddingContentRow | null> {
+  const { data: rowsRaw, error } = (await query(supabase, 'wedding_content')
+    .select('*')
+    .eq('config_id', configId)
+    .limit(1)) as QueryResult<Database['public']['Tables']['wedding_content']['Row'][]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return row
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
 }
 
-export async function saveStoredBillingRecord(
+async function getLegacyWeddingRowById(
   supabase: DbClient,
-  values: StoredBillingRecord,
-): Promise<StoredBillingRecord> {
-  const currentSettings = await getAppSettingsRow(supabase)
-  const existingTexts = parseAppSettingsTexts(currentSettings)
+  rowId: string,
+): Promise<LegacyWeddingRow | null> {
+  const { data: rowsRaw, error } = (await query(supabase, 'hochzeiten')
+    .select('*')
+    .eq('id', rowId)
+    .limit(1)) as QueryResult<Database['public']['Tables']['hochzeiten']['Row'][]>
+  const rows = rowsRaw ?? []
 
-  const texte: Json = {
-    ...existingTexts,
-    billingStatus: values.status,
-    billingEmail: values.email,
-    billingPaidAt: values.paidAt,
-    billingStripeSessionId: values.stripeCheckoutSessionId,
-    billingStripePaymentIntentId: values.stripePaymentIntentId,
-    probe: undefined,
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return row
+    }
   }
 
-  const payload: Database['public']['Tables']['app_einstellungen']['Insert'] = {
-    id: APP_SETTINGS_ID,
-    brautpaar: currentSettings?.brautpaar ?? null,
-    hochzeitsdatum: currentSettings?.hochzeitsdatum ?? null,
-    rsvp_deadline: currentSettings?.rsvp_deadline ?? null,
-    fragen: currentSettings?.fragen ?? null,
-    texte,
+  if (error && !isMissingRelation(error)) {
+    throw error
   }
 
+  return null
+}
+
+function doesCompatibilityRowMatchConfig(config: WeddingConfig, row: AppSettingsRow | null): boolean {
+  if (!row) {
+    return false
+  }
+
+  const texts = parseSettingsTexts(row)
+  const overlayGuestCode = normalizeOptionalString(texts.guestCode)?.toUpperCase()
+  const configGuestCode = normalizeOptionalString(config.guestCode)?.toUpperCase()
+
+  if (overlayGuestCode && configGuestCode && overlayGuestCode === configGuestCode) {
+    return true
+  }
+
+  const overlayCoupleLabel = normalizeOptionalString(row.brautpaar)?.toLowerCase()
+  const configCoupleLabel = normalizeOptionalString(config.coupleLabel)?.toLowerCase()
+
+  return Boolean(overlayCoupleLabel && configCoupleLabel && overlayCoupleLabel === configCoupleLabel)
+}
+
+async function getCompatibilityAppSettingsRow(
+  supabase: DbClient,
+  config: WeddingConfig,
+): Promise<AppSettingsRow | null> {
+  const row = await getAppSettingsRow(supabase)
+  return doesCompatibilityRowMatchConfig(config, row) ? row : null
+}
+
+async function getConfigOverlayRow(
+  supabase: DbClient,
+  config: WeddingConfig,
+): Promise<ConfigOverlayRow | null> {
+  if (config.source === 'modern' && config.sourceId) {
+    const contentRow = await getWeddingContentRow(supabase, config.sourceId)
+
+    if (contentRow) {
+      return buildContentOverlayRow(contentRow)
+    }
+  }
+
+  if (config.source === 'legacy') {
+    return getCompatibilityAppSettingsRow(supabase, config)
+  }
+
+  return getCompatibilityAppSettingsRow(supabase, config)
+}
+
+async function saveCompatibilityAppSettingsRow(
+  supabase: DbClient,
+  values: Database['public']['Tables']['app_einstellungen']['Insert'],
+): Promise<AppSettingsRow> {
   const { data, error } = (await query(supabase, 'app_einstellungen')
-    .upsert(payload)
+    .upsert(values)
     .select('*')
     .single()) as QueryResult<Database['public']['Tables']['app_einstellungen']['Row']>
 
@@ -538,15 +644,121 @@ export async function saveStoredBillingRecord(
     throw error
   }
 
+  if (!data) {
+    throw new Error('Die App-Einstellungen konnten nicht gespeichert werden.')
+  }
+
+  return data
+}
+
+export async function getStoredBillingRecord(
+  supabase: DbClient,
+  config: WeddingConfig,
+): Promise<StoredBillingRecord> {
+  if (config.source === 'modern' && config.sourceId) {
+    const contentRow = await getWeddingContentRow(supabase, config.sourceId)
+
+    if (contentRow) {
+      return parseStoredBillingRecord(buildContentOverlayRow(contentRow))
+    }
+  }
+
+  if (config.source === 'legacy' && config.sourceId) {
+    const legacyRow = await getLegacyWeddingRowById(supabase, config.sourceId)
+
+    if (legacyRow) {
+      return parseStoredBillingRecord(legacyRow)
+    }
+  }
+
+  return parseStoredBillingRecord(await getCompatibilityAppSettingsRow(supabase, config))
+}
+
+export async function saveStoredBillingRecord(
+  supabase: DbClient,
+  config: WeddingConfig,
+  values: StoredBillingRecord,
+): Promise<StoredBillingRecord> {
+  const applyBillingFields = (existingTexts: AppSettingsTexts): Json => ({
+    ...existingTexts,
+    billingStatus: values.status,
+    billingEmail: values.email,
+    billingPaidAt: values.paidAt,
+    billingStripeSessionId: values.stripeCheckoutSessionId,
+    billingStripePaymentIntentId: values.stripePaymentIntentId,
+    probe: undefined,
+  })
+
+  if (config.source === 'modern' && config.sourceId) {
+    const currentContentRow = await getWeddingContentRow(supabase, config.sourceId)
+    const existingTexts = parseSettingsTexts(buildContentOverlayRow(currentContentRow))
+
+    try {
+      const { data, error } = (await query(supabase, 'wedding_content')
+        .upsert(
+          buildWeddingContentPayload(config.sourceId, {
+            fragen: currentContentRow?.fragen ?? null,
+            texte: applyBillingFields(existingTexts),
+          }),
+        )
+        .select('*')
+        .single()) as QueryResult<Database['public']['Tables']['wedding_content']['Row']>
+
+      if (error) {
+        throw error
+      }
+
+      return parseStoredBillingRecord(buildContentOverlayRow(data))
+  } catch (error) {
+      if (!isMissingRelationError(error)) {
+        throw error
+      }
+    }
+  }
+
+  if (config.source === 'legacy' && config.sourceId) {
+    const legacyRow = await getLegacyWeddingRowById(supabase, config.sourceId)
+
+    if (!legacyRow) {
+      throw new Error('Die aktive Hochzeit konnte fuer die Zahlung nicht geladen werden.')
+    }
+
+    const existingTexts = parseLegacyTexts(legacyRow) as AppSettingsTexts
+    const { data, error } = (await query(supabase, 'hochzeiten')
+      .update({
+        texte: applyBillingFields(existingTexts),
+      })
+      .eq('id', config.sourceId)
+      .select('*')
+      .single()) as QueryResult<Database['public']['Tables']['hochzeiten']['Row']>
+
+    if (error) {
+      throw error
+    }
+
+    return parseStoredBillingRecord(data)
+  }
+
+  const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+  const existingTexts = parseSettingsTexts(compatibilityRow)
+  const data = await saveCompatibilityAppSettingsRow(supabase, {
+    id: APP_SETTINGS_ID,
+    brautpaar: compatibilityRow?.brautpaar ?? config.coupleLabel,
+    hochzeitsdatum: compatibilityRow?.hochzeitsdatum ?? config.weddingDate,
+    rsvp_deadline: compatibilityRow?.rsvp_deadline ?? config.rsvpDeadline,
+    fragen: compatibilityRow?.fragen ?? null,
+    texte: applyBillingFields(existingTexts),
+  })
+
   return parseStoredBillingRecord(data)
 }
 
-function applyAppSettingsToConfig(baseConfig: WeddingConfig, row: AppSettingsRow | null): WeddingConfig {
+function applyConfigOverlayToConfig(baseConfig: WeddingConfig, row: ConfigOverlayRow | null): WeddingConfig {
   if (!row) {
     return baseConfig
   }
 
-  const texts = parseAppSettingsTexts(row)
+  const texts = parseSettingsTexts(row)
   const coupleLabel = row.brautpaar?.trim() || baseConfig.coupleLabel
   const couple = splitCoupleLabel(coupleLabel)
   const dressCodeColors =
@@ -594,8 +806,8 @@ function applyAppSettingsToConfig(baseConfig: WeddingConfig, row: AppSettingsRow
   }
 }
 
-function mapProgramItemsFromAppSettings(row: AppSettingsRow | null): ProgramItem[] | null {
-  const texts = parseAppSettingsTexts(row)
+function mapProgramItemsFromSettings(row: ConfigOverlayRow | null): ProgramItem[] | null {
+  const texts = parseSettingsTexts(row)
   const items = texts.tagesablauf ?? []
 
   if (!items.length) {
@@ -612,8 +824,8 @@ function mapProgramItemsFromAppSettings(row: AppSettingsRow | null): ProgramItem
   }))
 }
 
-function mapFaqItemsFromAppSettings(row: AppSettingsRow | null): FaqItem[] | null {
-  const texts = parseAppSettingsTexts(row)
+function mapFaqItemsFromSettings(row: ConfigOverlayRow | null): FaqItem[] | null {
+  const texts = parseSettingsTexts(row)
   const items = texts.faqItems ?? []
 
   if (!items.length) {
@@ -766,11 +978,12 @@ export async function getActiveWeddingConfig(supabase: DbClient): Promise<Weddin
   const modernRows = modernRowsRaw ?? []
 
   if (modernRows?.length) {
-      const firstModernRow = modernRows[0]
-      if (firstModernRow) {
-        const settingsRow = await getAppSettingsRow(supabase)
-        return applyAppSettingsToConfig(mapModernConfig(firstModernRow), settingsRow)
-      }
+    const firstModernRow = modernRows[0]
+    if (firstModernRow) {
+      const baseConfig = mapModernConfig(firstModernRow)
+      const overlayRow = await getConfigOverlayRow(supabase, baseConfig)
+      return applyConfigOverlayToConfig(baseConfig, overlayRow)
+    }
   }
 
   if (modernError && !isMissingRelation(modernError)) {
@@ -783,19 +996,19 @@ export async function getActiveWeddingConfig(supabase: DbClient): Promise<Weddin
   const legacyRows = legacyRowsRaw ?? []
 
   if (legacyRows?.length) {
-      const firstLegacyRow = legacyRows[0]
-      if (firstLegacyRow) {
-        const settingsRow = await getAppSettingsRow(supabase)
-        return applyAppSettingsToConfig(mapLegacyConfig(firstLegacyRow), settingsRow)
-      }
+    const firstLegacyRow = legacyRows[0]
+    if (firstLegacyRow) {
+      const baseConfig = mapLegacyConfig(firstLegacyRow)
+      const overlayRow = await getConfigOverlayRow(supabase, baseConfig)
+      return applyConfigOverlayToConfig(baseConfig, overlayRow)
+    }
   }
 
   if (legacyError && !isMissingRelation(legacyError)) {
     throw legacyError
   }
 
-  const settingsRow = await getAppSettingsRow(supabase)
-  return applyAppSettingsToConfig(createFallbackConfig(), settingsRow)
+  return createFallbackConfig()
 }
 
 export async function getAdminWeddingConfig(
@@ -809,11 +1022,12 @@ export async function getAdminWeddingConfig(
   const modernRows = modernRowsRaw ?? []
 
   if (modernRows?.length) {
-      const firstModernRow = modernRows[0]
-      if (firstModernRow) {
-        const settingsRow = await getAppSettingsRow(supabase)
-        return applyAppSettingsToConfig(mapModernConfig(firstModernRow), settingsRow)
-      }
+    const firstModernRow = modernRows[0]
+    if (firstModernRow) {
+      const baseConfig = mapModernConfig(firstModernRow)
+      const overlayRow = await getConfigOverlayRow(supabase, baseConfig)
+      return applyConfigOverlayToConfig(baseConfig, overlayRow)
+    }
   }
 
   if (modernError && !isMissingRelation(modernError)) {
@@ -830,19 +1044,19 @@ export async function getAdminWeddingConfig(
   const legacyRows = legacyRowsRaw ?? []
 
   if (legacyRows?.length) {
-      const firstLegacyRow = legacyRows[0]
-      if (firstLegacyRow) {
-        const settingsRow = await getAppSettingsRow(supabase)
-        return applyAppSettingsToConfig(mapLegacyConfig(firstLegacyRow), settingsRow)
-      }
+    const firstLegacyRow = legacyRows[0]
+    if (firstLegacyRow) {
+      const baseConfig = mapLegacyConfig(firstLegacyRow)
+      const overlayRow = await getConfigOverlayRow(supabase, baseConfig)
+      return applyConfigOverlayToConfig(baseConfig, overlayRow)
+    }
   }
 
   if (legacyError && !isMissingRelation(legacyError)) {
     throw legacyError
   }
 
-  const settingsRow = await getAppSettingsRow(supabase)
-  return applyAppSettingsToConfig(createFallbackConfig(), settingsRow)
+  return createFallbackConfig()
 }
 
 export async function getWeddingConfigByGuestCode(
@@ -865,8 +1079,9 @@ export async function getWeddingConfigByGuestCode(
   if (rows.length) {
     const row = rows[0]
     if (row) {
-      const settingsRow = await getAppSettingsRow(supabase)
-      return applyAppSettingsToConfig(mapLegacyConfig(row), settingsRow)
+      const baseConfig = mapLegacyConfig(row)
+      const overlayRow = await getConfigOverlayRow(supabase, baseConfig)
+      return applyConfigOverlayToConfig(baseConfig, overlayRow)
     }
   }
 
@@ -1055,11 +1270,7 @@ export async function saveWeddingEditorValues(
   supabase: DbClient,
   values: WeddingEditorValues,
 ): Promise<WeddingConfig> {
-  const currentSettings = await getAppSettingsRow(supabase)
-  const existingTexts = parseAppSettingsTexts(currentSettings)
-  const existingQuestions = parseAppSettingsQuestions(currentSettings)
-
-  const texte: Json = {
+  const buildEditorTexts = (existingTexts: AppSettingsTexts): Json => ({
     ...existingTexts,
     formTitle: values.formTitle || null,
     formDesc: values.formDescription || null,
@@ -1104,43 +1315,141 @@ export async function saveWeddingEditorValues(
       answer: item.answer,
     })),
     probe: undefined,
+  })
+
+  const buildEditorQuestions = (existingQuestions: Record<string, Json | undefined>): Json => ({
+    customQuestions: existingQuestions.customQuestions ?? [],
+    disabledQuestions: existingQuestions.disabledQuestions ?? [],
+  })
+
+  if (values.source === 'legacy') {
+    const currentRow = await getLegacyWeddingRowById(supabase, values.sourceId)
+
+    if (!currentRow) {
+      throw new Error('Die aktive Hochzeit konnte nicht geladen werden.')
+    }
+
+    const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, mapLegacyConfig(currentRow))
+    const existingTexts = {
+      ...(parseLegacyTexts(currentRow) as AppSettingsTexts),
+      ...parseSettingsTexts(compatibilityRow),
+    }
+    const existingQuestions = {
+      ...parseSettingsQuestions(currentRow),
+      ...parseSettingsQuestions(compatibilityRow),
+    }
+
+    const { data, error } = (await query(supabase, 'hochzeiten')
+      .update({
+        brautpaar_name: values.coupleLabel,
+        gastcode: values.guestCode.toUpperCase(),
+        foto_passwort: values.photographerPassword || null,
+        hochzeitsdatum: values.weddingDate,
+        rsvp_deadline: values.rsvpDeadline,
+        fragen: buildEditorQuestions(existingQuestions),
+        texte: buildEditorTexts(existingTexts),
+      })
+      .eq('id', values.sourceId)
+      .select('*')
+      .single()) as QueryResult<Database['public']['Tables']['hochzeiten']['Row']>
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
+      throw new Error('Die Hochzeitsdaten konnten nicht gespeichert werden.')
+    }
+
+    return mapLegacyConfig(data)
   }
 
-  const payload: Database['public']['Tables']['app_einstellungen']['Insert'] = {
+  const currentModernRowRaw = (await query(supabase, 'wedding_config')
+    .select('*')
+    .eq('id', values.sourceId)
+    .limit(1)) as QueryResult<Database['public']['Tables']['wedding_config']['Row'][]>
+  const currentModernRow = currentModernRowRaw.data?.[0] ?? null
+
+  if (!currentModernRow) {
+    throw new Error('Die aktive Hochzeit konnte nicht geladen werden.')
+  }
+
+  const currentContentRow = await getWeddingContentRow(supabase, values.sourceId)
+  const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, mapModernConfig(currentModernRow))
+  const existingTexts = {
+    ...parseSettingsTexts(compatibilityRow),
+    ...parseSettingsTexts(buildContentOverlayRow(currentContentRow)),
+  }
+  const existingQuestions = {
+    ...parseSettingsQuestions(compatibilityRow),
+    ...parseSettingsQuestions(buildContentOverlayRow(currentContentRow)),
+  }
+  const splitCouple = splitCoupleLabel(values.coupleLabel)
+
+  const { data: updatedConfigRow, error: updateError } = (await query(supabase, 'wedding_config')
+    .update({
+      partner_1_name: splitCouple.partner1Name,
+      partner_2_name: splitCouple.partner2Name ?? currentModernRow.partner_2_name,
+      wedding_date: values.weddingDate,
+      venue_name: values.venueName || null,
+      venue_address: values.venueAddress || null,
+      welcome_message: values.welcomeMessage || null,
+      dress_code: values.dressCodeNote || null,
+      rsvp_deadline: values.rsvpDeadline,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', values.sourceId)
+    .select('*')
+    .single()) as QueryResult<Database['public']['Tables']['wedding_config']['Row']>
+
+  if (updateError) {
+    throw updateError
+  }
+
+  if (!updatedConfigRow) {
+    throw new Error('Die Hochzeitsdaten konnten nicht gespeichert werden.')
+  }
+
+  try {
+    const { data, error } = (await query(supabase, 'wedding_content')
+      .upsert(
+        buildWeddingContentPayload(values.sourceId, {
+          fragen: buildEditorQuestions(existingQuestions),
+          texte: buildEditorTexts(existingTexts),
+        }),
+      )
+      .select('*')
+      .single()) as QueryResult<Database['public']['Tables']['wedding_content']['Row']>
+
+    if (error) {
+      throw error
+    }
+
+    return applyConfigOverlayToConfig(mapModernConfig(updatedConfigRow), buildContentOverlayRow(data))
+  } catch (error) {
+    if (!isMissingRelationError(error)) {
+      throw error
+    }
+  }
+
+  const fallbackData = await saveCompatibilityAppSettingsRow(supabase, {
     id: APP_SETTINGS_ID,
     brautpaar: values.coupleLabel,
     hochzeitsdatum: values.weddingDate,
     rsvp_deadline: values.rsvpDeadline,
-    fragen: {
-      customQuestions: existingQuestions.customQuestions ?? [],
-      disabledQuestions: existingQuestions.disabledQuestions ?? [],
-    },
-    texte,
-  }
+    fragen: buildEditorQuestions(existingQuestions),
+    texte: buildEditorTexts(existingTexts),
+  })
 
-  const { data, error } = (await query(supabase, 'app_einstellungen')
-    .upsert(payload)
-    .select('*')
-    .single()) as QueryResult<Database['public']['Tables']['app_einstellungen']['Row']>
-
-  if (error) {
-    throw error
-  }
-
-  if (!data) {
-    throw new Error('Die Hochzeitsdaten konnten nicht gespeichert werden.')
-  }
-
-  const config = await getActiveWeddingConfig(supabase)
-  return applyAppSettingsToConfig(config, data)
+  return applyConfigOverlayToConfig(mapModernConfig(updatedConfigRow), fallbackData)
 }
 
 export async function getProgramItems(
   supabase: DbClient,
   config: WeddingConfig,
 ): Promise<ProgramItem[]> {
-  const appSettingsRow = await getAppSettingsRow(supabase)
-  const appSettingsItems = mapProgramItemsFromAppSettings(appSettingsRow)
+  const settingsRow = await getConfigOverlayRow(supabase, config)
+  const appSettingsItems = mapProgramItemsFromSettings(settingsRow)
 
   if (appSettingsItems?.length) {
     return appSettingsItems
@@ -1186,8 +1495,8 @@ export async function getProgramItems(
 }
 
 export async function getFaqItems(supabase: DbClient, config: WeddingConfig): Promise<FaqItem[]> {
-  const appSettingsRow = await getAppSettingsRow(supabase)
-  const appSettingsItems = mapFaqItemsFromAppSettings(appSettingsRow)
+  const settingsRow = await getConfigOverlayRow(supabase, config)
+  const appSettingsItems = mapFaqItemsFromSettings(settingsRow)
 
   if (appSettingsItems?.length) {
     return appSettingsItems

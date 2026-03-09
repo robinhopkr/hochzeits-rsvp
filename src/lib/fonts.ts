@@ -28,6 +28,7 @@ const cormorantGaramond = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const ebGaramond = EB_Garamond({
@@ -35,6 +36,7 @@ const ebGaramond = EB_Garamond({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const prata = Prata({
@@ -42,6 +44,7 @@ const prata = Prata({
   subsets: ['latin'],
   weight: ['400'],
   display: 'swap',
+  preload: false,
 })
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -49,6 +52,7 @@ const dmSerifDisplay = DM_Serif_Display({
   subsets: ['latin'],
   weight: ['400'],
   display: 'swap',
+  preload: false,
 })
 
 const marcellus = Marcellus({
@@ -56,6 +60,7 @@ const marcellus = Marcellus({
   subsets: ['latin'],
   weight: ['400'],
   display: 'swap',
+  preload: false,
 })
 
 const bodoniModa = Bodoni_Moda({
@@ -63,6 +68,7 @@ const bodoniModa = Bodoni_Moda({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const cinzel = Cinzel({
@@ -70,6 +76,7 @@ const cinzel = Cinzel({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const bellefair = Bellefair({
@@ -77,6 +84,7 @@ const bellefair = Bellefair({
   subsets: ['latin'],
   weight: ['400'],
   display: 'swap',
+  preload: false,
 })
 
 const cardo = Cardo({
@@ -84,6 +92,7 @@ const cardo = Cardo({
   subsets: ['latin'],
   weight: ['400', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const inter = Inter({
@@ -98,6 +107,7 @@ const manrope = Manrope({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const nunitoSans = Nunito_Sans({
@@ -105,6 +115,7 @@ const nunitoSans = Nunito_Sans({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const raleway = Raleway({
@@ -112,6 +123,7 @@ const raleway = Raleway({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 const sourceSans3 = Source_Sans_3({
@@ -119,6 +131,7 @@ const sourceSans3 = Source_Sans_3({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
   display: 'swap',
+  preload: false,
 })
 
 export const fontVariables = [

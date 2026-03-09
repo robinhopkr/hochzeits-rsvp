@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import { getAdminWeddingConfig, listRsvps } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
@@ -15,7 +16,7 @@ export async function GET(
     return access.response
   }
 
-  const supabase = await createClient()
+  const supabase = createAdminClient() ?? (await createClient())
   const config = await getAdminWeddingConfig(supabase, undefined)
   const rsvps = await listRsvps(supabase, config)
 

@@ -6,6 +6,7 @@ import {
   getStoredBillingRecord,
   type StoredBillingRecord,
 } from '@/lib/supabase/repository'
+import type { WeddingConfig } from '@/types/wedding'
 
 function normalizeEmail(email: string | null | undefined): string | null {
   const normalized = email?.trim().toLowerCase()
@@ -79,7 +80,8 @@ export function buildBillingAccessState(
 
 export async function getBillingAccessState(
   supabase: Parameters<typeof getStoredBillingRecord>[0],
+  config: WeddingConfig,
 ): Promise<BillingAccessState> {
-  const billingRecord = await getStoredBillingRecord(supabase)
+  const billingRecord = await getStoredBillingRecord(supabase, config)
   return buildBillingAccessState(getConfiguredAdminEmail(), billingRecord)
 }

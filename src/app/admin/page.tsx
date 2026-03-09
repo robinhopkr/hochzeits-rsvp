@@ -22,6 +22,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { getServerSession } from '@/lib/auth/get-session'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { ADMIN_NAV_ITEMS } from '@/lib/constants'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
 import {
   buildAdminSummary,
@@ -35,14 +36,13 @@ import {
 
 export default async function AdminPage() {
   const user = await getServerSession()
-  const supabase = await createClient()
-  const billingAccess = await getBillingAccessState(supabase)
+  const supabase = createAdminClient() ?? (await createClient())
+  const config = await getAdminWeddingConfig(supabase, undefined)
+  const billingAccess = await getBillingAccessState(supabase, config)
 
   if (!user || billingAccess.requiresPayment) {
     redirect('/admin/login')
   }
-
-  const config = await getAdminWeddingConfig(supabase, undefined)
   const [rsvps, programItems, faqItems, galleryPhotos, editorValues] = await Promise.all([
     listRsvps(supabase, config),
     getProgramItems(supabase, config),
@@ -297,7 +297,7 @@ export default async function AdminPage() {
           items={faqItems}
           images={config.sectionImages.filter((image) => image.section === 'faq')}
         />
-        <Footer coupleLabel={config.coupleLabel} />
+        <Footer coupleLabel={config.coupleLabel} weddingDate={config.weddingDate} />
       </WeddingThemeFrame>
     </main>
   )

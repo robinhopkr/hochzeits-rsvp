@@ -87,6 +87,24 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['faq_items']['Insert']>
         Relationships: []
       }
+      wedding_content: {
+        Row: {
+          config_id: string
+          fragen: Json | null
+          texte: Json | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          config_id: string
+          fragen?: Json | null
+          texte?: Json | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['wedding_content']['Insert']>
+        Relationships: []
+      }
       app_einstellungen: {
         Row: {
           id: number
