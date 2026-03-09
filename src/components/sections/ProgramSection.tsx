@@ -6,6 +6,7 @@ import { CalendarHeart, GlassWater, Heart, Music4, Sparkles, UtensilsCrossed } f
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Skeleton } from '@/components/ui/Skeleton'
+import { normalizeProgramTimeLabel } from '@/lib/utils/time'
 import type { ProgramItem, SectionImage } from '@/types/wedding'
 
 import { SectionImageGallery } from './SectionImageGallery'
@@ -62,7 +63,9 @@ export function ProgramSection({
                   <span className="relative z-10 inline-flex h-10 w-10 items-center justify-center rounded-full bg-gold-100 text-gold-700">
                     <Icon className="h-4 w-4" />
                   </span>
-                  <span className="font-mono text-sm text-charcoal-600">{item.timeLabel}</span>
+                  <span className="font-mono text-sm text-charcoal-600">
+                    {normalizeProgramTimeLabel(item.timeLabel) || '00:00'}
+                  </span>
                 </div>
                 <div>
                   <h3 className="font-display text-card text-charcoal-900">{item.title}</h3>

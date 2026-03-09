@@ -10,6 +10,7 @@ import {
   type WeddingTemplateId,
 } from '@/lib/wedding-design'
 import { normaliseDateInput } from '@/lib/utils/date'
+import { normalizeProgramTimeLabel } from '@/lib/utils/time'
 import type { Database, Json } from '@/types/database'
 import type {
   AdminSummary,
@@ -348,7 +349,7 @@ function sanitizeGalleryFileName(fileName: string): string {
 function mapEditableProgramItems(items: ProgramItem[]): EditableProgramItem[] {
   return items.map((item) => ({
     id: item.id,
-    timeLabel: item.timeLabel,
+    timeLabel: normalizeProgramTimeLabel(item.timeLabel),
     title: item.title,
     description: item.description ?? '',
   }))
@@ -1088,7 +1089,7 @@ function mapProgramItemsFromSettings(row: ConfigOverlayRow | null): ProgramItem[
 
   return items.map((item, index) => ({
     id: `app-settings-program-${index + 1}`,
-    timeLabel: item.zeit ?? '00:00',
+    timeLabel: normalizeProgramTimeLabel(item.zeit ?? '00:00'),
     title: item.titel ?? 'Programmpunkt',
     description: item.beschreibung ?? null,
     icon: null,
@@ -1122,7 +1123,7 @@ function mapLegacyProgramItems(row: LegacyWeddingRow): ProgramItem[] {
 
   return items.map((item, index) => ({
     id: `${row.id}-program-${index + 1}`,
-    timeLabel: item.zeit ?? '00:00',
+    timeLabel: normalizeProgramTimeLabel(item.zeit ?? '00:00'),
     title: item.titel ?? 'Programmpunkt',
     description: item.beschreibung ?? null,
     icon: null,
@@ -1189,7 +1190,7 @@ function mapLegacyWeddingEditorValues(
 function mapModernProgramItems(rows: Database['public']['Tables']['program_items']['Row'][]): ProgramItem[] {
   return rows.map((row) => ({
     id: row.id,
-    timeLabel: row.time_label,
+    timeLabel: normalizeProgramTimeLabel(row.time_label),
     title: row.title,
     description: row.description,
     icon: row.icon,
@@ -1601,7 +1602,7 @@ export async function saveWeddingEditorValues(
       alt: item.altText || null,
     })),
     tagesablauf: values.programItems.map((item) => ({
-      zeit: item.timeLabel,
+      zeit: normalizeProgramTimeLabel(item.timeLabel),
       titel: item.title,
       beschreibung: item.description || '',
     })),

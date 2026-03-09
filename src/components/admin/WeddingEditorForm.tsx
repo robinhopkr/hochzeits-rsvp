@@ -8,6 +8,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { CONTENT_IMAGE_SECTION_OPTIONS, DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
+import { normalizeProgramTimeLabel } from '@/lib/utils/time'
 import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-design'
 import { cn } from '@/lib/utils/cn'
 import { weddingEditorSchema, type WeddingEditorSchema } from '@/lib/validations/wedding-editor.schema'
@@ -211,6 +212,19 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
       shouldDirty: true,
       shouldValidate: true,
     })
+  }
+
+  function normalizeProgramItemTime(index: number) {
+    const currentValue = watch(`programItems.${index}.timeLabel`)
+    const normalizedValue = normalizeProgramTimeLabel(currentValue)
+
+    if (normalizedValue !== currentValue) {
+      setValue(`programItems.${index}.timeLabel`, normalizedValue, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      })
+    }
   }
 
   function isEmbeddedImage(value: string | undefined): boolean {
@@ -880,7 +894,9 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
                 <Input
                   label="Uhrzeit"
                   error={errors.programItems?.[index]?.timeLabel?.message}
+                  helperText="Zum Beispiel 17:00. Eingaben wie 17, 1700 oder 17.00 werden automatisch korrigiert."
                   {...form.register(`programItems.${index}.timeLabel`)}
+                  onBlur={() => normalizeProgramItemTime(index)}
                 />
                 <Input
                   label="Titel"
