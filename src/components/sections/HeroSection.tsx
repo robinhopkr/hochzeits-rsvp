@@ -105,7 +105,7 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
           variants={heroVariants}
           className="max-w-3xl space-y-8"
         >
-          <motion.p variants={itemVariants} className="text-sm uppercase tracking-[0.34em] text-sage-600">
+          <motion.p variants={itemVariants} className="text-eyebrow uppercase text-sage-600">
             Unsere Hochzeit
           </motion.p>
 
@@ -116,9 +116,9 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
           </motion.h1>
 
           <motion.div variants={itemVariants} className="space-y-4">
-            <p className="text-xl text-charcoal-700">{formatGermanDate(config.weddingDate)}</p>
-            <p className="text-lg text-sage-600">{config.venueName}</p>
-            <p className="max-w-2xl text-lg leading-8 text-charcoal-600">{config.welcomeMessage}</p>
+            <p className="text-body-lg font-medium text-charcoal-700">{formatGermanDate(config.weddingDate)}</p>
+            <p className="text-base font-medium text-sage-700 sm:text-lg">{config.venueName}</p>
+            <p className="max-w-2xl text-body-lg text-charcoal-600">{config.welcomeMessage}</p>
           </motion.div>
 
           <motion.div variants={itemVariants} className="flex flex-wrap gap-3">
@@ -156,7 +156,7 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
                   </div>
                   {photo.caption ? (
                     <div className="px-5 py-4">
-                      <p className="text-sm font-medium text-charcoal-700">{photo.caption}</p>
+                      <p className="text-sm leading-6 text-charcoal-700">{photo.caption}</p>
                     </div>
                   ) : null}
                 </article>
@@ -165,14 +165,14 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
           ) : null}
 
           <div className="surface-card overflow-hidden px-6 py-6">
-            <div className="space-y-5">
-              <div className="space-y-2">
-                <p className="text-sm uppercase tracking-[0.24em] text-sage-600">Auf einen Blick</p>
-                <h2 className="font-display text-card text-charcoal-900">
-                  Alles Wichtige für euren Tag mit uns
-                </h2>
-              </div>
-              <p className="text-sm leading-7 text-charcoal-600">
+              <div className="space-y-5">
+                <div className="space-y-2">
+                  <p className="text-eyebrow uppercase text-sage-600">Auf einen Blick</p>
+                  <h2 className="font-display text-card text-charcoal-900">
+                    Alles Wichtige für euren Tag mit uns
+                  </h2>
+                </div>
+              <p className="text-body-md text-charcoal-600">
                 Hier findet ihr die wichtigsten Informationen direkt gesammelt. Weiter unten könnt ihr
                 eure Rückmeldung senden und alle Details noch einmal in Ruhe nachlesen.
               </p>
@@ -189,8 +189,8 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
                       <item.icon className="h-4 w-4" />
                     </span>
                     <div className="space-y-1">
-                      <p className="text-xs uppercase tracking-[0.18em] text-charcoal-500">{item.title}</p>
-                      <p className="text-sm font-medium leading-6 text-charcoal-800">{item.copy}</p>
+                      <p className="text-[0.72rem] uppercase tracking-[0.18em] text-charcoal-500">{item.title}</p>
+                      <p className="text-[0.97rem] font-medium leading-7 text-charcoal-800">{item.copy}</p>
                     </div>
                   </div>
                 </article>

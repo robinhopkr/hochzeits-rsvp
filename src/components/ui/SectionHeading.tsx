@@ -16,7 +16,7 @@ export function SectionHeading({
   id,
 }: SectionHeadingProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <Tag id={id} className={cn('font-display text-section text-charcoal-900', className)}>
         {children}
       </Tag>

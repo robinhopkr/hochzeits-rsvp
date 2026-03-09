@@ -52,10 +52,10 @@ export function DresscodeSection({
       <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
         <div className="max-w-3xl">
           <SectionHeading>Dresscode</SectionHeading>
-          <p className="mt-4 text-charcoal-600">{note}</p>
+          <p className="mt-4 text-body-md text-charcoal-600">{note}</p>
         </div>
         {selectedColors.length ? (
-          <p className="text-sm uppercase tracking-[0.2em] text-sage-600">
+          <p className="text-eyebrow uppercase text-sage-600">
             Farbwelt für unseren Tag
           </p>
         ) : null}
@@ -75,7 +75,7 @@ export function DresscodeSection({
                   style={{ backgroundColor: color.hex }}
                 />
                 <div className="mt-3 flex items-center justify-between gap-3">
-                  <span className="text-sm font-semibold text-charcoal-800">{color.label}</span>
+                  <span className="text-base font-semibold text-charcoal-800">{color.label}</span>
                   <span className="text-xs uppercase tracking-[0.18em] text-charcoal-500">
                     {color.hex}
                   </span>
@@ -95,7 +95,7 @@ export function DresscodeSection({
                   </span>
                   <h3 className="font-display text-card text-charcoal-900">{card.title}</h3>
                 </div>
-                <p className="mt-4 text-charcoal-600">{card.copy}</p>
+                <p className="mt-4 text-body-md text-charcoal-600">{card.copy}</p>
               </article>
             ))
           ) : (
@@ -106,7 +106,7 @@ export function DresscodeSection({
                 </span>
                 <h3 className="font-display text-card text-charcoal-900">Stilgefühl statt Zwang</h3>
               </div>
-              <p className="mt-4 text-charcoal-600">
+              <p className="mt-4 text-body-md text-charcoal-600">
                 Wichtig ist vor allem, dass ihr euch wohlfühlt und den Tag mit uns festlich feiern könnt.
               </p>
             </article>

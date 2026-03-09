@@ -16,9 +16,9 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
         className="surface-card flex items-center justify-center px-8 py-10 text-center"
       >
         <div className="space-y-3">
-          <p className="text-sm uppercase tracking-[0.22em] text-gold-600">Countdown</p>
-          <p className="font-display text-3xl text-charcoal-900">Die Hochzeit hat stattgefunden 🎉</p>
-          <p className="text-charcoal-600">Ein unvergesslicher Tag. Vielen Dank, dass ihr Teil davon seid.</p>
+          <p className="text-eyebrow uppercase text-gold-600">Countdown</p>
+          <p className="font-display text-2xl text-charcoal-900 sm:text-3xl">Die Hochzeit hat stattgefunden 🎉</p>
+          <p className="text-body-md text-charcoal-600">Ein unvergesslicher Tag. Vielen Dank, dass ihr Teil davon seid.</p>
         </div>
       </motion.div>
     )
@@ -34,8 +34,8 @@ export function CountdownTimer({ targetDate }: { targetDate: string }) {
           { label: 'Sekunden', value: seconds },
         ].map((item) => (
           <div key={item.label} className="rounded-3xl bg-white px-4 py-5 text-center shadow-elegant">
-            <div className="font-display text-4xl text-charcoal-900">{item.value}</div>
-            <div className="mt-2 text-xs uppercase tracking-[0.2em] text-charcoal-500">{item.label}</div>
+            <div className="font-display text-metric text-charcoal-900">{item.value}</div>
+            <div className="mt-2 text-[0.72rem] uppercase tracking-[0.2em] text-charcoal-500">{item.label}</div>
           </div>
         ))}
       </div>

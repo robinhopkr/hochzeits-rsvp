@@ -76,24 +76,50 @@ const config: Config = {
         body: ['var(--font-body-active)', 'Arial', 'sans-serif'],
       },
       fontSize: {
-        hero: [
-          'clamp(3rem, 8vw, 6rem)',
+        eyebrow: [
+          'clamp(0.74rem, 0.65rem + 0.25vw, 0.84rem)',
           {
-            lineHeight: '0.95',
+            lineHeight: '1.2',
+            letterSpacing: '0.22em',
+          },
+        ],
+        'body-md': [
+          'clamp(0.98rem, 0.92rem + 0.18vw, 1.05rem)',
+          {
+            lineHeight: '1.8',
+          },
+        ],
+        'body-lg': [
+          'clamp(1.02rem, 0.96rem + 0.32vw, 1.15rem)',
+          {
+            lineHeight: '1.85',
+          },
+        ],
+        hero: [
+          'clamp(2.65rem, 7vw, 5.2rem)',
+          {
+            lineHeight: '0.98',
             letterSpacing: '-0.04em',
           },
         ],
         section: [
-          'clamp(2rem, 5vw, 3.5rem)',
+          'clamp(1.9rem, 4.2vw, 3rem)',
           {
-            lineHeight: '1.05',
+            lineHeight: '1.08',
+            letterSpacing: '-0.03em',
+          },
+        ],
+        metric: [
+          'clamp(2rem, 3vw, 2.8rem)',
+          {
+            lineHeight: '1',
             letterSpacing: '-0.03em',
           },
         ],
         card: [
-          'clamp(1.25rem, 2vw, 1.5rem)',
+          'clamp(1.18rem, 1.55vw, 1.42rem)',
           {
-            lineHeight: '1.25',
+            lineHeight: '1.2',
           },
         ],
       },

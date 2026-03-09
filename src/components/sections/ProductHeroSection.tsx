@@ -20,13 +20,13 @@ export function ProductHeroSection() {
       <div className="relative mx-auto grid min-h-screen max-w-6xl gap-12 px-6 py-hero sm:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
         <div className="space-y-8">
           <div className="space-y-5">
-            <p className="text-sm uppercase tracking-[0.32em] text-sage-600">
+            <p className="text-eyebrow uppercase text-sage-600">
               {APP_BRAND_NAME}
             </p>
             <h1 className="font-display text-hero text-charcoal-900">
               Die Hochzeitsapp für stilvolle Einladungen, klare Rückmeldungen und eine Galerie danach.
             </h1>
-            <p className="max-w-2xl text-lg leading-8 text-charcoal-600">
+            <p className="max-w-2xl text-body-lg text-charcoal-600">
               Eine elegante Hochzeitsseite für eure Gäste mit RSVP, Ablauf, Anfahrt, FAQ,
               Fotogalerie und einem geschützten Paarbereich für Inhalte, Rückmeldungen und Zugänge.
             </p>
@@ -49,7 +49,7 @@ export function ProductHeroSection() {
 
           <div className="grid gap-3 sm:grid-cols-3">
             {trustPoints.map((point) => (
-              <div key={point} className="rounded-3xl border border-cream-200 bg-white/80 px-4 py-4 text-sm text-charcoal-700 shadow-elegant">
+              <div key={point} className="rounded-3xl border border-cream-200 bg-white/80 px-4 py-4 text-[0.96rem] leading-7 text-charcoal-700 shadow-elegant">
                 {point}
               </div>
             ))}
@@ -62,13 +62,13 @@ export function ProductHeroSection() {
           <div className="grid gap-5 lg:absolute lg:-left-6 lg:top-8 lg:w-[520px]">
             <article className="surface-card rotate-[-2deg] px-6 py-6">
               <div className="flex items-center justify-between">
-                <p className="font-display text-2xl text-charcoal-900">Gastansicht</p>
+                <p className="font-display text-[1.65rem] leading-tight text-charcoal-900">Gastansicht</p>
                 <MessageCircleHeart className="h-5 w-5 text-dusty-rose-500" />
               </div>
               <div className="mt-5 space-y-4">
                 <div className="rounded-3xl bg-cream-100 px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.2em] text-charcoal-500">RSVP in unter 2 Minuten</p>
-                  <p className="mt-2 text-charcoal-700">
+                  <p className="mt-2 text-[0.98rem] leading-7 text-charcoal-700">
                     Zusage, Begleitperson, Menüwahl, Allergien und persönliche Nachricht in einem ruhigen, verständlichen Ablauf.
                   </p>
                 </div>
@@ -82,7 +82,7 @@ export function ProductHeroSection() {
 
             <article className="surface-card ml-auto max-w-md rotate-[2deg] px-6 py-6">
               <div className="flex items-center justify-between">
-                <p className="font-display text-2xl text-charcoal-900">Brautpaar-Dashboard</p>
+                <p className="font-display text-[1.65rem] leading-tight text-charcoal-900">Brautpaar-Dashboard</p>
                 <LayoutDashboard className="h-5 w-5 text-gold-500" />
               </div>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -90,7 +90,7 @@ export function ProductHeroSection() {
                 <StatCard label="Zusagen" value="94" />
                 <StatCard label="Gäste" value="156" />
               </div>
-              <div className="mt-4 rounded-3xl border border-cream-200 bg-white px-4 py-4 text-sm text-charcoal-600">
+              <div className="mt-4 rounded-3xl border border-cream-200 bg-white px-4 py-4 text-[0.96rem] leading-7 text-charcoal-600">
                 Rückmeldungen, Gästecode, Fotografen-Zugang, Galerie-Link und die wichtigsten Inhalte an einem Ort.
               </div>
             </article>
@@ -121,7 +121,7 @@ function PreviewPill({
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-cream-100 px-4 py-4 text-center">
-      <div className="font-display text-3xl text-charcoal-900">{value}</div>
+      <div className="font-display text-[2.15rem] text-charcoal-900">{value}</div>
       <div className="mt-1 text-xs uppercase tracking-[0.18em] text-charcoal-500">{label}</div>
     </div>
   )
