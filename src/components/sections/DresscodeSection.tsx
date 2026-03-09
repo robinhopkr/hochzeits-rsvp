@@ -64,25 +64,21 @@ export function DresscodeSection({
 
       <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
         <div className="surface-card overflow-hidden px-6 py-6">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-wrap gap-3">
             {selectedColors.map((color) => (
-              <div
+              <span
                 key={color.value}
-                className="rounded-[1.35rem] border border-cream-200 bg-white px-4 py-4 shadow-elegant"
-              >
-                <div
-                  className="h-20 rounded-[1rem] border border-white/80 shadow-sm"
-                  style={{ backgroundColor: color.hex }}
-                />
-                <div className="mt-3 flex items-center justify-between gap-3">
-                  <span className="text-base font-semibold text-charcoal-800">{color.label}</span>
-                  <span className="text-xs uppercase tracking-[0.18em] text-charcoal-500">
-                    {color.hex}
-                  </span>
-                </div>
-              </div>
+                aria-label={color.label}
+                className="inline-flex h-10 w-10 rounded-full border border-white/90 shadow-sm ring-1 ring-cream-200"
+                role="img"
+                style={{ backgroundColor: color.hex }}
+                title={color.label}
+              />
             ))}
           </div>
+          <p className="mt-4 text-sm leading-6 text-charcoal-500">
+            Wenn ihr mögt, könnt ihr euch locker an dieser Farbwelt orientieren.
+          </p>
         </div>
 
         <div className="grid gap-4">
