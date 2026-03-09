@@ -75,9 +75,9 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
 
   return (
     <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,154,29,0.18),_transparent_38%),radial-gradient(circle_at_bottom_right,_rgba(100,141,92,0.2),_transparent_30%),linear-gradient(180deg,#faf3e8_0%,#fffcf7_48%,#ffffff_100%)]" />
-      <div className="absolute left-[-5rem] top-12 h-56 w-56 rounded-full bg-gold-100 blur-3xl" />
-      <div className="absolute right-[-4rem] top-40 h-64 w-64 rounded-full bg-sage-100 blur-3xl" />
+      <div className="wedding-hero-backdrop absolute inset-0" />
+      <div className="wedding-hero-orb-left absolute left-[-5rem] top-12 h-56 w-56 rounded-full blur-3xl" />
+      <div className="wedding-hero-orb-right absolute right-[-4rem] top-40 h-64 w-64 rounded-full blur-3xl" />
 
       <div className="relative mx-auto grid min-h-[60vh] max-w-6xl gap-6 px-6 py-[clamp(3.25rem,7vw,5.5rem)] sm:px-10 lg:min-h-[68vh] lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-center">
         <motion.div

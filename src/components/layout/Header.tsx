@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
+import { BrandLogo } from '@/components/branding/BrandLogo'
 import { cn } from '@/lib/utils/cn'
 
 interface HeaderNavItem {
@@ -18,6 +19,7 @@ interface HeaderProps {
   brandHref?: string
   ctaHref?: string
   ctaLabel?: string
+  showBrandMark?: boolean
 }
 
 export function Header({
@@ -26,6 +28,7 @@ export function Header({
   brandHref = '/',
   ctaHref,
   ctaLabel,
+  showBrandMark = false,
 }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
@@ -92,8 +95,8 @@ export function Header({
       )}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-10">
-        <Link className="font-display text-xl text-charcoal-900" href={brandHref}>
-          {brandLabel}
+        <Link className="text-charcoal-900" href={brandHref}>
+          {showBrandMark ? <BrandLogo label={brandLabel} /> : <span className="font-display text-xl">{brandLabel}</span>}
         </Link>
 
         <nav aria-label="Hauptnavigation" className="hidden items-center gap-6 md:flex">

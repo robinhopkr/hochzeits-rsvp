@@ -1,6 +1,14 @@
 import type { PostgrestError } from '@supabase/supabase-js'
 
 import { DEFAULT_FAQ_ITEMS, DEFAULT_PROGRAM_ITEMS, ENV } from '@/lib/constants'
+import {
+  DEFAULT_WEDDING_FONT_PRESET_ID,
+  DEFAULT_WEDDING_TEMPLATE_ID,
+  getWeddingFontPreset,
+  getWeddingTemplate,
+  type WeddingFontPresetId,
+  type WeddingTemplateId,
+} from '@/lib/wedding-design'
 import { normaliseDateInput } from '@/lib/utils/date'
 import type { Database, Json } from '@/types/database'
 import type {
@@ -116,6 +124,8 @@ interface AppSettingsTexts extends LegacyTexts {
   dressCodeMen?: string
   dressCodeExtras?: string
   dressCodeColors?: string[]
+  templateId?: WeddingTemplateId
+  fontPresetId?: WeddingFontPresetId
   billingStatus?: 'paid' | 'unpaid'
   billingEmail?: string | null
   billingPaidAt?: string | null
@@ -277,6 +287,14 @@ function getDefaultDressCodeColors(): string[] {
   return ['champagner', 'sage', 'dusty-rose']
 }
 
+function getNormalizedTemplateId(value: string | null | undefined): WeddingTemplateId {
+  return getWeddingTemplate(value).id as WeddingTemplateId
+}
+
+function getNormalizedFontPresetId(value: string | null | undefined): WeddingFontPresetId {
+  return getWeddingFontPreset(value).id as WeddingFontPresetId
+}
+
 function isContentImageSection(value: string | null | undefined): value is ContentImageSection {
   return (
     value === 'programm' ||
@@ -359,6 +377,8 @@ function createFallbackConfig(): WeddingConfig {
     dressCodeMen: null,
     dressCodeExtras: null,
     dressCodeColors: getDefaultDressCodeColors(),
+    templateId: DEFAULT_WEDDING_TEMPLATE_ID,
+    fontPresetId: DEFAULT_WEDDING_FONT_PRESET_ID,
     rsvpDeadline: ENV.rsvpDeadline,
     heroImageUrl: null,
     couplePhotos: [],
@@ -397,6 +417,8 @@ function mapModernConfig(row: Database['public']['Tables']['wedding_config']['Ro
     dressCodeMen: null,
     dressCodeExtras: null,
     dressCodeColors: getDefaultDressCodeColors(),
+    templateId: DEFAULT_WEDDING_TEMPLATE_ID,
+    fontPresetId: DEFAULT_WEDDING_FONT_PRESET_ID,
     rsvpDeadline: row.rsvp_deadline,
     heroImageUrl: null,
     couplePhotos: [],
@@ -445,6 +467,8 @@ function mapLegacyConfig(row: LegacyWeddingRow): WeddingConfig {
     dressCodeMen: appTexts.dressCodeMen ?? null,
     dressCodeExtras: appTexts.dressCodeExtras ?? null,
     dressCodeColors,
+    templateId: getNormalizedTemplateId(appTexts.templateId),
+    fontPresetId: getNormalizedFontPresetId(appTexts.fontPresetId),
     rsvpDeadline: normaliseDateInput(row.rsvp_deadline) ?? ENV.rsvpDeadline,
     heroImageUrl: texts.einladungCover ?? null,
     couplePhotos: parseCouplePhotos(appTexts),
@@ -562,6 +586,8 @@ function applyAppSettingsToConfig(baseConfig: WeddingConfig, row: AppSettingsRow
     dressCodeMen: texts.dressCodeMen?.trim() || baseConfig.dressCodeMen,
     dressCodeExtras: texts.dressCodeExtras?.trim() || baseConfig.dressCodeExtras,
     dressCodeColors,
+    templateId: getNormalizedTemplateId(texts.templateId ?? baseConfig.templateId),
+    fontPresetId: getNormalizedFontPresetId(texts.fontPresetId ?? baseConfig.fontPresetId),
     heroImageUrl: texts.einladungCover?.trim() || baseConfig.heroImageUrl,
     couplePhotos: hasCouplePhotos ? parseCouplePhotos(texts) : baseConfig.couplePhotos,
     sectionImages: hasSectionImages ? parseSectionImages(texts) : baseConfig.sectionImages,
@@ -666,6 +692,8 @@ function mapLegacyWeddingEditorValues(
     dressCodeMen: config.dressCodeMen ?? '',
     dressCodeExtras: config.dressCodeExtras ?? '',
     dressCodeColors: config.dressCodeColors,
+    templateId: config.templateId,
+    fontPresetId: config.fontPresetId,
     coverImageUrl: config.heroImageUrl ?? '',
     couplePhotos: mapEditableCouplePhotos(config.couplePhotos),
     sectionImages: mapEditableSectionImages(config.sectionImages),
@@ -885,6 +913,8 @@ export async function getWeddingEditorValues(
     dressCodeMen: config.dressCodeMen ?? '',
     dressCodeExtras: config.dressCodeExtras ?? '',
     dressCodeColors: config.dressCodeColors,
+    templateId: config.templateId,
+    fontPresetId: config.fontPresetId,
     coverImageUrl: config.heroImageUrl ?? '',
     couplePhotos: mapEditableCouplePhotos(config.couplePhotos),
     sectionImages: mapEditableSectionImages(config.sectionImages),
@@ -1049,6 +1079,8 @@ export async function saveWeddingEditorValues(
     dressCodeMen: values.dressCodeMen || null,
     dressCodeExtras: values.dressCodeExtras || null,
     dressCodeColors: values.dressCodeColors,
+    templateId: values.templateId,
+    fontPresetId: values.fontPresetId,
     couplePhotos: values.couplePhotos.map((item) => ({
       id: item.id,
       url: item.imageUrl,

@@ -4,7 +4,7 @@ import { Toaster } from 'sonner'
 
 import { AppUpdatePrompt } from '@/components/mobile/AppUpdatePrompt'
 import { APP_BRAND_NAME, APP_DESCRIPTION, ENV } from '@/lib/constants'
-import { fontBody, fontDisplay } from '@/lib/fonts'
+import { fontVariables } from '@/lib/fonts'
 
 import './globals.css'
 
@@ -14,6 +14,15 @@ export const metadata: Metadata = {
   title: APP_BRAND_NAME,
   description: APP_DESCRIPTION,
   manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: ['/icon.svg'],
+  },
   appleWebApp: {
     capable: true,
     title: APP_BRAND_NAME,
@@ -50,7 +59,7 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="de" className={`${fontDisplay.variable} ${fontBody.variable}`}>
+    <html lang="de" className={fontVariables}>
       <body className="font-body bg-cream-50 text-charcoal-800 antialiased">
         {children}
         <AppUpdatePrompt />

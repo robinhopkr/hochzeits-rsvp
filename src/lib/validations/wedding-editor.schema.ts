@@ -1,5 +1,20 @@
 import { z } from 'zod'
 
+import {
+  WEDDING_FONT_OPTIONS,
+  WEDDING_TEMPLATE_OPTIONS,
+} from '@/lib/wedding-design'
+
+const weddingTemplateIds = WEDDING_TEMPLATE_OPTIONS.map((option) => option.id) as [
+  (typeof WEDDING_TEMPLATE_OPTIONS)[number]['id'],
+  ...(typeof WEDDING_TEMPLATE_OPTIONS)[number]['id'][],
+]
+
+const weddingFontPresetIds = WEDDING_FONT_OPTIONS.map((option) => option.id) as [
+  (typeof WEDDING_FONT_OPTIONS)[number]['id'],
+  ...(typeof WEDDING_FONT_OPTIONS)[number]['id'][],
+]
+
 const imageUrlSchema = z
   .string()
   .trim()
@@ -58,6 +73,8 @@ export const weddingEditorSchema = z.object({
   dressCodeMen: z.string().trim().max(1000),
   dressCodeExtras: z.string().trim().max(1000),
   dressCodeColors: z.array(z.string().trim().min(1).max(50)).max(12),
+  templateId: z.enum(weddingTemplateIds),
+  fontPresetId: z.enum(weddingFontPresetIds),
   coverImageUrl: z.string().trim().max(2_000_000),
   couplePhotos: z.array(editableCouplePhotoSchema).max(8),
   sectionImages: z.array(editableSectionImageSchema).max(24),

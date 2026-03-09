@@ -8,6 +8,7 @@ import { HeroSection } from '@/components/sections/HeroSection'
 import { LocationSection } from '@/components/sections/LocationSection'
 import { ProgramSection } from '@/components/sections/ProgramSection'
 import { RsvpSection } from '@/components/sections/RsvpSection'
+import { WeddingThemeFrame } from '@/components/theme/WeddingThemeFrame'
 import { APP_BRAND_NAME, DEMO_NAV_ITEMS } from '@/lib/constants'
 import type { FaqItem, GalleryPhoto, ProgramItem, WeddingConfig } from '@/types/wedding'
 
@@ -31,21 +32,27 @@ export function WeddingInvitationPage({
   const showDemoBanner = mode === 'demo'
 
   return (
-    <main className="min-h-screen bg-cream-50">
+    <WeddingThemeFrame
+      as="main"
+      className="min-h-screen"
+      templateId={config.templateId}
+      fontPresetId={config.fontPresetId}
+    >
       <Header
         brandHref="/"
         brandLabel={APP_BRAND_NAME}
         navItems={DEMO_NAV_ITEMS}
         ctaHref="/admin/login"
         ctaLabel="Login fuer Brautpaare"
+        showBrandMark
       />
       {showDemoBanner ? (
-        <div className="border-b border-charcoal-900/10 bg-charcoal-900 px-6 py-3 text-sm text-cream-50 sm:px-10">
+        <div className="wedding-demo-banner px-6 py-3 text-sm sm:px-10">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3">
             <p className="font-medium">
               Demohochzeit: Beispielinhalte, Beispielbilder und Demo-RSVP ohne Datenspeicherung.
             </p>
-            <p className="text-cream-50/75">
+            <p className="wedding-demo-banner-muted">
               Der reale Paarbereich bleibt separat geschuetzt und kostenpflichtig.
             </p>
           </div>
@@ -80,6 +87,6 @@ export function WeddingInvitationPage({
         images={config.sectionImages.filter((image) => image.section === 'faq')}
       />
       <Footer coupleLabel={config.coupleLabel} />
-    </main>
+    </WeddingThemeFrame>
   )
 }

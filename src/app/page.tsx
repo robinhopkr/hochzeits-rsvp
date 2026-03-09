@@ -16,6 +16,7 @@ export default function HomePage() {
         navItems={MARKETING_NAV_ITEMS}
         ctaHref="/admin/login"
         ctaLabel="Login für Brautpaare"
+        showBrandMark
       />
       <ProductHeroSection />
       <FeatureGridSection />

@@ -8,11 +8,13 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
 import { CONTENT_IMAGE_SECTION_OPTIONS, DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
+import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-design'
 import { cn } from '@/lib/utils/cn'
 import { weddingEditorSchema, type WeddingEditorSchema } from '@/lib/validations/wedding-editor.schema'
 import type { ApiResponse } from '@/types/api'
 import type { WeddingConfig, WeddingEditorValues } from '@/types/wedding'
 
+import { WeddingDesignSection } from './WeddingDesignSection'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Select } from '../ui/Select'
@@ -124,6 +126,8 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
   } = form
 
   const selectedDressCodeColors = watch('dressCodeColors') ?? []
+  const selectedTemplateId = watch('templateId')
+  const selectedFontPresetId = watch('fontPresetId')
   const watchedCoverImage = watch('coverImageUrl')
   const watchedCouplePhotos = watch('couplePhotos') ?? []
   const watchedSectionImages = watch('sectionImages') ?? []
@@ -182,6 +186,20 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
       : [...selectedDressCodeColors, value]
 
     setValue('dressCodeColors', nextValues, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+  }
+
+  function selectTemplate(value: WeddingTemplateId) {
+    setValue('templateId', value, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+  }
+
+  function selectFontPreset(value: WeddingFontPresetId) {
+    setValue('fontPresetId', value, {
       shouldDirty: true,
       shouldValidate: true,
     })
@@ -421,6 +439,13 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
           {...form.register('successDescription')}
         />
       </div>
+
+      <WeddingDesignSection
+        selectedTemplateId={selectedTemplateId}
+        selectedFontPresetId={selectedFontPresetId}
+        onSelectTemplate={selectTemplate}
+        onSelectFontPreset={selectFontPreset}
+      />
 
       <div className="space-y-4">
         <h3 className="font-display text-card text-charcoal-900">Bilder für eure Gäste</h3>

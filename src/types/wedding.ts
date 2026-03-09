@@ -1,3 +1,5 @@
+import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-design'
+
 export type DataSource = 'modern' | 'legacy' | 'fallback'
 export type MenuChoice = 'meat' | 'fish' | 'vegetarian' | 'vegan'
 export type ContentImageSection = 'programm' | 'anfahrt' | 'dresscode' | 'galerie' | 'rsvp' | 'faq'
@@ -43,6 +45,8 @@ export interface WeddingConfig {
   dressCodeMen: string | null
   dressCodeExtras: string | null
   dressCodeColors: string[]
+  templateId: WeddingTemplateId
+  fontPresetId: WeddingFontPresetId
   rsvpDeadline: string
   heroImageUrl: string | null
   couplePhotos: CouplePhoto[]
@@ -167,6 +171,8 @@ export interface WeddingEditorValues {
   dressCodeMen: string
   dressCodeExtras: string
   dressCodeColors: string[]
+  templateId: WeddingTemplateId
+  fontPresetId: WeddingFontPresetId
   coverImageUrl: string
   couplePhotos: EditableCouplePhoto[]
   sectionImages: EditableSectionImage[]

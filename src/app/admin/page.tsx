@@ -16,6 +16,7 @@ import { HeroSection } from '@/components/sections/HeroSection'
 import { LocationSection } from '@/components/sections/LocationSection'
 import { ProgramSection } from '@/components/sections/ProgramSection'
 import { RsvpSection } from '@/components/sections/RsvpSection'
+import { WeddingThemeFrame } from '@/components/theme/WeddingThemeFrame'
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { getServerSession } from '@/lib/auth/get-session'
@@ -264,7 +265,11 @@ export default async function AdminPage() {
         </p>
       </Section>
 
-      <div className="border-y border-cream-200 bg-white/40">
+      <WeddingThemeFrame
+        className="wedding-preview-shell"
+        templateId={config.templateId}
+        fontPresetId={config.fontPresetId}
+      >
         <HeroSection config={config} />
         <CountdownSection config={config} />
         <ProgramSection
@@ -292,9 +297,8 @@ export default async function AdminPage() {
           items={faqItems}
           images={config.sectionImages.filter((image) => image.section === 'faq')}
         />
-      </div>
-
-      <Footer coupleLabel={config.coupleLabel} />
+        <Footer coupleLabel={config.coupleLabel} />
+      </WeddingThemeFrame>
     </main>
   )
 }

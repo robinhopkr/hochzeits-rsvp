@@ -20,7 +20,7 @@ export function SectionHeading({
       <Tag id={id} className={cn('font-display text-section text-charcoal-900', className)}>
         {children}
       </Tag>
-      {decorativeLine ? <div className="h-px w-24 bg-gold-300" /> : null}
+      {decorativeLine ? <div className="wedding-divider h-px w-24" /> : null}
     </div>
   )
 }
