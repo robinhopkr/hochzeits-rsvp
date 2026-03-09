@@ -1,0 +1,86 @@
+import type { CapacitorConfig } from '@capacitor/cli'
+import { existsSync, readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
+function loadEnvFile(filename: string) {
+  const filePath = join(process.cwd(), filename)
+
+  if (!existsSync(filePath)) {
+    return
+  }
+
+  const content = readFileSync(filePath, 'utf8')
+
+  for (const rawLine of content.split(/\r?\n/u)) {
+    const line = rawLine.trim()
+
+    if (!line || line.startsWith('#')) {
+      continue
+    }
+
+    const separatorIndex = line.indexOf('=')
+
+    if (separatorIndex === -1) {
+      continue
+    }
+
+    const key = line.slice(0, separatorIndex).trim()
+
+    if (!key || process.env[key]) {
+      continue
+    }
+
+    let value = line.slice(separatorIndex + 1).trim()
+
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1)
+    }
+
+    process.env[key] = value
+  }
+}
+
+loadEnvFile('.env.local')
+loadEnvFile('.env')
+
+function withPath(baseUrl: string, path: string) {
+  const normalizedBaseUrl = baseUrl.replace(/\/+$/u, '')
+  const normalizedPath = path === '/' ? '' : path.startsWith('/') ? path : `/${path}`
+
+  return `${normalizedBaseUrl}${normalizedPath}`
+}
+
+const appBaseUrl =
+  process.env.CAPACITOR_SERVER_URL ??
+  process.env.NEXT_PUBLIC_APP_URL ??
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  'https://hochzeits-rsvp.vercel.app'
+
+const appStartPath = process.env.CAPACITOR_APP_START_PATH ?? '/demo'
+const remoteAppUrl = withPath(appBaseUrl, appStartPath)
+const allowNavigationHost = new URL(appBaseUrl).host
+
+if (!process.env.CAPACITOR_SERVER_URL && !process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_SITE_URL) {
+  console.warn(
+    '[capacitor] Keine Mobile-URL gefunden. Fallback auf https://hochzeits-rsvp.vercel.app. ' +
+      'Setze CAPACITOR_SERVER_URL, falls du eine andere Domain verwenden willst.',
+  )
+}
+
+const config: CapacitorConfig = {
+  appId: process.env.CAPACITOR_APP_ID ?? 'com.niiro.hochzeitsapp',
+  appName: process.env.CAPACITOR_APP_NAME ?? 'NiiRo Hochzeits App',
+  webDir: 'mobile-shell',
+  bundledWebRuntime: false,
+  server: {
+    url: remoteAppUrl,
+    cleartext: remoteAppUrl.startsWith('http://'),
+    allowNavigation: [allowNavigationHost],
+    errorPath: `offline.html?target=${encodeURIComponent(remoteAppUrl)}`,
+  },
+}
+
+export default config

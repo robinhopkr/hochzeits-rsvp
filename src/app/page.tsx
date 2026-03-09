@@ -1,0 +1,29 @@
+import { Footer } from '@/components/layout/Footer'
+import { Header } from '@/components/layout/Header'
+import { BenefitsSection } from '@/components/sections/BenefitsSection'
+import { DemoTeaserSection } from '@/components/sections/DemoTeaserSection'
+import { FeatureGridSection } from '@/components/sections/FeatureGridSection'
+import { HowItWorksSection } from '@/components/sections/HowItWorksSection'
+import { ProductCtaSection } from '@/components/sections/ProductCtaSection'
+import { ProductHeroSection } from '@/components/sections/ProductHeroSection'
+import { MARKETING_NAV_ITEMS } from '@/lib/constants'
+
+export default function HomePage() {
+  return (
+    <main className="min-h-screen bg-cream-50">
+      <Header
+        brandLabel="NiiRo Hochzeits-RSVP"
+        navItems={MARKETING_NAV_ITEMS}
+        ctaHref="/admin/login"
+        ctaLabel="Login für Brautpaare"
+      />
+      <ProductHeroSection />
+      <FeatureGridSection />
+      <HowItWorksSection />
+      <BenefitsSection />
+      <DemoTeaserSection />
+      <ProductCtaSection />
+      <Footer coupleLabel="NiiRo Hochzeits-RSVP" />
+    </main>
+  )
+}

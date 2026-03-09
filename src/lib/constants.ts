@@ -1,0 +1,155 @@
+import type { ContentImageSection, FaqItem, ProgramItem } from '@/types/wedding'
+
+const publicSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const publicSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const publicWeddingDate = process.env.NEXT_PUBLIC_WEDDING_DATE
+const publicRsvpDeadline = process.env.NEXT_PUBLIC_RSVP_DEADLINE
+const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL
+
+function readAppUrl(): string {
+  return publicAppUrl ?? 'http://localhost:3000'
+}
+
+function readRequiredPublicSupabaseConfig(
+  value: string | undefined,
+  key: 'NEXT_PUBLIC_SUPABASE_URL' | 'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+): string {
+  if (!value) {
+    throw new Error(`Fehlende Public-Env-Var: ${key}. Siehe .env.example`)
+  }
+
+  return value
+}
+
+export const ENV = {
+  supabaseUrl: readRequiredPublicSupabaseConfig(publicSupabaseUrl, 'NEXT_PUBLIC_SUPABASE_URL'),
+  supabaseAnonKey: readRequiredPublicSupabaseConfig(
+    publicSupabaseAnonKey,
+    'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  ),
+  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? null,
+  weddingDate: publicWeddingDate ?? '2026-11-03T14:00:00+01:00',
+  rsvpDeadline: publicRsvpDeadline ?? '2026-10-01T23:59:59+02:00',
+  appUrl: readAppUrl(),
+  googleMapsEmbedUrl: process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_URL ?? null,
+  rateLimitMax: Number(process.env.RATE_LIMIT_MAX_REQUESTS ?? 5),
+  rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS ?? 3_600_000),
+  adminEmail: process.env.ADMIN_EMAIL ?? null,
+} as const
+
+export const DEMO_NAV_ITEMS = [
+  { href: '#programm', label: 'Programm' },
+  { href: '#anfahrt', label: 'Anfahrt' },
+  { href: '#dresscode', label: 'Dresscode' },
+  { href: '#galerie', label: 'Galerie' },
+  { href: '#rsvp', label: 'RSVP' },
+  { href: '#faq', label: 'FAQ' },
+] as const
+
+export const MARKETING_NAV_ITEMS = [
+  { href: '#funktionen', label: 'Funktionen' },
+  { href: '#ablauf', label: 'Ablauf' },
+  { href: '#vorteile', label: 'Vorteile' },
+  { href: '#demo', label: 'Demo' },
+] as const
+
+export const ADMIN_NAV_ITEMS = [
+  { href: '#uebersicht', label: 'Übersicht' },
+  { href: '#inhalte', label: 'Inhalte' },
+  { href: '#zugaenge', label: 'Zugänge' },
+  { href: '#rsvps', label: 'Rückmeldungen' },
+  { href: '#vorschau', label: 'Vorschau' },
+] as const
+
+export const MENU_CHOICES = [
+  { value: 'meat', label: 'Fleisch', emoji: '🥩' },
+  { value: 'fish', label: 'Fisch', emoji: '🐟' },
+  { value: 'vegetarian', label: 'Vegetarisch', emoji: '🥗' },
+  { value: 'vegan', label: 'Vegan', emoji: '🌱' },
+] as const
+
+export const DRESSCODE_COLOR_OPTIONS = [
+  { value: 'champagner', label: 'Champagner', hex: '#E8D7B8' },
+  { value: 'sage', label: 'Sage', hex: '#A8B8A1' },
+  { value: 'dusty-rose', label: 'Dusty Rose', hex: '#D8A7A6' },
+  { value: 'terracotta', label: 'Terrakotta', hex: '#C77458' },
+  { value: 'burgundy', label: 'Burgunder', hex: '#7D2E3A' },
+  { value: 'navy', label: 'Navy', hex: '#2D4364' },
+  { value: 'forest', label: 'Tannengrün', hex: '#365845' },
+  { value: 'lavender', label: 'Lavendel', hex: '#B7A6D8' },
+  { value: 'sand', label: 'Sand', hex: '#DCC7A1' },
+  { value: 'charcoal', label: 'Anthrazit', hex: '#44484F' },
+  { value: 'sky', label: 'Himmelblau', hex: '#A9C7E8' },
+  { value: 'olive', label: 'Oliv', hex: '#7D8455' },
+] as const
+
+export const CONTENT_IMAGE_SECTION_OPTIONS = [
+  { value: 'programm', label: 'Programm' },
+  { value: 'anfahrt', label: 'Anfahrt' },
+  { value: 'dresscode', label: 'Dresscode' },
+  { value: 'galerie', label: 'Galerie' },
+  { value: 'rsvp', label: 'RSVP' },
+  { value: 'faq', label: 'FAQ' },
+] as const satisfies ReadonlyArray<{ value: ContentImageSection; label: string }>
+
+export const DEFAULT_PROGRAM_ITEMS: ProgramItem[] = [
+  {
+    id: 'program-1',
+    timeLabel: '14:00',
+    title: 'Trauung',
+    description: 'Wir beginnen mit der Trauung und freuen uns darauf, diesen Moment mit euch zu teilen.',
+    icon: 'Heart',
+    sortOrder: 1,
+  },
+  {
+    id: 'program-2',
+    timeLabel: '16:00',
+    title: 'Sektempfang',
+    description: 'Zeit für erste Glückwünsche, kleine Häppchen und gute Gespräche.',
+    icon: 'Sparkles',
+    sortOrder: 2,
+  },
+  {
+    id: 'program-3',
+    timeLabel: '18:30',
+    title: 'Dinner',
+    description: 'Gemeinsames Essen, kleine Reden und viel Zeit für gute Gespräche.',
+    icon: 'UtensilsCrossed',
+    sortOrder: 3,
+  },
+  {
+    id: 'program-4',
+    timeLabel: '21:00',
+    title: 'Party',
+    description: 'Danach wird getanzt, gefeiert und bis spät in den Abend angestoßen.',
+    icon: 'Music4',
+    sortOrder: 4,
+  },
+]
+
+export const DEFAULT_FAQ_ITEMS: FaqItem[] = [
+  {
+    id: 'faq-1',
+    question: 'Gibt es einen Dresscode?',
+    answer: 'Festlich und entspannt. Kommt so, dass ihr euch wohlfühlt und gern mit uns feiert.',
+    sortOrder: 1,
+  },
+  {
+    id: 'faq-2',
+    question: 'Kann ich eine Begleitperson mitbringen?',
+    answer: 'Wenn auf eurer Einladung eine Begleitperson vorgesehen ist, könnt ihr sie direkt im RSVP angeben.',
+    sortOrder: 2,
+  },
+  {
+    id: 'faq-3',
+    question: 'Gibt es Parkmöglichkeiten?',
+    answer: 'Ja. Vor Ort und in der direkten Umgebung stehen ausreichend Parkplätze zur Verfügung.',
+    sortOrder: 3,
+  },
+  {
+    id: 'faq-4',
+    question: 'Wie können wir Lebensmittelunverträglichkeiten mitteilen?',
+    answer: 'Bitte nutzt dafür einfach das Feld für Ernährungswünsche im RSVP-Formular.',
+    sortOrder: 4,
+  },
+]

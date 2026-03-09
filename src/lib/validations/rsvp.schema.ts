@@ -1,0 +1,46 @@
+import { z } from 'zod'
+
+export const rsvpSchema = z
+  .object({
+    guestName: z.string().min(2, 'Bitte gib deinen vollständigen Namen ein.').max(200),
+    guestEmail: z
+      .string()
+      .trim()
+      .email('Bitte gib eine gültige E-Mail-Adresse ein.')
+      .or(z.literal('')),
+    isAttending: z.enum(['yes', 'no'], {
+      message: 'Bitte wähle aus, ob du teilnehmen kannst.',
+    }),
+    plusOne: z.boolean().default(false),
+    plusOneName: z.string().trim().max(200).default(''),
+    totalGuests: z.coerce
+      .number({
+        invalid_type_error: 'Bitte gib die Anzahl der Personen an.',
+      })
+      .min(1, 'Mindestens eine Person muss angegeben werden.')
+      .max(10, 'Maximal 10 Personen können angegeben werden.'),
+    menuChoice: z.enum(['meat', 'fish', 'vegetarian', 'vegan']).or(z.literal('')),
+    plusOneMenu: z.enum(['meat', 'fish', 'vegetarian', 'vegan']).or(z.literal('')),
+    dietaryNotes: z.string().trim().max(500).default(''),
+    message: z.string().trim().max(1000).default(''),
+    honeypot: z.literal(''),
+  })
+  .superRefine((data, context) => {
+    if (data.isAttending === 'yes' && data.plusOne && !data.plusOneName.trim()) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['plusOneName'],
+        message: 'Bitte gib den Namen deiner Begleitperson an.',
+      })
+    }
+
+    if (data.isAttending === 'yes' && data.totalGuests < 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['totalGuests'],
+        message: 'Bitte gib an, mit wie vielen Personen du kommst.',
+      })
+    }
+  })
+
+export type RsvpSchema = z.infer<typeof rsvpSchema>
