@@ -1,4 +1,4 @@
-import type { ContentImageSection, FaqItem, MenuChoice, ProgramItem } from '@/types/wedding'
+import type { ContentImageSection, FaqItem, GuestCategory, MenuChoice, ProgramItem } from '@/types/wedding'
 
 const publicSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const publicSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -60,6 +60,8 @@ export const MARKETING_NAV_ITEMS = [
 
 export const ADMIN_NAV_ITEMS = [
   { href: '#uebersicht', label: 'Übersicht' },
+  { href: '#gaeste', label: 'Gästeliste' },
+  { href: '#sitzplan', label: 'Sitzplan' },
   { href: '#inhalte', label: 'Inhalte' },
   { href: '#zugaenge', label: 'Zugänge' },
   { href: '#rsvps', label: 'Rückmeldungen' },
@@ -78,6 +80,30 @@ export const MENU_CHOICE_LABELS: Record<MenuChoice, string> = {
   fish: 'Fisch',
   vegetarian: 'Vegetarisch',
   vegan: 'Vegan',
+}
+
+export const GUEST_CATEGORY_OPTIONS = [
+  { value: 'family', label: 'Familie' },
+  { value: 'close_friends', label: 'Enge Freunde' },
+  { value: 'friends', label: 'Freunde' },
+  { value: 'work', label: 'Arbeitskollegen' },
+  { value: 'single', label: 'Singles' },
+  { value: 'bridal_party', label: 'Trauzeugen & engster Kreis' },
+  { value: 'children', label: 'Kinder' },
+  { value: 'vendors', label: 'Dienstleister' },
+  { value: 'other', label: 'Sonstige' },
+] as const satisfies ReadonlyArray<{ value: GuestCategory; label: string }>
+
+export const GUEST_CATEGORY_LABELS: Record<GuestCategory, string> = {
+  family: 'Familie',
+  close_friends: 'Enge Freunde',
+  friends: 'Freunde',
+  work: 'Arbeitskollegen',
+  single: 'Singles',
+  bridal_party: 'Trauzeugen & engster Kreis',
+  children: 'Kinder',
+  vendors: 'Dienstleister',
+  other: 'Sonstige',
 }
 
 export const DRESSCODE_COLOR_OPTIONS = [

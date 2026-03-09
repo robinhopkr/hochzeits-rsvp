@@ -4,16 +4,18 @@ import {
   getActiveWeddingConfig,
   getFaqItems,
   getProgramItems,
+  getSeatingPlanData,
   listGalleryPhotos,
 } from '@/lib/supabase/repository'
 
 export default async function InvitationPage() {
   const supabase = await createClient()
   const config = await getActiveWeddingConfig(supabase)
-  const [programItems, faqItems, galleryPhotos] = await Promise.all([
+  const [programItems, faqItems, galleryPhotos, seatingPlanData] = await Promise.all([
     getProgramItems(supabase, config),
     getFaqItems(supabase, config),
     listGalleryPhotos(supabase, config),
+    getSeatingPlanData(supabase, config),
   ])
 
   return (
@@ -23,6 +25,7 @@ export default async function InvitationPage() {
       galleryPhotos={galleryPhotos}
       mode="live"
       programItems={programItems}
+      seatingPlanData={seatingPlanData}
     />
   )
 }

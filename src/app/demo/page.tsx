@@ -14,6 +14,11 @@ export default function DemoPage() {
       galleryPhotos={DEMO_GALLERY_PHOTOS}
       mode="demo"
       programItems={DEMO_PROGRAM_ITEMS}
+      seatingPlanData={{
+        isPublished: false,
+        guests: [],
+        tables: [],
+      }}
     />
   )
 }

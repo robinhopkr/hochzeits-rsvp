@@ -8,9 +8,10 @@ import { HeroSection } from '@/components/sections/HeroSection'
 import { LocationSection } from '@/components/sections/LocationSection'
 import { ProgramSection } from '@/components/sections/ProgramSection'
 import { RsvpSection } from '@/components/sections/RsvpSection'
+import { SeatingPlanSection } from '@/components/sections/SeatingPlanSection'
 import { WeddingThemeFrame } from '@/components/theme/WeddingThemeFrame'
 import { APP_BRAND_NAME, DEMO_NAV_ITEMS } from '@/lib/constants'
-import type { FaqItem, GalleryPhoto, ProgramItem, WeddingConfig } from '@/types/wedding'
+import type { FaqItem, GalleryPhoto, ProgramItem, SeatingPlanData, WeddingConfig } from '@/types/wedding'
 
 type InvitationMode = 'demo' | 'live'
 
@@ -20,6 +21,7 @@ interface WeddingInvitationPageProps {
   galleryPhotos: GalleryPhoto[]
   mode?: InvitationMode
   programItems: ProgramItem[]
+  seatingPlanData: SeatingPlanData
 }
 
 export function WeddingInvitationPage({
@@ -28,8 +30,22 @@ export function WeddingInvitationPage({
   galleryPhotos,
   mode = 'live',
   programItems,
+  seatingPlanData,
 }: WeddingInvitationPageProps) {
   const showDemoBanner = mode === 'demo'
+  const shouldShowSeatingPlan =
+    seatingPlanData.isPublished &&
+    seatingPlanData.tables.some(
+      (table) => table.kind === 'guest' && table.seatAssignments.some((guestId) => Boolean(guestId)),
+    )
+  const navItems = shouldShowSeatingPlan
+    ? [
+        ...DEMO_NAV_ITEMS.slice(0, 5),
+        { href: '#sitzplan', label: 'Sitzplan' },
+        ...DEMO_NAV_ITEMS.slice(5),
+      ]
+    : DEMO_NAV_ITEMS
+  const guestNamesById = new Map(seatingPlanData.guests.map((guest) => [guest.id, guest.name]))
 
   return (
     <WeddingThemeFrame
@@ -41,7 +57,7 @@ export function WeddingInvitationPage({
       <Header
         brandHref="/"
         brandLabel={APP_BRAND_NAME}
-        navItems={DEMO_NAV_ITEMS}
+        navItems={navItems}
         ctaHref="/admin/login"
         ctaLabel="Login fuer Brautpaare"
         showBrandMark
@@ -82,6 +98,7 @@ export function WeddingInvitationPage({
         images={config.sectionImages.filter((image) => image.section === 'rsvp')}
         mode={mode}
       />
+      <SeatingPlanSection guestNamesById={guestNamesById} plan={seatingPlanData} />
       <FaqSection
         items={faqItems}
         images={config.sectionImages.filter((image) => image.section === 'faq')}

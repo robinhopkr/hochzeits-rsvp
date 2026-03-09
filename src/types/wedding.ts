@@ -3,6 +3,18 @@ import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-desig
 export type DataSource = 'modern' | 'legacy' | 'fallback'
 export type MenuChoice = 'meat' | 'fish' | 'vegetarian' | 'vegan'
 export type ContentImageSection = 'programm' | 'anfahrt' | 'dresscode' | 'galerie' | 'rsvp' | 'faq'
+export type GuestCategory =
+  | 'family'
+  | 'close_friends'
+  | 'friends'
+  | 'work'
+  | 'single'
+  | 'bridal_party'
+  | 'children'
+  | 'vendors'
+  | 'other'
+
+export type SeatingTableKind = 'guest' | 'service'
 
 export interface CouplePhoto {
   id: string
@@ -105,6 +117,28 @@ export interface AdminSummary {
   attending: number
   declined: number
   guestCount: number
+}
+
+export interface PlanningGuest {
+  id: string
+  name: string
+  category: GuestCategory
+  groupLabel: string | null
+  notes: string | null
+}
+
+export interface SeatingTable {
+  id: string
+  name: string
+  kind: SeatingTableKind
+  seatCount: number
+  seatAssignments: Array<string | null>
+}
+
+export interface SeatingPlanData {
+  isPublished: boolean
+  guests: PlanningGuest[]
+  tables: SeatingTable[]
 }
 
 export interface LoginFormValues {

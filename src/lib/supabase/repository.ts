@@ -21,9 +21,12 @@ import type {
   EditableSectionImage,
   FaqItem,
   GalleryPhoto,
+  PlanningGuest,
   ProgramItem,
   RsvpFormValues,
   RsvpRecord,
+  SeatingPlanData,
+  SeatingTable,
   SectionImage,
   WeddingConfig,
   WeddingEditorValues,
@@ -140,6 +143,21 @@ interface AppSettingsTexts extends LegacyTexts {
   billingPaidAt?: string | null
   billingStripeSessionId?: string | null
   billingStripePaymentIntentId?: string | null
+  planningGuests?: Array<{
+    id?: string
+    name?: string
+    category?: string
+    groupLabel?: string
+    notes?: string
+  }>
+  seatingTables?: Array<{
+    id?: string
+    name?: string
+    kind?: string
+    seatCount?: number
+    seatAssignments?: Array<string | null>
+  }>
+  publishSeatingPlan?: boolean
   probe?: string | null
 }
 
@@ -427,6 +445,76 @@ function parseSectionImages(texts: AppSettingsTexts): SectionImage[] {
         altText: string | null
       } => Boolean(item.imageUrl) && isContentImageSection(item.section),
     )
+}
+
+function isGuestCategory(
+  value: string | null | undefined,
+): value is PlanningGuest['category'] {
+  return (
+    value === 'family' ||
+    value === 'close_friends' ||
+    value === 'friends' ||
+    value === 'work' ||
+    value === 'single' ||
+    value === 'bridal_party' ||
+    value === 'children' ||
+    value === 'vendors' ||
+    value === 'other'
+  )
+}
+
+function isSeatingTableKind(value: string | null | undefined): value is SeatingTable['kind'] {
+  return value === 'guest' || value === 'service'
+}
+
+function parsePlanningGuests(texts: AppSettingsTexts): PlanningGuest[] {
+  const items = texts.planningGuests
+
+  if (!Array.isArray(items)) {
+    return []
+  }
+
+  return items
+    .map((item, index) => ({
+      id: item.id?.trim() || `planning-guest-${index + 1}`,
+      name: item.name?.trim() ?? '',
+      category: isGuestCategory(item.category) ? item.category : 'other',
+      groupLabel: item.groupLabel?.trim() || null,
+      notes: item.notes?.trim() || null,
+    }))
+    .filter((item) => item.name)
+}
+
+function parseSeatingTables(texts: AppSettingsTexts): SeatingTable[] {
+  const items = texts.seatingTables
+
+  if (!Array.isArray(items)) {
+    return []
+  }
+
+  return items
+    .map((item, index) => {
+      const seatCount =
+        typeof item.seatCount === 'number' && Number.isFinite(item.seatCount)
+          ? Math.min(24, Math.max(1, Math.round(item.seatCount)))
+          : 8
+      const assignments = Array.isArray(item.seatAssignments)
+        ? item.seatAssignments.slice(0, seatCount).map((entry) => (typeof entry === 'string' ? entry : null))
+        : []
+
+      while (assignments.length < seatCount) {
+        assignments.push(null)
+      }
+
+      return {
+        id: item.id?.trim() || `seating-table-${index + 1}`,
+        name: item.name?.trim() || `Tisch ${index + 1}`,
+        kind: isSeatingTableKind((item as { kind?: string }).kind) ? (item as { kind?: SeatingTable['kind'] }).kind ?? 'guest' : 'guest',
+        seatCount,
+        seatAssignments: assignments,
+      }
+    })
+    .filter((item) => item.name)
 }
 
 function createFallbackConfig(): WeddingConfig {
@@ -798,6 +886,143 @@ export async function saveStoredBillingRecord(
   })
 
   return parseStoredBillingRecord(data)
+}
+
+function buildPlanningTexts(
+  existingTexts: AppSettingsTexts,
+  values: SeatingPlanData,
+): Json {
+  return {
+    ...existingTexts,
+    publishSeatingPlan: values.isPublished,
+    planningGuests: values.guests.map((guest) => ({
+      id: guest.id,
+      name: guest.name,
+      category: guest.category,
+      groupLabel: guest.groupLabel,
+      notes: guest.notes,
+    })),
+    seatingTables: values.tables.map((table) => ({
+      id: table.id,
+      name: table.name,
+      kind: table.kind,
+      seatCount: table.seatCount,
+      seatAssignments: table.seatAssignments,
+    })),
+    probe: undefined,
+  }
+}
+
+export async function getSeatingPlanData(
+  supabase: DbClient,
+  config: WeddingConfig,
+): Promise<SeatingPlanData> {
+  const row = await getConfigOverlayRow(supabase, config)
+  const texts = parseSettingsTexts(row)
+
+  return {
+    isPublished: texts.publishSeatingPlan === true,
+    guests: parsePlanningGuests(texts),
+    tables: parseSeatingTables(texts),
+  }
+}
+
+export async function saveSeatingPlanData(
+  supabase: DbClient,
+  config: WeddingConfig,
+  values: SeatingPlanData,
+): Promise<SeatingPlanData> {
+  if (config.source === 'modern' && config.sourceId) {
+    const currentContentRow = await getWeddingContentRow(supabase, config.sourceId)
+    const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+    const existingTexts = {
+      ...parseSettingsTexts(compatibilityRow),
+      ...parseSettingsTexts(buildContentOverlayRow(currentContentRow)),
+    }
+
+    try {
+      const { data, error } = (await query(supabase, 'wedding_content')
+        .upsert(
+          buildWeddingContentPayload(config.sourceId, {
+            fragen: currentContentRow?.fragen ?? compatibilityRow?.fragen ?? null,
+            texte: buildPlanningTexts(existingTexts, values),
+          }),
+        )
+        .select('*')
+        .single()) as QueryResult<Database['public']['Tables']['wedding_content']['Row']>
+
+      if (error) {
+        throw error
+      }
+
+      const texts = parseSettingsTexts(buildContentOverlayRow(data))
+
+      return {
+        isPublished: texts.publishSeatingPlan === true,
+        guests: parsePlanningGuests(texts),
+        tables: parseSeatingTables(texts),
+      }
+    } catch (error) {
+      if (!isMissingRelationError(error)) {
+        throw error
+      }
+    }
+  }
+
+  if (config.source === 'legacy' && config.sourceId) {
+    const currentRow = await getLegacyWeddingRowById(supabase, config.sourceId)
+
+    if (!currentRow) {
+      throw new Error('Die aktive Hochzeit konnte nicht geladen werden.')
+    }
+
+    const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, mapLegacyConfig(currentRow))
+    const existingTexts = {
+      ...parseSettingsTexts(compatibilityRow),
+      ...(parseLegacyTexts(currentRow) as AppSettingsTexts),
+    }
+
+    const { data, error } = (await query(supabase, 'hochzeiten')
+      .update({
+        texte: buildPlanningTexts(existingTexts, values),
+      })
+      .eq('id', config.sourceId)
+      .select('*')
+      .single()) as QueryResult<Database['public']['Tables']['hochzeiten']['Row']>
+
+    if (error) {
+      throw error
+    }
+
+    if (!data) {
+      throw new Error('Die Sitzplanung konnte nicht gespeichert werden.')
+    }
+
+    const texts = parseLegacyTexts(data) as AppSettingsTexts
+    return {
+      isPublished: texts.publishSeatingPlan === true,
+      guests: parsePlanningGuests(texts),
+      tables: parseSeatingTables(texts),
+    }
+  }
+
+  const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+  const existingTexts = parseSettingsTexts(compatibilityRow)
+  const data = await saveCompatibilityAppSettingsRow(supabase, {
+    id: APP_SETTINGS_ID,
+    brautpaar: compatibilityRow?.brautpaar ?? config.coupleLabel,
+    hochzeitsdatum: compatibilityRow?.hochzeitsdatum ?? config.weddingDate,
+    rsvp_deadline: compatibilityRow?.rsvp_deadline ?? config.rsvpDeadline,
+    fragen: compatibilityRow?.fragen ?? null,
+    texte: buildPlanningTexts(existingTexts, values),
+  })
+
+  const texts = parseSettingsTexts(data)
+  return {
+    isPublished: texts.publishSeatingPlan === true,
+    guests: parsePlanningGuests(texts),
+    tables: parseSeatingTables(texts),
+  }
 }
 
 function applyConfigOverlayToConfig(baseConfig: WeddingConfig, row: ConfigOverlayRow | null): WeddingConfig {

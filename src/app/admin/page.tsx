@@ -5,6 +5,7 @@ import { AdminRsvpPanel } from '@/components/admin/AdminRsvpPanel'
 import { AdminSectionNav } from '@/components/admin/AdminSectionNav'
 import { ExportButton } from '@/components/admin/ExportButton'
 import { GuestAccessCard } from '@/components/admin/GuestAccessCard'
+import { GuestPlanningSection } from '@/components/admin/GuestPlanningSection'
 import { LogoutButton } from '@/components/admin/LogoutButton'
 import { WeddingEditorForm } from '@/components/admin/WeddingEditorForm'
 import { Footer } from '@/components/layout/Footer'
@@ -17,6 +18,7 @@ import { HeroSection } from '@/components/sections/HeroSection'
 import { LocationSection } from '@/components/sections/LocationSection'
 import { ProgramSection } from '@/components/sections/ProgramSection'
 import { RsvpSection } from '@/components/sections/RsvpSection'
+import { SeatingPlanSection } from '@/components/sections/SeatingPlanSection'
 import { WeddingThemeFrame } from '@/components/theme/WeddingThemeFrame'
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
@@ -29,6 +31,7 @@ import {
   getAdminWeddingConfig,
   getFaqItems,
   getProgramItems,
+  getSeatingPlanData,
   getWeddingEditorValues,
   listGalleryPhotos,
   listRsvps,
@@ -43,12 +46,13 @@ export default async function AdminPage() {
   if (!user || billingAccess.requiresPayment) {
     redirect('/admin/login')
   }
-  const [rsvps, programItems, faqItems, galleryPhotos, editorValues] = await Promise.all([
+  const [rsvps, programItems, faqItems, galleryPhotos, editorValues, seatingPlanData] = await Promise.all([
     listRsvps(supabase, config),
     getProgramItems(supabase, config),
     getFaqItems(supabase, config),
     listGalleryPhotos(supabase, config),
     getWeddingEditorValues(supabase, config),
+    getSeatingPlanData(supabase, config),
   ])
 
   const galleryHref = config.guestCode ? `/galerie/${config.guestCode}` : null
@@ -159,6 +163,21 @@ export default async function AdminPage() {
         </div>
 
         <GuestAccessCard inviteUrl={guestInviteUrl} guestCode={config.guestCode} />
+      </Section>
+
+      <Section id="gaeste" className="space-y-8 pt-0">
+        <div className="max-w-3xl">
+          <SectionHeading>Gästeliste und Sitzplan</SectionHeading>
+          <p className="mt-4 text-charcoal-600">
+            Legt eure Gäste strukturiert an, ordnet Familien, Freunde, Kolleg:innen oder
+            Dienstleister zu und erstellt daraus manuell oder automatisch einen passenden
+            Sitzplan. Die Veröffentlichung für Gäste bleibt dabei standardmäßig deaktiviert.
+          </p>
+        </div>
+
+        <div className="surface-card px-6 py-6 sm:px-8">
+          <GuestPlanningSection initialData={seatingPlanData} rsvps={rsvps} />
+        </div>
       </Section>
 
       <Section id="inhalte" className="space-y-8 pt-0">
@@ -301,6 +320,10 @@ export default async function AdminPage() {
         <RsvpSection
           config={config}
           images={config.sectionImages.filter((image) => image.section === 'rsvp')}
+        />
+        <SeatingPlanSection
+          guestNamesById={new Map(seatingPlanData.guests.map((guest) => [guest.id, guest.name]))}
+          plan={seatingPlanData}
         />
         <FaqSection
           items={faqItems}
