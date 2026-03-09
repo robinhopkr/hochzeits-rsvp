@@ -30,6 +30,8 @@ const TABLE_KIND_LABELS: Record<SeatingTable['kind'], string> = {
   couple: 'Brautpaartisch',
 }
 
+const COUPLE_GROUP_LABEL = 'Brautpaar'
+
 function getDefaultSeatCountForKind(kind: SeatingTable['kind']): number {
   if (kind === 'couple') {
     return 2
@@ -68,6 +70,33 @@ function createGuest(overrides: Partial<PlanningGuest> = {}): PlanningGuest {
     notes: null,
     ...overrides,
   }
+}
+
+function buildCoupleGuests(coupleNames: string[]): PlanningGuest[] {
+  return coupleNames
+    .map((name) => name.trim())
+    .filter(Boolean)
+    .map((name, index) => ({
+      id: `couple-${index + 1}`,
+      name,
+      category: 'bridal_party' as const,
+      groupLabel: COUPLE_GROUP_LABEL,
+      notes: null,
+    }))
+}
+
+function ensureCoupleGuests(existingGuests: PlanningGuest[], coupleNames: string[]): PlanningGuest[] {
+  const coupleGuests = buildCoupleGuests(coupleNames)
+  const coupleIds = new Set(coupleGuests.map((guest) => guest.id))
+  const existingById = new Map(existingGuests.map((guest) => [guest.id, guest]))
+  const otherGuests = existingGuests.filter((guest) => !coupleIds.has(guest.id))
+
+  const mergedCoupleGuests = coupleGuests.map((guest) => ({
+    ...guest,
+    notes: existingById.get(guest.id)?.notes ?? null,
+  }))
+
+  return [...mergedCoupleGuests, ...otherGuests]
 }
 
 function normalizeSeatAssignments(seatAssignments: Array<string | null>, seatCount: number): Array<string | null> {
@@ -371,7 +400,7 @@ function SeatingPreview({
       {tables.map((table) => {
         const occupiedSeats = table.seatAssignments.filter(Boolean).length
 
-      return (
+        return (
           <article key={table.id} className="surface-card px-5 py-5">
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -415,17 +444,26 @@ function SeatingPreview({
 }
 
 export function GuestPlanningSection({
+  coupleNames,
   initialData,
   rsvps,
 }: {
+  coupleNames: string[]
   initialData: SeatingPlanData
   rsvps: RsvpRecord[]
 }) {
   const router = useRouter()
-  const [plan, setPlan] = useState<SeatingPlanData>(initialData)
+  const [plan, setPlan] = useState<SeatingPlanData>(() => ({
+    ...initialData,
+    guests: ensureCoupleGuests(initialData.guests, coupleNames),
+  }))
   const [isSaving, setIsSaving] = useState(false)
   const [guestTableCountDraft, setGuestTableCountDraft] = useState(0)
   const [guestSeatCountDraft, setGuestSeatCountDraft] = useState(8)
+  const coupleGuestIds = useMemo(
+    () => new Set(buildCoupleGuests(coupleNames).map((guest) => guest.id)),
+    [coupleNames],
+  )
 
   const assignedGuestIds = useMemo(() => getAssignedGuestIds(plan.tables), [plan.tables])
   const unassignedGuests = useMemo(
@@ -442,6 +480,13 @@ export function GuestPlanningSection({
     setGuestTableCountDraft(guestTables.length)
     setGuestSeatCountDraft(guestTables[0]?.seatCount ?? 8)
   }, [plan.tables])
+
+  useEffect(() => {
+    setPlan((current) => ({
+      ...current,
+      guests: ensureCoupleGuests(current.guests, coupleNames),
+    }))
+  }, [coupleNames])
 
   function updateGuest(guestId: string, patch: Partial<PlanningGuest>) {
     setPlan((current) => ({
@@ -490,25 +535,18 @@ export function GuestPlanningSection({
   }
 
   function importGuestsFromRsvps() {
-    const importedGuests = buildImportedGuests(rsvps, plan.guests)
+    const importedGuests = buildImportedGuests(rsvps, ensureCoupleGuests(plan.guests, coupleNames))
 
     if (!importedGuests.length) {
-      toast.message('Es konnten keine neuen Teilnehmenden aus den RSVP-Antworten übernommen werden.')
+      toast.message('Es konnten keine neuen Gäste aus den RSVP-Antworten übernommen werden.')
       return
     }
 
     setPlan((current) => ({
       ...current,
-      guests: [...current.guests, ...importedGuests],
+      guests: ensureCoupleGuests([...current.guests, ...importedGuests], coupleNames),
     }))
-    toast.success(`${importedGuests.length} Teilnehmende aus den RSVP-Antworten übernommen.`)
-  }
-
-  function addGuest() {
-    setPlan((current) => ({
-      ...current,
-      guests: [...current.guests, createGuest()],
-    }))
+    toast.success(`${importedGuests.length} Gäste aus den RSVP-Antworten übernommen.`)
   }
 
   function addTable(kind: SeatingTable['kind']) {
@@ -593,7 +631,10 @@ export function GuestPlanningSection({
     setIsSaving(true)
 
     try {
-      const payload = normalizePlanningData(plan)
+      const payload = normalizePlanningData({
+        ...plan,
+        guests: ensureCoupleGuests(plan.guests, coupleNames),
+      })
       const response = await fetch('/api/admin/seating-plan', {
         method: 'POST',
         headers: {
@@ -610,12 +651,12 @@ export function GuestPlanningSection({
       }
 
       setPlan(result.data)
-      toast.success(result.message ?? 'Teilnehmerliste und Tischplan wurden gespeichert.')
+      toast.success(result.message ?? 'RSVP-Gäste und Tischplan wurden gespeichert.')
       startTransition(() => {
         router.refresh()
       })
     } catch {
-      toast.error('Teilnehmerliste und Tischplan konnten gerade nicht gespeichert werden.')
+      toast.error('RSVP-Gäste und Tischplan konnten gerade nicht gespeichert werden.')
     } finally {
       setIsSaving(false)
     }
@@ -631,16 +672,16 @@ export function GuestPlanningSection({
             <Badge variant="neutral">{unassignedGuests.length} unzugeordnet</Badge>
           </div>
           <p className="max-w-3xl text-body-md text-charcoal-600">
-            Diese Teilnehmerliste ist eure interne Planungsansicht für Sitzplan und Gruppen.
-            Die eingegangenen Gästeantworten findet ihr separat im Bereich RSVP.
-            Die smarte Sitzverteilung setzt ähnliche Gruppen zusammen und berücksichtigt Dienstleister
-            bevorzugt am Dienstleistertisch.
+            Der Tischplan arbeitet mit den Zusagen aus dem Bereich RSVP. Übernommen werden nur Gäste aus
+            echten RSVP-Antworten; das Brautpaar wird hier automatisch ergänzt. Die smarte Sitzverteilung
+            setzt ähnliche Gruppen zusammen und berücksichtigt Dienstleister bevorzugt am
+            Dienstleistertisch.
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Button type="button" variant="secondary" onClick={importGuestsFromRsvps}>
             <Users className="h-4 w-4" />
-            Aus RSVP übernehmen
+            Aus RSVP synchronisieren
           </Button>
           <Button type="button" variant="secondary" onClick={runAutomaticSeating}>
             <WandSparkles className="h-4 w-4" />
@@ -683,80 +724,95 @@ export function GuestPlanningSection({
       </div>
 
       <div className="space-y-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h3 className="font-display text-card text-charcoal-900">Teilnehmerliste</h3>
-            <p className="mt-2 text-[0.96rem] leading-7 text-charcoal-600">
-              Kategorien und Gruppen helfen bei der automatischen Verteilung. Nutzt das Feld
-              `Gruppe/Haushalt`, wenn Personen zusammen sitzen sollen.
-            </p>
-          </div>
-          <Button type="button" variant="secondary" onClick={addGuest}>
-            <Plus className="h-4 w-4" />
-            Teilnehmer hinzufügen
-          </Button>
+        <div>
+          <h3 className="font-display text-card text-charcoal-900">RSVP-Teilnehmende</h3>
+          <p className="mt-2 text-[0.96rem] leading-7 text-charcoal-600">
+            Diese Liste speist den Tischplan. Sie wird aus euren Zusagen übernommen; das Brautpaar steht
+            automatisch mit drin. Kategorien und Gruppen helfen bei der automatischen Verteilung.
+          </p>
         </div>
 
         {plan.guests.length ? (
           <div className="space-y-4">
-            {plan.guests.map((guest) => (
-              <article key={guest.id} className="rounded-[1.6rem] border border-cream-200 bg-white px-5 py-5 shadow-sm">
-                <div className="grid gap-4 xl:grid-cols-[1.15fr_0.95fr_0.9fr_auto]">
-                  <Input
-                    label="Name"
-                    value={guest.name}
-                    onChange={(event) => updateGuest(guest.id, { name: event.target.value })}
-                  />
-                  <label className="flex flex-col gap-2 text-sm font-medium text-charcoal-700">
-                    <span>Kategorie</span>
-                    <select
-                      className="min-h-11 rounded-2xl border border-cream-300 bg-white px-4 py-3 text-base text-charcoal-900 outline-none transition focus:border-gold-500"
-                      value={guest.category}
-                      onChange={(event) =>
-                        updateGuest(guest.id, { category: event.target.value as GuestCategory })
+            {plan.guests.map((guest) => {
+              const isCoupleGuest = coupleGuestIds.has(guest.id)
+
+              return (
+                <article key={guest.id} className="rounded-[1.6rem] border border-cream-200 bg-white px-5 py-5 shadow-sm">
+                  <div className="grid gap-4 xl:grid-cols-[1.15fr_0.95fr_0.9fr_auto]">
+                    <Input
+                      disabled={isCoupleGuest}
+                      helperText={isCoupleGuest ? 'Automatisch aus dem Brautpaarprofil übernommen.' : undefined}
+                      label="Name"
+                      value={guest.name}
+                      onChange={(event) => updateGuest(guest.id, { name: event.target.value })}
+                    />
+                    <label className="flex flex-col gap-2 text-sm font-medium text-charcoal-700">
+                      <span>Kategorie</span>
+                      <select
+                        disabled={isCoupleGuest}
+                        className="min-h-11 rounded-2xl border border-cream-300 bg-white px-4 py-3 text-base text-charcoal-900 outline-none transition focus:border-gold-500"
+                        value={guest.category}
+                        onChange={(event) =>
+                          updateGuest(guest.id, { category: event.target.value as GuestCategory })
+                        }
+                      >
+                        {GUEST_CATEGORY_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                    <Input
+                      label="Gruppe / Haushalt"
+                      disabled={isCoupleGuest}
+                      helperText={
+                        isCoupleGuest
+                          ? 'Dieser Eintrag gehört fest zum Brautpaar.'
+                          : 'Optional, z. B. Familie Müller oder Paar Anna & Tim.'
                       }
-                    >
-                      {GUEST_CATEGORY_OPTIONS.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <Input
-                    label="Gruppe / Haushalt"
-                    helperText="Optional, z. B. Familie Müller oder Paar Anna & Tim."
-                    value={guest.groupLabel ?? ''}
-                    onChange={(event) =>
-                      updateGuest(guest.id, { groupLabel: event.target.value || null })
-                    }
-                  />
-                  <div className="flex items-end">
-                    <Button type="button" variant="ghost" onClick={() => removeGuest(guest.id)}>
-                      <Trash2 className="h-4 w-4" />
-                      Entfernen
-                    </Button>
+                      value={guest.groupLabel ?? ''}
+                      onChange={(event) =>
+                        updateGuest(guest.id, { groupLabel: event.target.value || null })
+                      }
+                    />
+                    <div className="flex items-end">
+                      {isCoupleGuest ? (
+                        <Badge variant="declined">Brautpaar</Badge>
+                      ) : (
+                        <Button type="button" variant="ghost" onClick={() => removeGuest(guest.id)}>
+                          <Trash2 className="h-4 w-4" />
+                          Entfernen
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto]">
-                  <Input
-                    label="Notiz"
-                    helperText="Optional, z. B. spricht vor allem mit Tisch 3 oder braucht ruhige Ecke."
-                    value={guest.notes ?? ''}
-                    onChange={(event) => updateGuest(guest.id, { notes: event.target.value || null })}
-                  />
-                  <div className="flex items-end justify-start lg:justify-end">
-                    <Badge variant={assignedGuestIds.has(guest.id) ? 'attending' : 'neutral'}>
-                      {assignedGuestIds.has(guest.id) ? 'zugewiesen' : 'offen'}
-                    </Badge>
+                  <div className="mt-4 grid gap-4 lg:grid-cols-[1fr_auto]">
+                    <Input
+                      label="Notiz"
+                      helperText={
+                        isCoupleGuest
+                          ? 'Optional, z. B. Sitzwünsche oder Hinweis zum Brautpaartisch.'
+                          : 'Optional, z. B. spricht vor allem mit Tisch 3 oder braucht ruhige Ecke.'
+                      }
+                      value={guest.notes ?? ''}
+                      onChange={(event) => updateGuest(guest.id, { notes: event.target.value || null })}
+                    />
+                    <div className="flex items-end justify-start lg:justify-end">
+                      <Badge variant={assignedGuestIds.has(guest.id) ? 'attending' : 'neutral'}>
+                        {assignedGuestIds.has(guest.id) ? 'zugewiesen' : 'offen'}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              )
+            })}
           </div>
         ) : (
           <div className="rounded-[1.75rem] border border-dashed border-cream-300 bg-cream-50 px-5 py-6 text-sm text-charcoal-600">
-            Noch keine Teilnehmenden angelegt. Ihr könnt sie manuell erfassen oder direkt aus den RSVP-Antworten übernehmen.
+            Noch keine RSVP-Gäste übernommen. Nutzt oben die Synchronisierung aus dem Bereich RSVP; das
+            Brautpaar wird automatisch ergänzt.
           </div>
         )}
       </div>

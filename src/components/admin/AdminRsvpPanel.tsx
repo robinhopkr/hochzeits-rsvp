@@ -139,8 +139,8 @@ export function AdminRsvpPanel({ initialRsvps }: AdminRsvpPanelProps) {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-charcoal-600">
-          Hier seht ihr nur echte RSVP-Antworten eurer Gäste. Für eure interne Tischplanung nutzt ihr
-          die Teilnehmerliste weiter oben.
+          Hier seht ihr nur echte RSVP-Antworten eurer Gäste. Für den Sitzplan nutzt ihr den Bereich
+          Tischplan, wo diese Zusagen übernommen werden.
           <span className="ml-2 text-charcoal-500">
             Letzte Aktualisierung: {formatGermanDateTime(lastUpdated)}
           </span>

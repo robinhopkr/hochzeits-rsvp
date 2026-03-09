@@ -62,7 +62,7 @@ export default async function AdminOverviewPage() {
             <li>1. Inhalte pflegen</li>
             <li>2. Zugänge und QR-Code teilen</li>
             <li>3. RSVP prüfen</li>
-            <li>4. Teilnehmer in den Tischplan übernehmen</li>
+            <li>4. RSVP-Gäste in den Tischplan synchronisieren</li>
           </ol>
         </article>
       </div>
@@ -81,9 +81,9 @@ export default async function AdminOverviewPage() {
         </article>
 
         <article className="surface-card px-6 py-6">
-          <h3 className="font-display text-card text-charcoal-900">Teilnehmer & Tischplan</h3>
+          <h3 className="font-display text-card text-charcoal-900">Tischplan</h3>
           <p className="mt-3 text-charcoal-600">
-            Interne Teilnehmerliste, Tischanzahl, Sitzplätze und visuelle Vorschau.
+            RSVP-Gäste übernehmen, Brautpaar ergänzen, Tische planen und Sitzplätze visuell prüfen.
           </p>
           <div className="mt-5">
             <ActionLink href="/admin/planung" variant="secondary">Zur Planung</ActionLink>

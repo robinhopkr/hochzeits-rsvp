@@ -7,7 +7,7 @@ export const ADMIN_DASHBOARD_NAV_ITEMS = [
   {
     href: '/admin/planung',
     label: 'Planung',
-    description: 'Teilnehmerliste, Tischlayout und Sitzplan.',
+    description: 'RSVP-Import, Tischlayout und Sitzplan.',
   },
   {
     href: '/admin/inhalte',

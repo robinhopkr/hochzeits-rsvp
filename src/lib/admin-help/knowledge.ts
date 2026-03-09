@@ -28,13 +28,13 @@ export const ADMIN_HELP_KNOWLEDGE_SECTIONS: AdminHelpKnowledgeSection[] = [
   },
   {
     id: 'planning',
-    title: 'Teilnehmer und Tischplan',
+    title: 'Tischplan',
     href: '/admin/planung',
     summary:
-      'Die Planungsseite ist eure interne Arbeitsfläche für Teilnehmerliste, Tischanzahl, Sitzplätze und Sitzverteilung.',
+      'Die Planungsseite ist eure Arbeitsfläche für RSVP-Import, Tischanzahl, Sitzplätze und Sitzverteilung.',
     bullets: [
-      'Die Teilnehmerliste ist bewusst getrennt von den echten RSVP-Antworten und dient nur der internen Planung.',
-      'RSVP-Antworten lassen sich in die Teilnehmerliste übernehmen.',
+      'Der Tischplan arbeitet mit echten RSVP-Zusagen; das Brautpaar wird automatisch ergänzt.',
+      'Gäste werden aus RSVP in den Tischplan übernommen statt separat manuell angelegt.',
       'Ihr könnt Anzahl der Gästetische und Sitzplätze pro Gästetisch zentral festlegen und danach einzelne Tische feinjustieren.',
       'Zusätzlich sind Brautpaartische und Dienstleistertische als eigene Tischtypen möglich.',
       'Ein Dienstleistertisch ist separat möglich und wird von der smarten Verteilung bevorzugt für Dienstleister genutzt.',
@@ -43,8 +43,8 @@ export const ADMIN_HELP_KNOWLEDGE_SECTIONS: AdminHelpKnowledgeSection[] = [
     ],
     keywords: [
       'planung',
-      'teilnehmer',
-      'gästeliste',
+      'rsvp-import',
+      'gäste',
       'tischplan',
       'sitzplan',
       'tische',
