@@ -65,6 +65,10 @@ interface SupabaseQuery extends PromiseLike<QueryResult<unknown>> {
 interface DbClient {
   from: (relation: string) => unknown
   storage?: {
+    createBucket?: (
+      bucket: string,
+      options?: { public?: boolean },
+    ) => Promise<StorageResult<{ name: string }>>
     from: (bucket: string) => {
       list: (
         path: string,
@@ -377,6 +381,27 @@ function isMissingBucketError(error: unknown): boolean {
 
   const message = 'message' in error ? String(error.message).toLowerCase() : ''
   return message.includes('bucket not found')
+}
+
+function isExistingBucketError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+
+  const message = 'message' in error ? String(error.message).toLowerCase() : ''
+  return message.includes('already exists') || message.includes('duplicate')
+}
+
+async function ensureGalleryBucket(supabase: DbClient): Promise<boolean> {
+  if (!supabase.storage?.createBucket) {
+    return false
+  }
+
+  const { error } = await supabase.storage.createBucket(GALLERY_BUCKET, {
+    public: true,
+  })
+
+  return !error || isExistingBucketError(error)
 }
 
 function sanitizeGalleryFileName(fileName: string): string {
@@ -896,10 +921,23 @@ async function getConfigOverlayRow(
   config: WeddingConfig,
 ): Promise<ConfigOverlayRow | null> {
   if (config.source === 'modern' && config.sourceId) {
-    const contentRow = await getWeddingContentRow(supabase, config.sourceId)
+    const [contentRow, compatibilityRow] = await Promise.all([
+      getWeddingContentRow(supabase, config.sourceId),
+      getCompatibilityAppSettingsRow(supabase, config),
+    ])
+    const contentOverlay = buildContentOverlayRow(contentRow)
+    const mergedOverlay = mergeOverlayRows(contentOverlay, compatibilityRow)
 
-    if (contentRow) {
-      return buildContentOverlayRow(contentRow)
+    if (!mergedOverlay) {
+      return null
+    }
+
+    return {
+      brautpaar: contentOverlay?.brautpaar ?? null,
+      hochzeitsdatum: contentOverlay?.hochzeitsdatum ?? null,
+      rsvp_deadline: contentOverlay?.rsvp_deadline ?? null,
+      fragen: mergedOverlay.fragen ?? null,
+      texte: mergedOverlay.texte ?? null,
     }
   }
 
@@ -1827,6 +1865,34 @@ async function listGalleryPhotosForPath(
 
   if (error) {
     if (isMissingBucketError(error)) {
+      const bucketCreated = await ensureGalleryBucket(supabase)
+
+      if (bucketCreated) {
+        const retry = await supabase.storage.from(GALLERY_BUCKET).list(path, {
+          limit: 1000,
+          sortBy: {
+            column: 'created_at',
+            order: 'desc',
+          },
+        })
+
+        if (!retry.error) {
+          return (retry.data ?? [])
+            .filter((file) => file.id)
+            .map((file) => {
+              const filePath = `${path}/${file.name}`
+
+              return {
+                name: file.name,
+                path: filePath,
+                publicUrl: buildGalleryPublicUrl(filePath),
+                createdAt: file.created_at ?? null,
+                visibility,
+              }
+            })
+        }
+      }
+
       return []
     }
 
@@ -1910,18 +1976,31 @@ export async function uploadGalleryFiles(
     const safeName = sanitizeGalleryFileName(file.name)
     const uniqueName = `${Date.now()}-${safeName}`
     const path = `${config.sourceId}/${targetFolder}/${uniqueName}`
-    const { error } = await supabase.storage.from(GALLERY_BUCKET).upload(path, file.body, {
-      cacheControl: '3600',
-      contentType: file.contentType,
-      upsert: false,
-    })
+    const uploadFile = () =>
+      supabase.storage!.from(GALLERY_BUCKET).upload(path, file.body, {
+        cacheControl: '3600',
+        contentType: file.contentType,
+        upsert: false,
+      })
+    let { error } = await uploadFile()
 
     if (error) {
       if (isMissingBucketError(error)) {
+        const bucketCreated = await ensureGalleryBucket(supabase)
+
+        if (bucketCreated) {
+          const retry = await uploadFile()
+          error = retry.error
+        }
+      }
+
+      if (error && isMissingBucketError(error)) {
         throw new Error('Die Fotogalerie ist noch nicht eingerichtet.')
       }
 
-      throw error
+      if (error) {
+        throw error
+      }
     }
   }
 }
@@ -1943,18 +2022,31 @@ export async function uploadContentImageFile(
   const safeName = sanitizeGalleryFileName(input.name)
   const uniqueName = `${Date.now()}-${safeName}`
   const path = `${CONTENT_ASSET_PREFIX}/${config.sourceId}/${input.folder}/${uniqueName}`
-  const { error } = await supabase.storage.from(GALLERY_BUCKET).upload(path, input.body, {
-    cacheControl: '3600',
-    contentType: input.contentType,
-    upsert: false,
-  })
+  const uploadFile = () =>
+    supabase.storage!.from(GALLERY_BUCKET).upload(path, input.body, {
+      cacheControl: '3600',
+      contentType: input.contentType,
+      upsert: false,
+    })
+  let { error } = await uploadFile()
 
   if (error) {
     if (isMissingBucketError(error)) {
+      const bucketCreated = await ensureGalleryBucket(supabase)
+
+      if (bucketCreated) {
+        const retry = await uploadFile()
+        error = retry.error
+      }
+    }
+
+    if (error && isMissingBucketError(error)) {
       throw new Error('Der Bildspeicher ist noch nicht eingerichtet.')
     }
 
-    throw error
+    if (error) {
+      throw error
+    }
   }
 
   return {
@@ -2121,7 +2213,7 @@ export async function saveWeddingEditorValues(
   const { data: updatedConfigRow, error: updateError } = (await query(supabase, 'wedding_config')
     .update({
       partner_1_name: splitCouple.partner1Name,
-      partner_2_name: splitCouple.partner2Name ?? currentModernRow.partner_2_name,
+      partner_2_name: splitCouple.partner2Name,
       wedding_date: values.weddingDate,
       venue_name: values.venueName || null,
       venue_address: values.venueAddress || null,

@@ -493,6 +493,7 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
         <Input
           label="Fotografen-Passwort"
           error={errors.photographerPassword?.message}
+          helperText="Wenn ihr hier ein Passwort speichert, wird damit der separate Fotografen-Login erstellt. Den Link findet ihr danach im Bereich Zugänge und im Gästebereich bei der Galerie."
           {...form.register('photographerPassword')}
         />
       </div>

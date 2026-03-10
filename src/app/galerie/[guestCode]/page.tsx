@@ -78,6 +78,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
   const galleryCollections = await getGalleryCollections(supabase, config)
   const photos = galleryCollections.publicPhotos
   const sharedPrivatePhotos = config.sharePrivateGalleryWithGuests ? galleryCollections.privatePhotos : []
+  const photographerHref = config.photoPassword ? `/fotograf/${resolvedParams.guestCode}` : null
 
   return (
     <main className="min-h-screen bg-cream-50">
@@ -105,12 +106,14 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
             >
               Zur Einladung
             </Link>
-            <Link
-              className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
-              href={`/fotograf/${resolvedParams.guestCode}`}
-            >
-              Fotografen-Login
-            </Link>
+            {photographerHref ? (
+              <Link
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
+                href={photographerHref}
+              >
+                Fotografen-Login
+              </Link>
+            ) : null}
           </div>
         </div>
 

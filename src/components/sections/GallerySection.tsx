@@ -34,6 +34,8 @@ function buildGalleryDescription(config: WeddingConfig, hasPhotos: boolean): str
 
 export function GallerySection({ config, photos, images = [] }: GallerySectionProps) {
   const galleryHref = config.guestCode ? `/galerie/${config.guestCode}` : null
+  const photographerHref =
+    config.guestCode && config.photoPassword ? `/fotograf/${config.guestCode}` : null
 
   return (
     <Section density="compact" id="galerie" className="space-y-6">
@@ -43,12 +45,22 @@ export function GallerySection({ config, photos, images = [] }: GallerySectionPr
           <p className="mt-4 text-charcoal-600">{buildGalleryDescription(config, photos.length > 0)}</p>
         </div>
         {galleryHref ? (
-          <Link
-            className="inline-flex min-h-11 items-center justify-center rounded-full border border-gold-300 bg-white px-5 py-3 text-sm font-semibold text-charcoal-800 transition hover:border-gold-500 hover:text-charcoal-900"
-            href={galleryHref}
-          >
-            Galerie öffnen
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              className="inline-flex min-h-11 items-center justify-center rounded-full border border-gold-300 bg-white px-5 py-3 text-sm font-semibold text-charcoal-800 transition hover:border-gold-500 hover:text-charcoal-900"
+              href={galleryHref}
+            >
+              Galerie öffnen
+            </Link>
+            {photographerHref ? (
+              <Link
+                className="inline-flex min-h-11 items-center justify-center rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
+                href={photographerHref}
+              >
+                Fotografen-Login
+              </Link>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

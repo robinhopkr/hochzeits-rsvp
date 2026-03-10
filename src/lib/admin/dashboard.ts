@@ -24,6 +24,6 @@ export const getProtectedAdminContext = cache(async () => {
     config,
     guestInviteUrl: new URL('/einladung', ENV.appUrl).toString(),
     galleryHref: config.guestCode ? `/galerie/${config.guestCode}` : null,
-    photographerHref: config.guestCode ? `/fotograf/${config.guestCode}` : null,
+    photographerHref: config.guestCode && config.photoPassword ? `/fotograf/${config.guestCode}` : null,
   }
 })

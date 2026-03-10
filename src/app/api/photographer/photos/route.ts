@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { getPhotoSessionFromCookieStore } from '@/lib/auth/photo-session'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
 import {
   deleteGalleryPhoto,
@@ -14,7 +15,7 @@ import type { GalleryVisibility } from '@/types/wedding'
 const MAX_FILE_SIZE = 50 * 1024 * 1024
 
 async function getAuthorizedConfig(request: NextRequest, guestCode: string) {
-  const supabase = createPublicClient()
+  const supabase = createAdminClient() ?? createPublicClient()
   const config = await getWeddingConfigByGuestCode(supabase, guestCode)
 
   if (!config?.sourceId) {
