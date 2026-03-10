@@ -70,6 +70,7 @@ export function PhotographerPasswordCard({
         <div className="mt-4 space-y-4">
           <Input
             label="Fotografen-Passwort"
+            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Neues Passwort eingeben"
