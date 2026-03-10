@@ -37,7 +37,7 @@ export function BillingCheckoutButton() {
       const result = (await response.json()) as ApiResponse<BillingStatusResponse>
 
       if (result.success && !result.data.access.requiresPayment) {
-        toast.success('Zahlung bestaetigt. Der Login ist jetzt freigeschaltet.')
+        toast.success('Zahlung bestätigt. Der Login ist jetzt freigeschaltet.')
         setIsAwaitingConfirmation(false)
         startTransition(() => {
           router.refresh()
@@ -129,7 +129,7 @@ export function BillingCheckoutButton() {
     <div className="space-y-3">
       <Button className="w-full sm:w-auto" loading={isStartingCheckout} size="lg" type="button" onClick={() => void handleCheckout()}>
         <CreditCard className="h-4 w-4" />
-        Jetzt fuer {BILLING_PRICE_LABEL} freischalten
+        Jetzt für {BILLING_PRICE_LABEL} freischalten
       </Button>
       {isAwaitingConfirmation ? (
         <p className="text-sm text-charcoal-600">

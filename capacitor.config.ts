@@ -63,7 +63,7 @@ function isLoopbackUrl(value: string): boolean {
 }
 
 function readHostedAppUrl(): string {
-  return 'https://mywed-niiro.vercel.app'
+  return 'https://mywed.niiro.ai'
 }
 
 function resolveAppBaseUrl(): string {
@@ -84,7 +84,7 @@ function resolveAppBaseUrl(): string {
   if (isLoopbackUrl(publicAppUrl) && !allowLocalhost) {
     console.warn(
       '[capacitor] NEXT_PUBLIC_APP_URL zeigt auf localhost. ' +
-        'Fuer native Builds wird stattdessen die gehostete Domain verwendet. ' +
+        'Für native Builds wird stattdessen die gehostete Domain verwendet. ' +
         'Setze CAPACITOR_ALLOW_LOCALHOST=true oder CAPACITOR_SERVER_URL, falls du bewusst lokal entwickeln willst.',
     )
     return readHostedAppUrl()
@@ -101,7 +101,7 @@ const allowNavigationHost = new URL(appBaseUrl).host
 
 if (!process.env.CAPACITOR_SERVER_URL && !process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_SITE_URL) {
   console.warn(
-    '[capacitor] Keine Mobile-URL gefunden. Fallback auf https://mywed-niiro.vercel.app. ' +
+    '[capacitor] Keine Mobile-URL gefunden. Fallback auf https://mywed.niiro.ai. ' +
       'Setze CAPACITOR_SERVER_URL, falls du eine andere Domain verwenden willst.',
   )
 }

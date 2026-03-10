@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { startTransition, useState } from 'react'
+import { startTransition, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 import { loginSchema, type LoginSchema } from '@/lib/validations/admin.schema'
@@ -32,10 +32,20 @@ export function LoginForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      role,
+      email: '',
+      password: '',
+    },
   })
+
+  useEffect(() => {
+    setValue('role', role, { shouldDirty: false, shouldValidate: false })
+  }, [role, setValue])
 
   const onSubmit = handleSubmit(async (values) => {
     setErrorMessage(null)
@@ -75,6 +85,7 @@ export function LoginForm({
       noValidate
       onSubmit={onSubmit}
     >
+      <input type="hidden" {...register('role')} />
       <Input label="E-Mail" error={errors.email?.message} type="email" {...register('email')} />
       <Input label="Passwort" error={errors.password?.message} type="password" {...register('password')} />
       {errorMessage ? (

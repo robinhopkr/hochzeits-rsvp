@@ -25,7 +25,7 @@ jobs:
 
       - name: Sync Capacitor assets
         env:
-          CAPACITOR_SERVER_URL: https://hochzeits-rsvp.vercel.app
+          CAPACITOR_SERVER_URL: https://mywed.niiro.ai
         run: npm run mobile:sync
 
       - name: Fail fast if iOS signing secrets are missing

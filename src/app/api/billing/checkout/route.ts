@@ -32,7 +32,7 @@ export async function POST(): Promise<NextResponse<ApiResponse<CheckoutResponse>
     return NextResponse.json(
       {
         success: false,
-        error: 'Die Admin-E-Mail fuer das Brautpaar ist aktuell nicht konfiguriert.',
+        error: 'Die Admin-E-Mail für das Brautpaar ist aktuell nicht konfiguriert.',
         code: 'ADMIN_EMAIL_NOT_CONFIGURED',
       },
       { status: 503 },
@@ -52,7 +52,7 @@ export async function POST(): Promise<NextResponse<ApiResponse<CheckoutResponse>
     const session = await createBillingCheckoutSession(access.adminEmail)
 
     if (!session.url) {
-      throw new Error('Stripe hat keine Checkout-URL zurueckgegeben.')
+      throw new Error('Stripe hat keine Checkout-URL zurückgegeben.')
     }
 
     return NextResponse.json({

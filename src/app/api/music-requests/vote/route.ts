@@ -53,7 +53,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: 'Bitte waehle einen gueltigen Musikwunsch aus.',
+          error: 'Bitte wähle einen gültigen Musikwunsch aus.',
           code: 'VALIDATION_ERROR',
           details: parseResult.error.flatten(),
         },

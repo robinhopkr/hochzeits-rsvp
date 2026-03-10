@@ -39,7 +39,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Ungueltige Stripe-Signatur.',
+        error: error instanceof Error ? error.message : 'Ungültige Stripe-Signatur.',
       },
       { status: 400 },
     )

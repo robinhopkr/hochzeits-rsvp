@@ -697,13 +697,13 @@ export function GuestPlanningSection({
       <div className="rounded-[1.75rem] border border-gold-200 bg-gold-50/80 px-5 py-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div className="space-y-2">
-            <h3 className="font-display text-card text-charcoal-900">Sitzplan fuer Gaeste veroeffentlichen</h3>
+            <h3 className="font-display text-card text-charcoal-900">Sitzplan für Gäste veröffentlichen</h3>
             <p className="max-w-3xl text-body-md text-charcoal-600">
               Standardmaessig bleibt der Sitzplan privat und nur im Paarbereich sichtbar. Erst wenn ihr
-              diese Option aktiviert und speichert, erscheint er auf der Gaesteseite.
+              diese Option aktiviert und speichert, erscheint er auf der Gästeseite.
             </p>
             <p className="text-sm text-charcoal-500">
-              Dienstleistertische bleiben weiterhin nur intern fuer euch sichtbar.
+              Dienstleistertische bleiben weiterhin nur intern für euch sichtbar.
             </p>
           </div>
           <label className="flex min-h-11 items-center gap-3 rounded-full border border-gold-300 bg-white px-4 py-3 text-sm font-semibold text-charcoal-900">
@@ -718,7 +718,7 @@ export function GuestPlanningSection({
                 }))
               }
             />
-            {plan.isPublished ? 'Fuer Gaeste sichtbar' : 'Privat'}
+            {plan.isPublished ? 'Für Gäste sichtbar' : 'Privat'}
           </label>
         </div>
       </div>

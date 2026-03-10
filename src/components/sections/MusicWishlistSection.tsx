@@ -148,7 +148,7 @@ export function MusicWishlistSection({
         <div className="max-w-3xl space-y-3">
           <SectionHeading>Musikwunschliste</SectionHeading>
           <p className="text-charcoal-600">
-            Wuenscht euch Songs fuer die Party und stimmt fuer eure Favoriten ab. Je mehr Daumen hoch
+            Wünscht euch Songs für die Party und stimmt für eure Favoriten ab. Je mehr Daumen hoch
             ein Wunsch bekommt, desto weiter steigt er in der Liste.
           </p>
         </div>
@@ -210,7 +210,7 @@ export function MusicWishlistSection({
                     <h3 className="font-display text-card text-charcoal-900">{request.title}</h3>
                     <p className="mt-1 text-charcoal-600">
                       {request.artist ? request.artist : 'Interpret/in offen'}
-                      {request.requestedBy ? ` · gewuenscht von ${request.requestedBy}` : ''}
+                      {request.requestedBy ? ` · gewünscht von ${request.requestedBy}` : ''}
                     </p>
                   </div>
                 </div>

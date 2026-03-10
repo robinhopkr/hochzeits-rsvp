@@ -74,7 +74,7 @@ export function WeddingInvitationPage({
         brandLabel={APP_BRAND_NAME}
         navItems={navItems}
         ctaHref="/admin/login"
-        ctaLabel="Login fuer Brautpaare"
+        ctaLabel="Login für Brautpaare"
         showBrandMark
       />
       {showDemoBanner ? (
@@ -84,7 +84,7 @@ export function WeddingInvitationPage({
               Demohochzeit: Beispielinhalte, Beispielbilder und Demo-RSVP ohne Datenspeicherung.
             </p>
             <p className="wedding-demo-banner-muted">
-              Der reale Paarbereich bleibt separat geschuetzt und kostenpflichtig.
+              Der reale Paarbereich bleibt separat geschützt und kostenpflichtig.
             </p>
           </div>
         </div>

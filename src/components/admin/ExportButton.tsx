@@ -14,7 +14,7 @@ export function ExportButton({ rsvps }: { rsvps: RsvpRecord[] }) {
       'Status',
       'Personen',
       'Essensvarianten',
-      'Allergien und Unvertraeglichkeiten',
+      'Allergien und Unverträglichkeiten',
       'Nachricht',
       'Zeitpunkt',
     ]

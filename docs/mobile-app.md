@@ -1,12 +1,12 @@
 # Mobile App Setup
 
-Die Hochzeits-App basiert auf `next@15`, Server Components, API-Routen und Supabase. Deshalb wird die Android-/iOS-App hier als native Capacitor-Huelle gebaut, die die gehostete Web-App oeffnet, statt die komplette App statisch in das Bundle zu exportieren.
+Die Hochzeits-App basiert auf `next@15`, Server Components, API-Routen und Supabase. Deshalb wird die Android-/iOS-App hier als native Capacitor-Hülle gebaut, die die gehostete Web-App öffnet, statt die komplette App statisch in das Bundle zu exportieren.
 
 ## Voraussetzungen
 
 - Die Web-App ist unter einer stabilen HTTPS-URL erreichbar.
 - `NEXT_PUBLIC_APP_URL` oder `CAPACITOR_SERVER_URL` zeigt auf diese URL.
-- Fuer iOS-Builds brauchst du spaeter zwingend macOS + Xcode.
+- Für iOS-Builds brauchst du später zwingend macOS + Xcode.
 
 ## Wichtige Umgebungsvariablen
 
@@ -18,11 +18,11 @@ CAPACITOR_APP_NAME=myWed by NiiRo AI
 MOBILE_RELEASES_REPO=robinhopkr/hochzeits-rsvp
 ```
 
-- `CAPACITOR_SERVER_URL`: Bevorzugte URL fuer die native App.
+- `CAPACITOR_SERVER_URL`: Bevorzugte URL für die native App.
 - `CAPACITOR_APP_START_PATH`: Standard ist `/demo`, damit die App direkt in die Hochzeitsoberflaeche startet.
-- `MOBILE_RELEASES_REPO`: GitHub-Repo fuer die Update-Pruefung in der nativen App.
+- `MOBILE_RELEASES_REPO`: GitHub-Repo für die Update-Prüfung in der nativen App.
 - Wenn `CAPACITOR_SERVER_URL` fehlt, wird `NEXT_PUBLIC_APP_URL` verwendet.
-- Wenn beides fehlt, faellt Capacitor auf `https://hochzeits-rsvp.vercel.app/demo` zurueck.
+- Wenn beides fehlt, fällt Capacitor auf `https://mywed.niiro.ai/demo` zurück.
 
 ## Lokale Entwicklung
 
@@ -44,6 +44,6 @@ npm run mobile:open:ios
 
 - Android kannst du auf Windows vorbereiten und in Android Studio bauen.
 - Das `ios/`-Projekt kann synchronisiert werden, aber Signierung, Simulator und App-Store-Build gehen erst auf macOS.
-- Die aktuelle Loesung ist bewusst ein nativer Container fuer die bestehende Next.js-App. Wenn du spaeter ein komplett offline-faehiges Bundle willst, muessen serverseitige Seiten und API-Routen separat fuer Mobile entkoppelt werden.
-- Fuer GitHub-Actions-Builds und Release-Assets siehe `docs/mobile-release.md`.
-- Android prueft in der nativen App beim Start und beim Wiederaufnehmen, ob im GitHub-Repo ein neuerer Release vorhanden ist, und bietet dann den APK-Download direkt an.
+- Die aktuelle Lösung ist bewusst ein nativer Container für die bestehende Next.js-App. Wenn du später ein komplett offline-fähiges Bundle willst, müssen serverseitige Seiten und API-Routen separat für Mobile entkoppelt werden.
+- Für GitHub-Actions-Builds und Release-Assets siehe `docs/mobile-release.md`.
+- Android prüft in der nativen App beim Start und beim Wiederaufnehmen, ob im GitHub-Repo ein neuerer Release vorhanden ist, und bietet dann den APK-Download direkt an.

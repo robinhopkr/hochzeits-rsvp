@@ -30,31 +30,43 @@ function normalizeEmail(value: string | null | undefined): string | null {
 }
 
 function getConfiguredAdminAccount(role: AdminSessionRole): ConfiguredAdminAccount | null {
-  if (role === 'planner') {
-    const email = normalizeEmail(process.env.WEDDING_PLANNER_EMAIL)
-    const password = process.env.WEDDING_PLANNER_PASSWORD ?? null
+  const coupleEmail = normalizeEmail(process.env.ADMIN_EMAIL)
+  const couplePassword = process.env.ADMIN_PASSWORD ?? null
 
-    if (!email || !password) {
+  if (role === 'planner') {
+    const plannerEmail = normalizeEmail(process.env.WEDDING_PLANNER_EMAIL)
+    const plannerPassword = process.env.WEDDING_PLANNER_PASSWORD ?? null
+
+    if (plannerEmail && plannerPassword) {
+      return {
+        email: plannerEmail,
+        password: plannerPassword,
+        role,
+      }
+    }
+
+    if (plannerEmail || plannerPassword) {
+      return null
+    }
+
+    if (!coupleEmail || !couplePassword) {
       return null
     }
 
     return {
-      email,
-      password,
+      email: coupleEmail,
+      password: couplePassword,
       role,
     }
   }
 
-  const email = normalizeEmail(process.env.ADMIN_EMAIL)
-  const password = process.env.ADMIN_PASSWORD ?? null
-
-  if (!email || !password) {
+  if (!coupleEmail || !couplePassword) {
     return null
   }
 
   return {
-    email,
-    password,
+    email: coupleEmail,
+    password: couplePassword,
     role,
   }
 }

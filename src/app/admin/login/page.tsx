@@ -47,14 +47,14 @@ function getNotice(
   if (checkoutResult?.code === 'PAID' || (!requiresPayment && checkoutResult?.code === 'ALREADY_UNLOCKED')) {
     return {
       tone: 'success' as const,
-      title: 'Zahlung bestaetigt',
-      body: 'Der Paarbereich ist jetzt freigeschaltet. Ihr koennt euch direkt anmelden.',
+      title: 'Zahlung bestätigt',
+      body: 'Der Paarbereich ist jetzt freigeschaltet. Ihr könnt euch direkt anmelden.',
     }
   }
 
   return {
     tone: 'info' as const,
-    title: 'Zahlung wird geprueft',
+    title: 'Zahlung wird geprüft',
     body: 'Wenn ihr den Checkout gerade abgeschlossen habt, wird die Freischaltung in der Regel innerhalb weniger Sekunden sichtbar.',
   }
 }
@@ -131,7 +131,8 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
               <p className="text-sm uppercase tracking-[0.18em] text-sage-700">Wedding Planner</p>
               <h2 className="font-display text-card text-charcoal-900">Zugang für den Wedding Planner</h2>
               <p className="text-charcoal-600">
-                Gleiche Rechte wie das Brautpaar, aber mit separaten Zugangsdaten für Planung und Abstimmung.
+                Gleiche Rechte wie das Brautpaar. Wenn keine separaten Zugangsdaten hinterlegt sind,
+                funktioniert dieser Login automatisch mit denselben Zugangsdaten wie beim Brautpaar.
               </p>
             </div>
             {plannerLoginConfigured ? (
@@ -140,8 +141,8 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
               </div>
             ) : (
               <div className="mt-6 rounded-[1.5rem] border border-cream-300 bg-cream-50 px-5 py-4 text-sm text-charcoal-700">
-                Dieser Zugang ist optional und aktuell noch nicht eingerichtet. Setzt dafür
-                `WEDDING_PLANNER_EMAIL` und `WEDDING_PLANNER_PASSWORD`.
+                Dieser Zugang ist optional und aktuell noch nicht vollständig eingerichtet. Für einen
+                separaten Planner-Login setzt `WEDDING_PLANNER_EMAIL` und `WEDDING_PLANNER_PASSWORD`.
               </div>
             )}
           </div>

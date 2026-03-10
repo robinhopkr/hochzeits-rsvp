@@ -12,9 +12,9 @@ interface BillingPaywallProps {
 }
 
 const VALUE_POINTS = [
-  'Geschuetzter Paarbereich fuer Inhalte, RSVPs und Galeriepflege',
+  'Geschützter Paarbereich für Inhalte, RSVPs und Galeriepflege',
   'Einmalige Zahlung pro Brautpaar statt laufender Monatskosten',
-  'Gaestebereich, RSVP und Galerie fuer eure Gaeste bleiben kostenlos',
+  'Gästebereich, RSVP und Galerie für eure Gäste bleiben kostenlos',
 ] as const
 
 export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
@@ -29,11 +29,11 @@ export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
 
           <div className="space-y-3">
             <h2 className="font-display text-3xl text-charcoal-900 sm:text-4xl">
-              Freischaltung fuer den Paarbereich
+              Freischaltung für den Paarbereich
             </h2>
             <p className="max-w-2xl text-charcoal-600">
-              Der geschuetzte Bereich fuer das Brautpaar wird einmalig pro Hochzeit freigeschaltet.
-              Eure Gaeste koennen Einladung, RSVP und Galerie weiterhin kostenlos nutzen.
+              Der geschützte Bereich für das Brautpaar wird einmalig pro Hochzeit freigeschaltet.
+              Eure Gäste können Einladung, RSVP und Galerie weiterhin kostenlos nutzen.
             </p>
           </div>
 
@@ -45,9 +45,9 @@ export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
             </article>
             <article className="rounded-[1.75rem] border border-cream-200 bg-cream-50 px-4 py-4">
               <Users className="h-5 w-5 text-gold-700" />
-              <p className="mt-3 text-sm font-semibold text-charcoal-900">Gaestebereich frei</p>
+              <p className="mt-3 text-sm font-semibold text-charcoal-900">Gästebereich frei</p>
               <p className="mt-1 text-sm text-charcoal-600">
-                Einladung, Rueckmeldung und Galerie bleiben fuer eure Gaeste kostenlos.
+                Einladung, Rückmeldung und Galerie bleiben für eure Gäste kostenlos.
               </p>
             </article>
             <article className="rounded-[1.75rem] border border-cream-200 bg-cream-50 px-4 py-4">
@@ -79,7 +79,7 @@ export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
           <p className="mt-3 text-sm text-charcoal-600">{BILLING_PRICE_NOTE}</p>
           {adminEmail ? (
             <p className="mt-5 rounded-3xl bg-cream-50 px-4 py-4 text-sm text-charcoal-700">
-              Freischaltung fuer: <span className="font-semibold text-charcoal-900">{adminEmail}</span>
+              Freischaltung für: <span className="font-semibold text-charcoal-900">{adminEmail}</span>
             </p>
           ) : null}
           <div className="mt-6">

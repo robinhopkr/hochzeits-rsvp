@@ -85,7 +85,7 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: 'Bitte pruefe deinen Musikwunsch.',
+          error: 'Bitte prüfe deinen Musikwunsch.',
           code: 'VALIDATION_ERROR',
           details: parseResult.error.flatten(),
         },
@@ -112,7 +112,7 @@ export async function POST(
       NextResponse.json({
         success: true,
         data,
-        message: 'Musikwunsch hinzugefuegt.',
+        message: 'Musikwunsch hinzugefügt.',
       }),
       visitorToken,
     )

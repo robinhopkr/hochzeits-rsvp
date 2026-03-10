@@ -106,8 +106,8 @@ export function RsvpForm({
             )}
           />
           <Textarea
-            label="Allergien und Unvertraeglichkeiten"
-            helperText="Optional. Bitte nennt hier Allergien, Unvertraeglichkeiten oder besondere Ernaehrungsbeduerfnisse fuer eure Gruppe."
+            label="Allergien und Unverträglichkeiten"
+            helperText="Optional. Bitte nennt hier Allergien, Unverträglichkeiten oder besondere Ernährungsbedürfnisse für eure Gruppe."
             error={errors.dietaryNotes?.message}
             {...register('dietaryNotes')}
           />
@@ -144,7 +144,7 @@ export function RsvpForm({
             {submissionState === 'submitting'
               ? 'Wird gesendet...'
               : mode === 'demo'
-                ? 'Demo-Rueckmeldung testen'
+                ? 'Demo-Rückmeldung testen'
                 : 'Antwort absenden'}
           </Button>
         )}

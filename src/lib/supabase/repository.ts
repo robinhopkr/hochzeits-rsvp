@@ -1062,7 +1062,7 @@ export async function saveStoredBillingRecord(
     const legacyRow = await getLegacyWeddingRowById(supabase, config.sourceId)
 
     if (!legacyRow) {
-      throw new Error('Die aktive Hochzeit konnte fuer die Zahlung nicht geladen werden.')
+      throw new Error('Die aktive Hochzeit konnte für die Zahlung nicht geladen werden.')
     }
 
     const existingTexts = parseLegacyTexts(legacyRow) as AppSettingsTexts

@@ -16,18 +16,18 @@ export const DEMO_WEDDING_CONFIG: WeddingConfig = {
   venueAddress: 'Alte Lindenstrasse 7, 21465 Wentorf bei Hamburg',
   venueMapsUrl: null,
   welcomeMessage:
-    'Willkommen zu einer Beispielhochzeit. So kann eure Einladung auf Mobilgeraeten und am Desktop aussehen, inklusive RSVP, Zeitplan und Galerie.',
+    'Willkommen zu einer Beispielhochzeit. So kann eure Einladung auf Mobilgeräten und am Desktop aussehen, inklusive RSVP, Zeitplan und Galerie.',
   formTitle: 'Beispiel-RSVP testen',
   formDescription:
-    'Dieses Formular ist Teil der Demo. Beim Absenden wird nichts gespeichert, die Erfolgsansicht koennt ihr aber komplett ausprobieren.',
-  successTitle: 'Danke, {name}. So wirkt die Bestaetigung fuer eure Gaeste.',
+    'Dieses Formular ist Teil der Demo. Beim Absenden wird nichts gespeichert, die Erfolgsansicht könnt ihr aber komplett ausprobieren.',
+  successTitle: 'Danke, {name}. So wirkt die Bestätigung für eure Gäste.',
   successDescription:
-    'In der echten Einladung steht hier die finale Rueckmeldung mit Datum, Ort und persoenlicher Nachricht an eure Gaeste.',
+    'In der echten Einladung steht hier die finale Rückmeldung mit Datum, Ort und persönlicher Nachricht an eure Gäste.',
   invitationStory:
     'Mila und Jonas feiern eine entspannte Sommerhochzeit mit Trauung im Garten, Dinner in der Scheune und einer langen Tanznacht unter Lichterketten.',
   galleryTitle: 'Beispielgalerie',
   galleryDescription:
-    'Eine kleine Vorschau darauf, wie Hochzeitsfotos nach dem Fest elegant praesentiert werden koennen.',
+    'Eine kleine Vorschau darauf, wie Hochzeitsfotos nach dem Fest elegant präsentiert werden können.',
   dressCode: 'Sommerlich elegant in soften Naturtoenen, gern mit Leinen, Satin und warmen Akzenten.',
   dressCodeWomen: 'Midi- oder Maxikleider, Jumpsuits oder leichte Zweiteiler in warmen Naturfarben.',
   dressCodeMen: 'Leichte Anzuege, Stoffhosen mit Hemd oder lockere Kombinationen in Sand, Olive und Navy.',
@@ -65,7 +65,7 @@ export const DEMO_WEDDING_CONFIG: WeddingConfig = {
     {
       id: 'demo-section-program',
       section: 'programm',
-      title: 'Stimmung fuer den Ablauf',
+      title: 'Stimmung für den Ablauf',
       imageUrl: '/images/demo/gallery-dinner-new.jpg',
       altText: 'Warm beleuchtete Hochzeitstafel unter Lichterketten im Freien',
     },
@@ -134,7 +134,7 @@ export const DEMO_PROGRAM_ITEMS: ProgramItem[] = [
     timeLabel: '15:30',
     title: 'Freie Trauung im Garten',
     description:
-      'Die Zeremonie beginnt unter alten Linden. Danach folgen Glueckwuensche, Musik und ein lockerer Aperitif.',
+      'Die Zeremonie beginnt unter alten Linden. Danach folgen Glückwünsche, Musik und ein lockerer Aperitif.',
     icon: 'Heart',
     sortOrder: 1,
   },
@@ -152,16 +152,16 @@ export const DEMO_PROGRAM_ITEMS: ProgramItem[] = [
     timeLabel: '19:00',
     title: 'Dinner in der Scheune',
     description:
-      'Ein langes Dinner mit saisonalem Menu, Reden, Kerzenlicht und viel Zeit fuer gute Geschichten am Tisch.',
+      'Ein langes Dinner mit saisonalem Menü, Reden, Kerzenlicht und viel Zeit für gute Geschichten am Tisch.',
     icon: 'UtensilsCrossed',
     sortOrder: 3,
   },
   {
     id: 'demo-program-4',
     timeLabel: '21:30',
-    title: 'Tanzflaeche und Late-Night-Bar',
+    title: 'Tanzfläche und Late-Night-Bar',
     description:
-      'Danach geht es direkt auf die Tanzflaeche. Spaeter wartet noch eine kleine Dessertbar mit Espresso und Mitternachtssnacks.',
+      'Danach geht es direkt auf die Tanzfläche. Später wartet noch eine kleine Dessertbar mit Espresso und Mitternachtssnacks.',
     icon: 'Music4',
     sortOrder: 4,
   },
@@ -172,27 +172,27 @@ export const DEMO_FAQ_ITEMS: FaqItem[] = [
     id: 'demo-faq-1',
     question: 'Wie wirkt die Demo auf dem Smartphone?',
     answer:
-      'Genau dafuer ist diese Beispielhochzeit gedacht. Alle Inhalte sind responsiv aufgebaut und zeigen denselben Stil auf Mobilgeraeten und am Desktop.',
+      'Genau dafür ist diese Beispielhochzeit gedacht. Alle Inhalte sind responsiv aufgebaut und zeigen denselben Stil auf Mobilgeräten und am Desktop.',
     sortOrder: 1,
   },
   {
     id: 'demo-faq-2',
-    question: 'Bleibt der Gaestebereich kostenlos?',
+    question: 'Bleibt der Gästebereich kostenlos?',
     answer:
-      'Ja. Die Bezahlpflicht betrifft nur den geschuetzten Paarbereich. Einladung, RSVP und Galerie bleiben fuer eure Gaeste kostenlos.',
+      'Ja. Die Bezahlpflicht betrifft nur den geschützten Paarbereich. Einladung, RSVP und Galerie bleiben für eure Gäste kostenlos.',
     sortOrder: 2,
   },
   {
     id: 'demo-faq-3',
-    question: 'Kann das Paar spaeter alles anpassen?',
+    question: 'Kann das Paar später alles anpassen?',
     answer:
-      'Ja. Namen, Texte, Ablauf, Dresscode, Bilder und Galerie koennen spaeter im Paarbereich bearbeitet werden.',
+      'Ja. Namen, Texte, Ablauf, Dresscode, Bilder und Galerie können später im Paarbereich bearbeitet werden.',
     sortOrder: 3,
   },
   {
     id: 'demo-faq-4',
     question: 'Werden Demo-RSVPs gespeichert?',
-    answer: 'Nein. In dieser Demo wird beim Testen nichts an eine echte Hochzeit uebermittelt.',
+    answer: 'Nein. In dieser Demo wird beim Testen nichts an eine echte Hochzeit übermittelt.',
     sortOrder: 4,
   },
 ]

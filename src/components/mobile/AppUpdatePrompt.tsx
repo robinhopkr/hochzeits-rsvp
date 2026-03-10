@@ -211,7 +211,7 @@ export function AppUpdatePrompt() {
             </p>
             <p className="hidden text-sm text-charcoal-600 sm:block">
               Die Inhalte sind zwar immer live, dieses Update bringt aber neue native Verbesserungen
-              fuer die App. Aktuell installiert: {availableUpdate.currentVersion}
+              für die App. Aktuell installiert: {availableUpdate.currentVersion}
             </p>
           </div>
 
@@ -226,11 +226,11 @@ export function AppUpdatePrompt() {
               Update laden
             </Button>
             <Button className="sm:hidden" type="button" variant="secondary" onClick={handleDismiss}>
-              Spaeter
+              Später
             </Button>
             <div className="hidden flex-wrap gap-3 sm:flex">
               <Button type="button" variant="secondary" onClick={handleDismiss}>
-                Spaeter
+                Später
               </Button>
               <button
                 className="inline-flex min-h-11 items-center justify-center text-sm font-medium text-charcoal-600 transition hover:text-charcoal-900"

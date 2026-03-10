@@ -31,7 +31,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
           brandHref="/demo"
           brandLabel={DEMO_WEDDING_CONFIG.coupleLabel}
           ctaHref="/admin/login"
-          ctaLabel="Login fuer Brautpaare"
+          ctaLabel="Login für Brautpaare"
           navItems={[]}
         />
 
@@ -43,7 +43,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
               </SectionHeading>
               <p className="mt-4 text-charcoal-600">
                 {DEMO_WEDDING_CONFIG.galleryDescription ??
-                  'Hier sammeln wir nach und nach die schoensten Erinnerungen an unseren gemeinsamen Tag.'}
+                  'Hier sammeln wir nach und nach die schönsten Erinnerungen an unseren gemeinsamen Tag.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
@@ -57,7 +57,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
           </div>
 
           <GalleryGrid
-            emptyCopy="Die ersten Fotos werden gerade vorbereitet. Sobald Bilder veroeffentlicht sind, erscheinen sie hier."
+            emptyCopy="Die ersten Fotos werden gerade vorbereitet. Sobald Bilder veröffentlicht sind, erscheinen sie hier."
             emptyTitle="Noch sind keine Fotos online."
             photos={DEMO_GALLERY_PHOTOS}
           />
