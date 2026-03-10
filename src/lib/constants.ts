@@ -132,6 +132,18 @@ export const DRESSCODE_COLOR_OPTIONS = [
   { value: 'emerald', label: 'Smaragd', hex: '#2F7467' },
 ] as const
 
+export const DRESSCODE_COLOR_HINT_OPTIONS = [
+  { value: 'soft', label: 'Sanft – „Wenn ihr mögt, könnt ihr euch locker an dieser Farbwelt orientieren."' },
+  { value: 'moderate', label: 'Empfehlung – „Wir würden uns freuen, wenn ihr euch an unserer Farbwelt orientiert."' },
+  { value: 'strong', label: 'Deutlich – „Bitte orientiert euch bei eurer Outfitwahl an unserer Farbpalette."' },
+] as const
+
+export const DRESSCODE_COLOR_HINT_TEXTS: Record<string, string> = {
+  soft: 'Wenn ihr mögt, könnt ihr euch locker an dieser Farbwelt orientieren.',
+  moderate: 'Wir würden uns freuen, wenn ihr euch an unserer Farbwelt orientiert.',
+  strong: 'Bitte orientiert euch bei eurer Outfitwahl an unserer Farbpalette.',
+}
+
 export const CONTENT_IMAGE_SECTION_OPTIONS = [
   { value: 'programm', label: 'Programm' },
   { value: 'anfahrt', label: 'Anfahrt' },

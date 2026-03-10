@@ -33,6 +33,7 @@ export const DEMO_WEDDING_CONFIG: WeddingConfig = {
   dressCodeMen: 'Leichte Anzuege, Stoffhosen mit Hemd oder lockere Kombinationen in Sand, Olive und Navy.',
   dressCodeExtras:
     'Bitte verzichtet moeglichst auf reines Signalrot und Neonfarben, damit die Bildsprache harmonisch bleibt.',
+  dressCodeColorHint: 'soft',
   dressCodeColors: ['pearl', 'champagner', 'sage', 'dusty-rose', 'powder-blue', 'navy'],
   templateId: 'rose-garden',
   fontPresetId: 'cormorant-nunito',

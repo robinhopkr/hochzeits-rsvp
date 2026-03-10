@@ -3,6 +3,7 @@ import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-desig
 export type DataSource = 'modern' | 'legacy' | 'fallback'
 export type MenuChoice = 'meat' | 'fish' | 'vegetarian' | 'vegan'
 export type ContentImageSection = 'programm' | 'anfahrt' | 'dresscode' | 'galerie' | 'rsvp' | 'faq'
+export type DressCodeColorHint = 'soft' | 'moderate' | 'strong'
 export type GalleryVisibility = 'public' | 'private'
 export type GuestCategory =
   | 'family'
@@ -66,6 +67,7 @@ export interface WeddingConfig {
   dressCodeWomen: string | null
   dressCodeMen: string | null
   dressCodeExtras: string | null
+  dressCodeColorHint: DressCodeColorHint
   dressCodeColors: string[]
   templateId: WeddingTemplateId
   fontPresetId: WeddingFontPresetId
@@ -249,6 +251,7 @@ export interface WeddingEditorValues {
   dressCodeWomen: string
   dressCodeMen: string
   dressCodeExtras: string
+  dressCodeColorHint: DressCodeColorHint
   dressCodeColors: string[]
   templateId: WeddingTemplateId
   fontPresetId: WeddingFontPresetId

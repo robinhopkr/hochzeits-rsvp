@@ -7,7 +7,7 @@ import { startTransition, useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 
-import { CONTENT_IMAGE_SECTION_OPTIONS, DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
+import { CONTENT_IMAGE_SECTION_OPTIONS, DRESSCODE_COLOR_HINT_OPTIONS, DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
 import { PROGRAM_ICON_COMPONENTS, PROGRAM_ICON_OPTIONS, resolveProgramIconName } from '@/lib/program-icons'
 import { normalizeProgramTimeLabel, sortProgramItemsChronologically } from '@/lib/utils/time'
 import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-design'
@@ -1058,6 +1058,11 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
             <p className="text-sm text-red-600">{errors.dressCodeColors.message}</p>
           ) : null}
         </div>
+        <Select
+          label="Tonalität des Farbhinweises"
+          options={DRESSCODE_COLOR_HINT_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
+          {...form.register('dressCodeColorHint')}
+        />
       </div>
 
       <div className="space-y-4">

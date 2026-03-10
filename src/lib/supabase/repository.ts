@@ -18,6 +18,7 @@ import type {
   AdminSummary,
   ContentImageSection,
   CouplePhoto,
+  DressCodeColorHint,
   EditableCouplePhoto,
   EditableFaqItem,
   EditableProgramItem,
@@ -160,6 +161,7 @@ interface AppSettingsTexts extends LegacyTexts {
   dressCodeWomen?: string
   dressCodeMen?: string
   dressCodeExtras?: string
+  dressCodeColorHint?: string
   dressCodeColors?: string[]
   templateId?: WeddingTemplateId
   fontPresetId?: WeddingFontPresetId
@@ -470,6 +472,12 @@ function getDefaultDressCodeColors(): string[] {
   return ['pearl', 'champagner', 'sage', 'dusty-rose', 'navy']
 }
 
+const VALID_COLOR_HINTS = new Set<DressCodeColorHint>(['soft', 'moderate', 'strong'])
+
+function getNormalizedColorHint(value: string | null | undefined): DressCodeColorHint {
+  return VALID_COLOR_HINTS.has(value as DressCodeColorHint) ? (value as DressCodeColorHint) : 'soft'
+}
+
 function getNormalizedTemplateId(value: string | null | undefined): WeddingTemplateId {
   return getWeddingTemplate(value).id as WeddingTemplateId
 }
@@ -718,6 +726,7 @@ function createFallbackConfig(): WeddingConfig {
     dressCodeWomen: null,
     dressCodeMen: null,
     dressCodeExtras: null,
+    dressCodeColorHint: 'soft',
     dressCodeColors: getDefaultDressCodeColors(),
     templateId: DEFAULT_WEDDING_TEMPLATE_ID,
     fontPresetId: DEFAULT_WEDDING_FONT_PRESET_ID,
@@ -761,6 +770,7 @@ function mapModernConfig(row: Database['public']['Tables']['wedding_config']['Ro
     dressCodeWomen: null,
     dressCodeMen: null,
     dressCodeExtras: null,
+    dressCodeColorHint: 'soft',
     dressCodeColors: getDefaultDressCodeColors(),
     templateId: DEFAULT_WEDDING_TEMPLATE_ID,
     fontPresetId: DEFAULT_WEDDING_FONT_PRESET_ID,
@@ -814,6 +824,7 @@ function mapLegacyConfig(row: LegacyWeddingRow): WeddingConfig {
     dressCodeWomen: appTexts.dressCodeWomen ?? null,
     dressCodeMen: appTexts.dressCodeMen ?? null,
     dressCodeExtras: appTexts.dressCodeExtras ?? null,
+    dressCodeColorHint: getNormalizedColorHint(appTexts.dressCodeColorHint),
     dressCodeColors,
     templateId: getNormalizedTemplateId(appTexts.templateId),
     fontPresetId: getNormalizedFontPresetId(appTexts.fontPresetId),
@@ -1221,6 +1232,68 @@ export async function saveSeatingPlanData(
   }
 }
 
+export async function savePhotographerPassword(
+  supabase: DbClient,
+  config: WeddingConfig,
+  password: string,
+): Promise<void> {
+  const trimmedPassword = password.trim() || null
+
+  if (config.source === 'modern' && config.sourceId) {
+    const currentContentRow = await getWeddingContentRow(supabase, config.sourceId)
+    const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+    const existingTexts = {
+      ...parseSettingsTexts(compatibilityRow),
+      ...parseSettingsTexts(buildContentOverlayRow(currentContentRow)),
+    }
+
+    try {
+      const { error } = await query(supabase, 'wedding_content')
+        .upsert(
+          buildWeddingContentPayload(config.sourceId, {
+            fragen: currentContentRow?.fragen ?? compatibilityRow?.fragen ?? null,
+            texte: { ...existingTexts, photographerPassword: trimmedPassword, probe: undefined },
+          }),
+        )
+        .select('*')
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      return
+    } catch (error) {
+      if (!isMissingRelationError(error)) {
+        throw error
+      }
+    }
+  }
+
+  if (config.source === 'legacy' && config.sourceId) {
+    const { error } = await query(supabase, 'hochzeiten')
+      .update({ foto_passwort: trimmedPassword })
+      .eq('id', config.sourceId)
+
+    if (error) {
+      throw error
+    }
+
+    return
+  }
+
+  const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+  const existingTexts = parseSettingsTexts(compatibilityRow)
+  await saveCompatibilityAppSettingsRow(supabase, {
+    id: APP_SETTINGS_ID,
+    brautpaar: compatibilityRow?.brautpaar ?? config.coupleLabel,
+    hochzeitsdatum: compatibilityRow?.hochzeitsdatum ?? config.weddingDate,
+    rsvp_deadline: compatibilityRow?.rsvp_deadline ?? config.rsvpDeadline,
+    fragen: compatibilityRow?.fragen ?? null,
+    texte: { ...existingTexts, photographerPassword: trimmedPassword, probe: undefined },
+  })
+}
+
 function buildMusicWishlistTexts(
   existingTexts: AppSettingsTexts,
   input: {
@@ -1464,6 +1537,7 @@ function applyConfigOverlayToConfig(baseConfig: WeddingConfig, row: ConfigOverla
     dressCodeWomen: texts.dressCodeWomen?.trim() || baseConfig.dressCodeWomen,
     dressCodeMen: texts.dressCodeMen?.trim() || baseConfig.dressCodeMen,
     dressCodeExtras: texts.dressCodeExtras?.trim() || baseConfig.dressCodeExtras,
+    dressCodeColorHint: getNormalizedColorHint(texts.dressCodeColorHint || baseConfig.dressCodeColorHint),
     dressCodeColors,
     templateId: getNormalizedTemplateId(texts.templateId ?? baseConfig.templateId),
     fontPresetId: getNormalizedFontPresetId(texts.fontPresetId ?? baseConfig.fontPresetId),
@@ -1580,6 +1654,7 @@ function mapLegacyWeddingEditorValues(
     dressCodeWomen: config.dressCodeWomen ?? '',
     dressCodeMen: config.dressCodeMen ?? '',
     dressCodeExtras: config.dressCodeExtras ?? '',
+    dressCodeColorHint: config.dressCodeColorHint,
     dressCodeColors: config.dressCodeColors,
     templateId: config.templateId,
     fontPresetId: config.fontPresetId,
@@ -1832,6 +1907,7 @@ export async function getWeddingEditorValues(
     dressCodeWomen: config.dressCodeWomen ?? '',
     dressCodeMen: config.dressCodeMen ?? '',
     dressCodeExtras: config.dressCodeExtras ?? '',
+    dressCodeColorHint: config.dressCodeColorHint,
     dressCodeColors: config.dressCodeColors,
     templateId: config.templateId,
     fontPresetId: config.fontPresetId,
@@ -2111,6 +2187,7 @@ export async function saveWeddingEditorValues(
     dressCodeWomen: values.dressCodeWomen || null,
     dressCodeMen: values.dressCodeMen || null,
     dressCodeExtras: values.dressCodeExtras || null,
+    dressCodeColorHint: values.dressCodeColorHint,
     dressCodeColors: values.dressCodeColors,
     templateId: values.templateId,
     fontPresetId: values.fontPresetId,

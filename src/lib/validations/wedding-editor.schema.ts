@@ -102,6 +102,7 @@ export const weddingEditorSchema = z.object({
   dressCodeWomen: z.string().trim().max(1000),
   dressCodeMen: z.string().trim().max(1000),
   dressCodeExtras: z.string().trim().max(1000),
+  dressCodeColorHint: z.enum(['soft', 'moderate', 'strong']).default('soft'),
   dressCodeColors: z.array(z.string().trim().min(1).max(50)).max(DRESSCODE_COLOR_OPTIONS.length),
   templateId: z.enum(weddingTemplateIds),
   fontPresetId: z.enum(weddingFontPresetIds),

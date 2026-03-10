@@ -1,6 +1,6 @@
 import { Info, Shirt, Sparkles } from 'lucide-react'
 
-import { DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
+import { DRESSCODE_COLOR_HINT_TEXTS, DRESSCODE_COLOR_OPTIONS } from '@/lib/constants'
 import type { SectionImage, WeddingConfig } from '@/types/wedding'
 
 import { Section } from '../ui/Section'
@@ -77,7 +77,7 @@ export function DresscodeSection({
             ))}
           </div>
           <p className="mt-4 text-sm leading-6 text-charcoal-500">
-            Wenn ihr mögt, könnt ihr euch locker an dieser Farbwelt orientieren.
+            {DRESSCODE_COLOR_HINT_TEXTS[config.dressCodeColorHint] ?? DRESSCODE_COLOR_HINT_TEXTS.soft}
           </p>
         </div>
 

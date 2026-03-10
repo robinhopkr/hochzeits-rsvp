@@ -1,7 +1,6 @@
-import Link from 'next/link'
-
 import { AdminPageHero } from '@/components/admin/AdminPageHero'
 import { GuestAccessCard } from '@/components/admin/GuestAccessCard'
+import { PhotographerPasswordCard } from '@/components/admin/PhotographerPasswordCard'
 import { GalleryGrid } from '@/components/gallery/GalleryGrid'
 import { ActionLink } from '@/components/ui/ActionLink'
 import { getProtectedAdminContext } from '@/lib/admin/dashboard'
@@ -61,21 +60,10 @@ export default async function AdminAccessPage() {
           </div>
         </article>
 
-        <article className="surface-card px-6 py-6">
-          <p className="text-sm uppercase tracking-[0.18em] text-dusty-rose-700">Für Fotograf*innen</p>
-          <h2 className="mt-3 font-display text-card text-charcoal-900">Fotografen-Zugang</h2>
-          <p className="mt-3 text-charcoal-600">
-            Ein separater Bereich für Upload und Pflege der Fotos, getrennt vom Paarbereich.
-          </p>
-          <p className="mt-4 text-sm text-charcoal-500">
-            Passwort: <span className="font-semibold text-charcoal-900">{config.photoPassword ? 'hinterlegt' : 'noch nicht gesetzt'}</span>
-          </p>
-          {photographerHref ? (
-            <div className="mt-5">
-              <ActionLink href={photographerHref} variant="secondary">Fotografen-Login</ActionLink>
-            </div>
-          ) : null}
-        </article>
+        <PhotographerPasswordCard
+          currentPassword={config.photoPassword ?? ''}
+          photographerHref={photographerHref}
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-2">
