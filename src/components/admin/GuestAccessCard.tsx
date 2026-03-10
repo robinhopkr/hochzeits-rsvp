@@ -13,8 +13,30 @@ interface GuestAccessCardProps {
   guestCode?: string | null
 }
 
+function dataUrlToBlob(dataUrl: string): Blob {
+  const [meta, content] = dataUrl.split(',')
+
+  if (!meta || !content) {
+    throw new Error('Ungültiges QR-Bild.')
+  }
+
+  const mimeMatch = meta.match(/data:(.*?);base64/u)
+  const mimeType = mimeMatch?.[1] ?? 'image/png'
+  const binary = atob(content)
+  const bytes = new Uint8Array(binary.length)
+
+  for (let index = 0; index < binary.length; index += 1) {
+    bytes[index] = binary.charCodeAt(index)
+  }
+
+  return new Blob([bytes], { type: mimeType })
+}
+
 export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('')
+  const [qrCodeObjectUrl, setQrCodeObjectUrl] = useState('')
+  const [qrCodeBlob, setQrCodeBlob] = useState<Blob | null>(null)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -30,13 +52,21 @@ export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) 
             light: '#0000',
           },
         })
+        const blob = dataUrlToBlob(dataUrl)
+        const objectUrl = URL.createObjectURL(blob)
 
         if (!cancelled) {
           setQrCodeDataUrl(dataUrl)
+          setQrCodeBlob(blob)
+          setQrCodeObjectUrl(objectUrl)
+        } else {
+          URL.revokeObjectURL(objectUrl)
         }
       } catch {
         if (!cancelled) {
           setQrCodeDataUrl('')
+          setQrCodeBlob(null)
+          setQrCodeObjectUrl('')
         }
       }
     }
@@ -48,6 +78,14 @@ export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) 
     }
   }, [inviteUrl])
 
+  useEffect(() => {
+    return () => {
+      if (qrCodeObjectUrl) {
+        URL.revokeObjectURL(qrCodeObjectUrl)
+      }
+    }
+  }, [qrCodeObjectUrl])
+
   async function copyInviteUrl() {
     try {
       await navigator.clipboard.writeText(inviteUrl)
@@ -57,16 +95,51 @@ export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) 
     }
   }
 
-  function downloadQrCode() {
-    if (!qrCodeDataUrl) {
+  async function downloadQrCode() {
+    if (!qrCodeBlob || !qrCodeObjectUrl) {
       toast.error('Der QR-Code ist noch nicht bereit.')
       return
     }
 
-    const link = document.createElement('a')
-    link.href = qrCodeDataUrl
-    link.download = 'mywed-gaesteseite-qr.png'
-    link.click()
+    setIsDownloading(true)
+
+    try {
+      const file = new File([qrCodeBlob], 'mywed-gaesteseite-qr.png', { type: qrCodeBlob.type })
+
+      if (
+        typeof navigator !== 'undefined' &&
+        typeof navigator.share === 'function' &&
+        typeof navigator.canShare === 'function' &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({
+          title: 'myWed QR-Code',
+          text: 'QR-Code für die Gästeseite',
+          files: [file],
+        })
+        toast.success('QR-Code bereit zum Teilen.')
+        return
+      }
+
+      const link = document.createElement('a')
+      link.href = qrCodeObjectUrl
+      link.download = 'mywed-gaesteseite-qr.png'
+      link.rel = 'noopener'
+      link.style.display = 'none'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      toast.success('QR-Code wird heruntergeladen.')
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return
+      }
+
+      window.open(qrCodeObjectUrl, '_blank', 'noopener,noreferrer')
+      toast.success('QR-Code in neuem Tab geöffnet.')
+    } finally {
+      setIsDownloading(false)
+    }
   }
 
   return (
@@ -124,7 +197,7 @@ export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) 
               <Copy className="h-4 w-4" />
               Link kopieren
             </Button>
-            <Button type="button" variant="secondary" onClick={downloadQrCode}>
+            <Button loading={isDownloading} type="button" variant="secondary" onClick={() => void downloadQrCode()}>
               <Download className="h-4 w-4" />
               QR herunterladen
             </Button>
