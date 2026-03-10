@@ -63,7 +63,7 @@ function isLoopbackUrl(value: string): boolean {
 }
 
 function readHostedAppUrl(): string {
-  return 'https://hochzeits-rsvp.vercel.app'
+  return 'https://mywed-niiro.vercel.app'
 }
 
 function resolveAppBaseUrl(): string {
@@ -101,13 +101,13 @@ const allowNavigationHost = new URL(appBaseUrl).host
 
 if (!process.env.CAPACITOR_SERVER_URL && !process.env.NEXT_PUBLIC_APP_URL && !process.env.NEXT_PUBLIC_SITE_URL) {
   console.warn(
-    '[capacitor] Keine Mobile-URL gefunden. Fallback auf https://hochzeits-rsvp.vercel.app. ' +
+    '[capacitor] Keine Mobile-URL gefunden. Fallback auf https://mywed-niiro.vercel.app. ' +
       'Setze CAPACITOR_SERVER_URL, falls du eine andere Domain verwenden willst.',
   )
 }
 
 const config: CapacitorConfig = {
-  appId: process.env.CAPACITOR_APP_ID ?? 'com.niiro.hochzeitsapp',
+  appId: process.env.CAPACITOR_APP_ID ?? 'com.niiro.mywed',
   appName: process.env.CAPACITOR_APP_NAME ?? 'myWed by NiiRo AI',
   webDir: 'mobile-shell',
   bundledWebRuntime: false,

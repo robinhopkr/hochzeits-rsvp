@@ -24,7 +24,7 @@ export function ProductHeroSection() {
               {APP_BRAND_NAME}
             </p>
             <h1 className="font-display text-hero text-charcoal-900">
-              Die Hochzeitsapp für stilvolle Einladungen, klare Rückmeldungen und eine Galerie danach.
+              myWed — stilvolle Einladungen, klare Rückmeldungen und eine Galerie danach.
             </h1>
             <p className="max-w-2xl text-body-lg text-charcoal-600">
               Eine elegante Hochzeitsseite für eure Gäste mit RSVP, Ablauf, Anfahrt, FAQ,
