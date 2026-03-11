@@ -14,7 +14,8 @@ export const BILLING_PRICE_NOTE = 'einmalig pro Brautpaar inkl. MwSt.'
 export const BILLING_PRODUCT_NAME = 'myWed by NiiRo AI - Brautpaar-Zugang'
 export const BILLING_PRODUCT_DESCRIPTION =
   'Einmaliger Zugriff auf den geschützten Brautpaar-Bereich inklusive gesetzlicher MwSt.'
-export const BILLING_PRICE_LOOKUP_KEY = 'mywed-couple-access-one-time-eur'
+export const BILLING_STANDARD_PRICE_LOOKUP_KEY = 'mywed-couple-access-one-time-eur'
+export const BILLING_PROMO_PRICE_LOOKUP_KEY = 'mywed-couple-access-promo-eur'
 export const BILLING_STATEMENT_DESCRIPTOR_SUFFIX = 'MYWED'
 
 export const DEFAULT_BILLING_BYPASS_EMAILS = ['robin_kolb@yahoo.com'] as const
@@ -56,4 +57,10 @@ export function getBillingPricing(now: Date = new Date()): BillingPricingSnapsho
 
 export function getBillingAmountCents(now: Date = new Date()): number {
   return getBillingPricing(now).activeAmountCents
+}
+
+export function getBillingPriceLookupKey(now: Date = new Date()): string {
+  return isBillingPromoActive(now)
+    ? BILLING_PROMO_PRICE_LOOKUP_KEY
+    : BILLING_STANDARD_PRICE_LOOKUP_KEY
 }

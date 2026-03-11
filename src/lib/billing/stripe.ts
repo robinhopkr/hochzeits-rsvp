@@ -4,16 +4,16 @@ import Stripe from 'stripe'
 
 import {
   BILLING_CURRENCY,
-  BILLING_PRICE_LOOKUP_KEY,
   BILLING_PRODUCT_DESCRIPTION,
   BILLING_PRODUCT_NAME,
   BILLING_STATEMENT_DESCRIPTOR_SUFFIX,
   getBillingAmountCents,
+  getBillingPriceLookupKey,
 } from '@/lib/billing/constants'
 import { ENV } from '@/lib/constants'
 
 let cachedStripeClient: Stripe | null | undefined
-let cachedBillingPrice: Stripe.Price | null | undefined
+const cachedBillingPrices = new Map<string, Stripe.Price | null>()
 
 function getStripeSecretKey(): string | null {
   const secretKey = process.env.STRIPE_SECRET_KEY?.trim()
@@ -40,26 +40,29 @@ export function getStripeClient(): Stripe | null {
   return cachedStripeClient
 }
 
-async function getConfiguredBillingPrice(): Promise<Stripe.Price | null> {
-  if (cachedBillingPrice !== undefined) {
-    return cachedBillingPrice
-  }
-
+async function getConfiguredBillingPrice(now: Date = new Date()): Promise<Stripe.Price | null> {
   const stripe = getStripeClient()
 
   if (!stripe) {
-    cachedBillingPrice = null
+    return null
+  }
+
+  const lookupKey = getBillingPriceLookupKey(now)
+  const cachedBillingPrice = cachedBillingPrices.get(lookupKey)
+
+  if (cachedBillingPrice !== undefined) {
     return cachedBillingPrice
   }
 
   const prices = await stripe.prices.list({
     active: true,
-    lookup_keys: [BILLING_PRICE_LOOKUP_KEY],
+    lookup_keys: [lookupKey],
     limit: 1,
   })
 
-  cachedBillingPrice = prices.data[0] ?? null
-  return cachedBillingPrice
+  const resolvedBillingPrice = prices.data[0] ?? null
+  cachedBillingPrices.set(lookupKey, resolvedBillingPrice)
+  return resolvedBillingPrice
 }
 
 export async function createBillingCheckoutSession(input: {
@@ -73,7 +76,8 @@ export async function createBillingCheckoutSession(input: {
     throw new Error('Stripe ist aktuell nicht konfiguriert.')
   }
 
-  const configuredBillingPrice = await getConfiguredBillingPrice()
+  const now = new Date()
+  const configuredBillingPrice = await getConfiguredBillingPrice(now)
   const billingLineItem: Stripe.Checkout.SessionCreateParams.LineItem = configuredBillingPrice
     ? {
         quantity: 1,
@@ -83,7 +87,7 @@ export async function createBillingCheckoutSession(input: {
         quantity: 1,
         price_data: {
           currency: BILLING_CURRENCY,
-          unit_amount: getBillingAmountCents(),
+          unit_amount: getBillingAmountCents(now),
           product_data: {
             name: BILLING_PRODUCT_NAME,
             description: BILLING_PRODUCT_DESCRIPTION,
