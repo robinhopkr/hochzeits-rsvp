@@ -882,8 +882,8 @@ export function GuestPlanningSection({
         </div>
 
         {plan.tables.length ? (
-          <div className="grid gap-5 xl:grid-cols-2">
-            {plan.tables.map((table) => {
+          <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,34rem),1fr))]">
+            {plan.tables.map((table, tableIndex) => {
               const assignedElsewhere = new Set(
                 plan.tables.flatMap((entry) =>
                   entry.id === table.id
@@ -893,9 +893,50 @@ export function GuestPlanningSection({
               )
 
               return (
-                <article key={table.id} className="surface-card px-5 py-5">
-                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                    <div className="grid flex-1 gap-4 sm:grid-cols-2">
+                <article key={table.id} className="surface-card px-5 py-5 sm:px-6">
+                  <div className="flex flex-col gap-4 border-b border-cream-200 pb-5">
+                    <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                      <div className="min-w-0 space-y-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h4 className="text-safe-wrap font-display text-card text-charcoal-900">
+                            {table.name.trim() || `Tisch ${tableIndex + 1}`}
+                          </h4>
+                          <Badge variant={getTableBadgeVariant(table.kind)}>
+                            {TABLE_KIND_LABELS[table.kind]}
+                          </Badge>
+                        </div>
+                        <p className="max-w-2xl text-sm leading-6 text-charcoal-600">
+                          Konfiguriert hier Namen, Tischtyp und Sitzplätze. Danach könnt ihr die
+                          Gäste direkt den einzelnen Plätzen zuordnen.
+                        </p>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <Button
+                          disabled={table.seatCount <= 1}
+                          type="button"
+                          variant="secondary"
+                          onClick={() => adjustTableSeatCount(table.id, -1)}
+                        >
+                          <Minus className="h-4 w-4" />
+                          Platz entfernen
+                        </Button>
+                        <Button
+                          disabled={table.seatCount >= 24}
+                          type="button"
+                          variant="secondary"
+                          onClick={() => adjustTableSeatCount(table.id, 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                          Platz hinzufügen
+                        </Button>
+                        <Button type="button" variant="ghost" onClick={() => removeTable(table.id)}>
+                          <Trash2 className="h-4 w-4" />
+                          Entfernen
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                       <Input
                         label="Tischname"
                         value={table.name}
@@ -928,41 +969,15 @@ export function GuestPlanningSection({
                           })
                         }
                       />
-                      <div className="flex flex-wrap items-end gap-2 sm:col-span-2">
-                        <Button
-                          disabled={table.seatCount <= 1}
-                          type="button"
-                          variant="secondary"
-                          onClick={() => adjustTableSeatCount(table.id, -1)}
-                        >
-                          <Minus className="h-4 w-4" />
-                          Platz entfernen
-                        </Button>
-                        <Button
-                          disabled={table.seatCount >= 24}
-                          type="button"
-                          variant="secondary"
-                          onClick={() => adjustTableSeatCount(table.id, 1)}
-                        >
-                          <Plus className="h-4 w-4" />
-                          Platz hinzufügen
-                        </Button>
-                      </div>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-3">
-                      <Badge variant={getTableBadgeVariant(table.kind)}>
-                        {TABLE_KIND_LABELS[table.kind]}
-                      </Badge>
-                      <Button type="button" variant="ghost" onClick={() => removeTable(table.id)}>
-                        <Trash2 className="h-4 w-4" />
-                        Entfernen
-                      </Button>
                     </div>
                   </div>
 
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  <div className="mt-5 grid gap-4 md:grid-cols-2">
                     {table.seatAssignments.map((guestId, seatIndex) => (
-                      <label key={`${table.id}-seat-${seatIndex}`} className="flex flex-col gap-2 text-sm font-medium text-charcoal-700">
+                      <label
+                        key={`${table.id}-seat-${seatIndex}`}
+                        className="flex min-w-0 flex-col gap-2 text-sm font-medium text-charcoal-700"
+                      >
                         <span>Platz {seatIndex + 1}</span>
                         <select
                           className="min-h-11 rounded-2xl border border-cream-300 bg-white px-4 py-3 text-base text-charcoal-900 outline-none transition focus:border-gold-500"
