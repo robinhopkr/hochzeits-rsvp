@@ -229,6 +229,58 @@ function drawCenteredText(page: PDFPage, text: string, font: PDFFont, size: numb
   })
 }
 
+function drawInfoCard({
+  page,
+  label,
+  value,
+  x,
+  y,
+  width,
+  height,
+  labelFont,
+  valueFont,
+}: {
+  page: PDFPage
+  label: string
+  value: string
+  x: number
+  y: number
+  width: number
+  height: number
+  labelFont: PDFFont
+  valueFont: PDFFont
+}): void {
+  page.drawRectangle({
+    x,
+    y,
+    width,
+    height,
+    color: rgb(0.996, 0.992, 0.983),
+    borderColor: rgb(0.949, 0.894, 0.812),
+    borderWidth: 1,
+  })
+
+  page.drawText(label, {
+    x: x + 16,
+    y: y + height - 22,
+    size: 10,
+    font: labelFont,
+    color: rgb(0.443, 0.33, 0.11),
+  })
+
+  drawTextBlock({
+    page,
+    text: value,
+    x: x + 16,
+    y: y + height - 42,
+    maxWidth: width - 32,
+    font: valueFont,
+    size: 11.5,
+    lineHeight: 16,
+    color: rgb(0.118, 0.133, 0.157),
+  })
+}
+
 function sanitizeFileName(input: string): string {
   return input
     .normalize('NFKD')
@@ -314,20 +366,51 @@ export async function createInvitationPdf({
 
   const coupleFontSize = fitFontSize(config.coupleLabel, serifBoldFont, contentWidth - 24, 34, 24)
   drawCenteredText(page, config.coupleLabel, serifBoldFont, coupleFontSize, currentY, rgb(0.118, 0.133, 0.157))
-  currentY -= coupleFontSize + 22
+  currentY -= coupleFontSize + 26
 
-  drawCenteredText(page, formatGermanDate(config.weddingDate), sansBoldFont, 14, currentY, rgb(0.24, 0.27, 0.31))
-  currentY -= 24
-  drawCenteredText(page, config.venueName, sansFont, 14, currentY, rgb(0.353, 0.431, 0.373))
-  currentY -= 30
+  const cardGap = 14
+  const infoCardWidth = (contentWidth - cardGap * 2) / 3
+  const infoCardHeight = 74
+  const infoCardY = currentY - infoCardHeight
+  const rsvpDeadlineText = config.rsvpDeadline
+    ? `Bitte bis ${formatGermanDate(config.rsvpDeadline)}`
+    : 'RSVP-Funktion im Gästebereich'
 
-  page.drawLine({
-    start: { x: margin + 16, y: currentY },
-    end: { x: width - margin - 16, y: currentY },
-    thickness: 1,
-    color: rgb(0.949, 0.894, 0.812),
+  drawInfoCard({
+    page,
+    label: 'DATUM',
+    value: formatGermanDate(config.weddingDate),
+    x: margin,
+    y: infoCardY,
+    width: infoCardWidth,
+    height: infoCardHeight,
+    labelFont: sansBoldFont,
+    valueFont: sansBoldFont,
   })
-  currentY -= 30
+  drawInfoCard({
+    page,
+    label: 'ORT',
+    value: config.venueName,
+    x: margin + infoCardWidth + cardGap,
+    y: infoCardY,
+    width: infoCardWidth,
+    height: infoCardHeight,
+    labelFont: sansBoldFont,
+    valueFont: sansFont,
+  })
+  drawInfoCard({
+    page,
+    label: 'RÜCKMELDUNG',
+    value: rsvpDeadlineText,
+    x: margin + (infoCardWidth + cardGap) * 2,
+    y: infoCardY,
+    width: infoCardWidth,
+    height: infoCardHeight,
+    labelFont: sansBoldFont,
+    valueFont: sansBoldFont,
+  })
+
+  currentY = infoCardY - 28
 
   const qrImage = await createQrImage(pdfDoc, inviteUrl)
   const qrSize = 138
@@ -386,11 +469,15 @@ export async function createInvitationPdf({
     width: qrSize,
     height: qrSize,
   })
-  page.drawText('QR-Code zum Gästebereich', {
+  drawTextBlock({
+    page,
+    text: 'QR-Code zum Gästebereich',
     x: qrX - 2,
-    y: qrY - 22,
-    size: 10,
+    y: qrY - 18,
+    maxWidth: qrSize + 4,
     font: sansBoldFont,
+    size: 10,
+    lineHeight: 12,
     color: rgb(0.24, 0.27, 0.31),
   })
 
@@ -472,11 +559,15 @@ export async function createInvitationPdf({
     color: rgb(0.118, 0.133, 0.157),
   })
 
-  activePage.drawText(`Veranstaltungsort: ${config.venueName}, ${config.venueAddress}`, {
+  drawTextBlock({
+    page: activePage,
+    text: `Veranstaltungsort: ${config.venueName}, ${config.venueAddress}`,
     x: margin,
     y: 54,
-    size: 10,
+    maxWidth: contentWidth * 0.66,
     font: sansFont,
+    size: 10,
+    lineHeight: 12,
     color: rgb(0.353, 0.431, 0.373),
   })
 

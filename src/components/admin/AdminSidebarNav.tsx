@@ -1,6 +1,6 @@
 'use client'
 
-import { Eye, FilePenLine, LifeBuoy, Link2, LayoutDashboard, MessagesSquare, UsersRound } from 'lucide-react'
+import { ClipboardList, Eye, FilePenLine, LifeBuoy, Link2, LayoutDashboard, MessagesSquare, UsersRound } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import type { ComponentType } from 'react'
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils/cn'
 
 const iconByHref: Record<string, ComponentType<{ className?: string }>> = {
   '/admin/uebersicht': LayoutDashboard,
+  '/admin/einrichtung': ClipboardList,
   '/admin/planung': UsersRound,
   '/admin/inhalte': FilePenLine,
   '/admin/zugaenge': Link2,

@@ -117,7 +117,17 @@ export default async function AdminLoginPage({ searchParams }: AdminLoginPagePro
             </div>
             {coupleLoginConfigured ? (
               <div className="mt-6">
-                <LoginForm embedded role="couple" submitLabel="Als Brautpaar anmelden" />
+                <LoginForm
+                  embedded
+                  role="couple"
+                  secondaryReturnUrl="/admin/einrichtung"
+                  secondarySubmitLabel="Fragebogen zur Einrichtung von myWed"
+                  submitLabel="Als Brautpaar anmelden"
+                />
+                <p className="mt-4 text-sm leading-6 text-charcoal-600">
+                  Wenn ihr lieber geführt startet, meldet euch direkt über den Fragebogen-Button an.
+                  myWed fragt euch dann Schritt für Schritt alle wichtigen Inhalte ab.
+                </p>
               </div>
             ) : (
               <div className="mt-6 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">

@@ -34,11 +34,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       inviteUrl: buildInvitationUrl(config.guestCode),
     })
     const pdfBody = Uint8Array.from(pdfBytes)
-    const pdfBlob = new Blob([pdfBody], {
-      type: 'application/pdf',
-    })
 
-    return new NextResponse(pdfBlob, {
+    return new NextResponse(pdfBody, {
       status: 200,
       headers: {
         'Cache-Control': 'no-store, max-age=0',

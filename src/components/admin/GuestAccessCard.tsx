@@ -197,35 +197,30 @@ export function GuestAccessCard({ inviteHref, inviteUrl, guestCode }: GuestAcces
 
       const blob = await response.blob()
       const fileName = extractFilename(response.headers.get('content-disposition'))
-      const file = new File([blob], fileName, { type: 'application/pdf' })
+      const objectUrl = URL.createObjectURL(blob)
+      const supportsDownload = typeof document !== 'undefined' && 'download' in document.createElement('a')
 
-      if (
-        typeof navigator !== 'undefined' &&
-        typeof navigator.share === 'function' &&
-        typeof navigator.canShare === 'function' &&
-        navigator.canShare({ files: [file] })
-      ) {
-        await navigator.share({
-          title: 'Digitale Einladung',
-          text: 'Hier ist die digitale Einladung für unsere Gäste.',
-          files: [file],
-        })
-        toast.success('Die Einladung ist bereit zum Teilen.')
+      if (supportsDownload) {
+        const link = document.createElement('a')
+        link.href = objectUrl
+        link.download = fileName
+        link.rel = 'noopener'
+        link.style.display = 'none'
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        toast.success('Die Einladung wird als PDF heruntergeladen.')
+      } else {
+        window.open(objectUrl, '_blank', 'noopener,noreferrer')
+        toast.success('Die Einladung wurde in einem neuen Tab geöffnet.')
+      }
+
+      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 2_000)
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
         return
       }
 
-      const objectUrl = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = objectUrl
-      link.download = fileName
-      link.rel = 'noopener'
-      link.style.display = 'none'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1_000)
-      toast.success('Die Einladung wird als PDF heruntergeladen.')
-    } catch {
       toast.error('Die Einladung konnte gerade nicht als PDF geladen werden.')
     } finally {
       setIsDownloadingInvitationPdf(false)

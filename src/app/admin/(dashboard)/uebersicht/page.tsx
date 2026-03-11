@@ -25,6 +25,7 @@ export default async function AdminOverviewPage() {
         description="Hier seht ihr sofort, wie eure Einladung gerade steht und welche Bereiche ihr als Nächstes sinnvoll bearbeiten könnt."
         actions={
           <>
+            <ActionLink href="/admin/einrichtung" variant="secondary">Fragebogen starten</ActionLink>
             <ActionLink href="/admin/planung" variant="secondary">Tischplan öffnen</ActionLink>
             <ActionLink href="/admin/hilfe">Assistent öffnen</ActionLink>
           </>
@@ -59,7 +60,7 @@ export default async function AdminOverviewPage() {
           <p className="text-sm uppercase tracking-[0.18em] text-dusty-rose-700">Nächster sinnvoller Schritt</p>
           <h2 className="mt-3 font-display text-card text-charcoal-900">Empfohlene Reihenfolge</h2>
           <ol className="mt-4 space-y-3 text-sm text-charcoal-700">
-            <li>1. Inhalte pflegen</li>
+            <li>1. Fragebogen oder Inhalte ausfüllen</li>
             <li>2. Zugänge und QR-Code teilen</li>
             <li>3. RSVP prüfen</li>
             <li>4. RSVP-Gäste in den Tischplan synchronisieren</li>
@@ -74,6 +75,16 @@ export default async function AdminOverviewPage() {
       />
 
       <div className="grid gap-4 lg:grid-cols-3">
+        <article className="surface-card px-6 py-6">
+          <h3 className="font-display text-card text-charcoal-900">Geführte Einrichtung</h3>
+          <p className="mt-3 text-charcoal-600">
+            Lasst euch von myWed nacheinander durch Texte, Design, Dresscode, Galerie, FAQ und Extras führen.
+          </p>
+          <div className="mt-5">
+            <ActionLink href="/admin/einrichtung" variant="secondary">Zum Fragebogen</ActionLink>
+          </div>
+        </article>
+
         <article className="surface-card px-6 py-6">
           <h3 className="font-display text-card text-charcoal-900">Inhalte</h3>
           <p className="mt-3 text-charcoal-600">

@@ -15,6 +15,8 @@ import { Input } from '../ui/Input'
 interface LoginFormProps {
   role?: 'couple' | 'planner'
   submitLabel?: string
+  secondarySubmitLabel?: string
+  secondaryReturnUrl?: string
   className?: string
   embedded?: boolean
 }
@@ -22,6 +24,8 @@ interface LoginFormProps {
 export function LoginForm({
   role = 'couple',
   submitLabel = 'Anmelden',
+  secondarySubmitLabel,
+  secondaryReturnUrl,
   className,
   embedded = false,
 }: LoginFormProps) {
@@ -47,7 +51,7 @@ export function LoginForm({
     setValue('role', role, { shouldDirty: false, shouldValidate: false })
   }, [role, setValue])
 
-  const onSubmit = handleSubmit(async (values) => {
+  async function login(values: LoginSchema, returnUrlOverride?: string) {
     setErrorMessage(null)
 
     const response = await fetch('/api/admin/login', {
@@ -68,12 +72,26 @@ export function LoginForm({
       return
     }
 
-    const returnUrl = searchParams.get('returnUrl') || '/admin/uebersicht'
+    const returnUrl = returnUrlOverride || searchParams.get('returnUrl') || '/admin/uebersicht'
     startTransition(() => {
       router.replace(returnUrl)
       router.refresh()
     })
+  }
+
+  const onSubmit = handleSubmit(async (values) => {
+    await login(values)
   })
+
+  function handleSecondarySubmit() {
+    if (!secondaryReturnUrl) {
+      return
+    }
+
+    void handleSubmit(async (values) => {
+      await login(values, secondaryReturnUrl)
+    })()
+  }
 
   return (
     <form
@@ -93,9 +111,27 @@ export function LoginForm({
           {errorMessage}
         </div>
       ) : null}
-      <Button className="w-full" loading={isSubmitting} size="lg" type="submit">
-        {submitLabel}
-      </Button>
+      {secondarySubmitLabel && secondaryReturnUrl ? (
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Button className="w-full" loading={isSubmitting} size="lg" type="submit">
+            {submitLabel}
+          </Button>
+          <Button
+            className="w-full"
+            disabled={isSubmitting}
+            size="lg"
+            type="button"
+            variant="secondary"
+            onClick={handleSecondarySubmit}
+          >
+            {secondarySubmitLabel}
+          </Button>
+        </div>
+      ) : (
+        <Button className="w-full" loading={isSubmitting} size="lg" type="submit">
+          {submitLabel}
+        </Button>
+      )}
     </form>
   )
 }

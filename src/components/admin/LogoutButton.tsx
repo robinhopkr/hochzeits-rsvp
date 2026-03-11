@@ -3,9 +3,21 @@
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
+import { cn } from '@/lib/utils/cn'
+
 import { Button } from '../ui/Button'
 
-export function LogoutButton() {
+interface LogoutButtonProps {
+  className?: string
+  label?: string
+  variant?: 'primary' | 'secondary' | 'ghost'
+}
+
+export function LogoutButton({
+  className,
+  label = 'Abmelden',
+  variant = 'ghost',
+}: LogoutButtonProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
 
@@ -19,8 +31,14 @@ export function LogoutButton() {
   }
 
   return (
-    <Button loading={isLoading} type="button" variant="ghost" onClick={handleLogout}>
-      Abmelden
+    <Button
+      className={cn(className)}
+      loading={isLoading}
+      type="button"
+      variant={variant}
+      onClick={handleLogout}
+    >
+      {label}
     </Button>
   )
 }

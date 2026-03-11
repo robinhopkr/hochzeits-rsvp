@@ -45,12 +45,17 @@ export function AdminDashboardShell({
       <div className="mx-auto grid max-w-[1420px] gap-6 px-6 py-6 sm:px-10 xl:grid-cols-[320px_minmax(0,1fr)]">
         <aside className="space-y-6 xl:sticky xl:top-24 xl:self-start">
           <div className="surface-card px-6 py-6">
-            <p className="text-sm uppercase tracking-[0.18em] text-gold-700">{APP_BRAND_NAME}</p>
-            <h1 className="mt-3 font-display text-card text-charcoal-900">{config.coupleLabel}</h1>
-            <p className="mt-3 text-sm leading-7 text-charcoal-600">
-              Jeder Bereich hat jetzt eine eigene Seite. So bleibt die Planung klarer, schneller und
-              deutlich weniger überladen.
-            </p>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm uppercase tracking-[0.18em] text-gold-700">{APP_BRAND_NAME}</p>
+                <h1 className="mt-3 font-display text-card text-charcoal-900">{config.coupleLabel}</h1>
+                <p className="mt-3 text-sm leading-7 text-charcoal-600">
+                  Jeder Bereich hat jetzt eine eigene Seite. So bleibt die Planung klarer, schneller und
+                  deutlich weniger überladen.
+                </p>
+              </div>
+              <LogoutButton label="Logout" variant="secondary" />
+            </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Badge variant="neutral">{roleLabel}</Badge>
               <Badge variant="neutral">{config.guestCode ?? 'Ohne Gästecode'}</Badge>

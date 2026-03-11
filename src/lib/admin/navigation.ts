@@ -5,6 +5,11 @@ export const ADMIN_DASHBOARD_NAV_ITEMS = [
     description: 'Status, Schnellzugriffe und die wichtigsten Kennzahlen.',
   },
   {
+    href: '/admin/einrichtung',
+    label: 'Einrichtung',
+    description: 'Geführter Fragebogen für Texte, Design und Funktionen.',
+  },
+  {
     href: '/admin/planung',
     label: 'Planung',
     description: 'RSVP-Import, Tischlayout und Sitzplan.',
