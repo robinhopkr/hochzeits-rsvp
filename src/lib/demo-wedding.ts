@@ -10,6 +10,7 @@ export const DEMO_WEDDING_CONFIG: WeddingConfig = {
   partner2Name: 'Jonas',
   coupleLabel: 'Mila & Jonas',
   guestCode: DEMO_GUEST_CODE,
+  plannerCustomerNumber: null,
   photoPassword: null,
   weddingDate: '2027-06-19T15:30:00+02:00',
   venueName: 'Landgut Sonnenried',

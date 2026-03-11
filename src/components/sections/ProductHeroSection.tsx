@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { CalendarHeart, Camera, LayoutDashboard, MapPinned, MessageCircleHeart } from 'lucide-react'
 
 import { Divider } from '@/components/ui/Divider'
+import { getBillingPricing } from '@/lib/billing/constants'
 import { APP_BRAND_NAME } from '@/lib/constants'
 
 const trustPoints = [
@@ -11,6 +12,8 @@ const trustPoints = [
 ] as const
 
 export function ProductHeroSection() {
+  const pricing = getBillingPricing()
+
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(212,154,29,0.18),_transparent_38%),radial-gradient(circle_at_80%_20%,_rgba(201,90,88,0.12),_transparent_26%),linear-gradient(180deg,#fffaf1_0%,#fffcf7_48%,#ffffff_100%)]" />
@@ -23,6 +26,16 @@ export function ProductHeroSection() {
             <p className="text-eyebrow uppercase text-sage-600">
               {APP_BRAND_NAME}
             </p>
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-gold-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold-800">
+                Einmalig {pricing.standardPriceLabel} inkl. MwSt.
+              </span>
+              {pricing.promoActive ? (
+                <span className="rounded-full bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-dusty-rose-700 shadow-elegant">
+                  Launch-Angebot: {pricing.promoPriceLabel} bis {pricing.promoDeadlineLabel}
+                </span>
+              ) : null}
+            </div>
             <h1 className="font-display text-hero text-charcoal-900">
               myWed — stilvolle Einladungen, klare Rückmeldungen und eine Galerie danach.
             </h1>
@@ -35,16 +48,47 @@ export function ProductHeroSection() {
           <div className="flex flex-wrap gap-3">
             <Link
               className="inline-flex min-h-12 items-center justify-center rounded-full bg-gold-500 px-6 py-3 text-base font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
+              href="/admin/registrieren?role=couple"
+            >
+              {pricing.promoActive
+                ? `Jetzt für ${pricing.activePriceLabel} freischalten`
+                : `Jetzt für ${pricing.activePriceLabel} kaufen`}
+            </Link>
+            <Link
+              className="inline-flex min-h-12 items-center justify-center rounded-full border border-gold-300 bg-white px-6 py-3 text-base font-semibold text-charcoal-800 transition hover:border-gold-500"
               href="/demo"
             >
               Live-Demo öffnen
             </Link>
-            <Link
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-gold-300 bg-white px-6 py-3 text-base font-semibold text-charcoal-800 transition hover:border-gold-500"
-              href="/admin/login"
-            >
-              Login für Brautpaare
-            </Link>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-cream-200 bg-white/85 px-5 py-5 shadow-elegant">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-700">Brautpaar-Zugang</span>
+              <span className="rounded-full bg-sage-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sage-700">
+                Sichere Zahlung per Stripe
+              </span>
+            </div>
+            <div className="mt-4 flex flex-wrap items-end gap-3">
+              <span className="font-display text-4xl text-charcoal-900">{pricing.activePriceLabel}</span>
+              {pricing.promoActive ? (
+                <span className="pb-1 text-lg text-charcoal-400 line-through">{pricing.standardPriceLabel}</span>
+              ) : null}
+            </div>
+            <p className="mt-3 text-body-md text-charcoal-600">
+              {pricing.priceNote}. Der Gästebereich bleibt kostenlos, der geschützte Paarbereich wird erst nach der Zahlung freigeschaltet.
+            </p>
+            {pricing.promoActive ? (
+              <p className="mt-2 text-sm text-charcoal-600">
+                Einführungspreis nur bis {pricing.promoDeadlineLabel}. Danach kostet myWed wieder {pricing.standardPriceLabel}.
+              </p>
+            ) : null}
+            <p className="mt-3 text-sm text-charcoal-600">
+              Nach der Registrierung geht es direkt in den Stripe-Checkout. Bereits registriert?{' '}
+              <Link className="font-semibold text-gold-700 hover:text-gold-800" href="/admin/login">
+                Zum Login
+              </Link>
+            </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3">
@@ -59,8 +103,8 @@ export function ProductHeroSection() {
         </div>
 
         <div className="relative">
-          <div className="grid gap-5 lg:absolute lg:-left-6 lg:top-8 lg:w-[520px]">
-            <article className="surface-card rotate-[-2deg] px-6 py-6">
+          <div className="mx-auto grid w-full max-w-xl gap-4 sm:gap-5 lg:absolute lg:-left-6 lg:top-8 lg:w-[520px] lg:max-w-none">
+            <article className="surface-card w-full px-5 py-5 sm:px-6 sm:py-6 lg:rotate-[-2deg]">
               <div className="flex items-center justify-between">
                 <p className="font-display text-2xl leading-tight text-charcoal-900">Gastansicht</p>
                 <MessageCircleHeart className="h-5 w-5 text-dusty-rose-500" />
@@ -80,7 +124,7 @@ export function ProductHeroSection() {
               </div>
             </article>
 
-            <article className="surface-card ml-auto max-w-md rotate-[2deg] px-6 py-6">
+            <article className="surface-card w-full px-5 py-5 sm:px-6 sm:py-6 lg:ml-auto lg:max-w-md lg:rotate-[2deg]">
               <div className="flex items-center justify-between">
                 <p className="font-display text-2xl leading-tight text-charcoal-900">Brautpaar-Dashboard</p>
                 <LayoutDashboard className="h-5 w-5 text-gold-500" />

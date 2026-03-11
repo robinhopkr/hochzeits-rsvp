@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
+import { getAdminSessionFromCookieStore } from '@/lib/auth/admin-session'
+import { resolveWeddingAccessForSession } from '@/lib/auth/admin-accounts'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
@@ -12,10 +14,15 @@ type BillingStatusResponse = {
   }
 }
 
-export async function GET(): Promise<NextResponse<ApiResponse<BillingStatusResponse>>> {
+export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<BillingStatusResponse>>> {
+  const session = getAdminSessionFromCookieStore(request.cookies)
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getActiveWeddingConfig(supabase)
-  const access = await getBillingAccessState(supabase, config)
+  const access =
+    session && session.weddingSource && session.weddingSourceId
+      ? await resolveWeddingAccessForSession(session)
+          .then((result) => result.billingAccess)
+          .catch(async () => getBillingAccessState(supabase, await getActiveWeddingConfig(supabase)))
+      : await getBillingAccessState(supabase, await getActiveWeddingConfig(supabase))
 
   return NextResponse.json(
     {

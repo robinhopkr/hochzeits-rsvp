@@ -1,23 +1,49 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
+import { getAdminSessionFromCookieStore } from '@/lib/auth/admin-session'
+import { resolveWeddingAccessForSession } from '@/lib/auth/admin-accounts'
 import { createBillingCheckoutSession } from '@/lib/billing/stripe'
-import { ENV } from '@/lib/constants'
-import { getBillingAccessState } from '@/lib/billing/access'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { createPublicClient } from '@/lib/supabase/public'
-import { getActiveWeddingConfig } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 
 type CheckoutResponse = {
   url: string
 }
 
-export async function POST(): Promise<NextResponse<ApiResponse<CheckoutResponse>>> {
-  const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getActiveWeddingConfig(supabase)
-  const access = await getBillingAccessState(supabase, config)
+export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<CheckoutResponse>>> {
+  const session = getAdminSessionFromCookieStore(request.cookies)
 
-  if (!access.billingEnabled) {
+  if (!session || session.role !== 'couple') {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Nur das Brautpaar kann den Kauf abschließen.',
+        code: 'UNAUTHORIZED',
+      },
+      { status: 401 },
+    )
+  }
+
+  let resolvedAccess: Awaited<ReturnType<typeof resolveWeddingAccessForSession>>
+
+  try {
+    resolvedAccess = await resolveWeddingAccessForSession(session)
+  } catch (error) {
+    return NextResponse.json(
+      {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Die Hochzeit für den Kauf konnte nicht geladen werden.',
+        code: 'WEDDING_NOT_AVAILABLE',
+      },
+      { status: 409 },
+    )
+  }
+
+  const { billingAccess, config, coupleAccount } = resolvedAccess
+
+  if (!billingAccess.billingEnabled) {
     return NextResponse.json(
       {
         success: false,
@@ -28,37 +54,45 @@ export async function POST(): Promise<NextResponse<ApiResponse<CheckoutResponse>
     )
   }
 
-  if (!access.adminEmail) {
+  if (!coupleAccount?.email) {
     return NextResponse.json(
       {
         success: false,
-        error: 'Die Admin-E-Mail für das Brautpaar ist aktuell nicht konfiguriert.',
+        error: 'Für diese Hochzeit ist noch kein Brautpaar-Konto mit E-Mail hinterlegt.',
         code: 'ADMIN_EMAIL_NOT_CONFIGURED',
       },
       { status: 503 },
     )
   }
 
-  if (!access.requiresPayment) {
+  if (!billingAccess.requiresPayment) {
     return NextResponse.json({
       success: true,
       data: {
-        url: `${ENV.appUrl}/admin/login`,
+        url: new URL('/admin/uebersicht', request.url).toString(),
       },
     })
   }
 
   try {
-    const session = await createBillingCheckoutSession(access.adminEmail)
+    if (config.source === 'fallback') {
+      throw new Error('Die Hochzeit konnte nicht für den Checkout zugeordnet werden.')
+    }
 
-    if (!session.url) {
+    const checkoutSession = await createBillingCheckoutSession({
+      adminEmail: coupleAccount.email,
+      weddingSource: config.source,
+      weddingSourceId: config.sourceId ?? config.id,
+    })
+
+    if (!checkoutSession.url) {
       throw new Error('Stripe hat keine Checkout-URL zurückgegeben.')
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        url: session.url,
+        url: checkoutSession.url,
       },
     })
   } catch (error) {

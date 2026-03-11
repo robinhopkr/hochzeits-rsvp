@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { deleteRsvp, getAdminWeddingConfig, listRsvps } from '@/lib/supabase/repository'
+import { deleteRsvp, listRsvps } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 import type { RsvpRecord } from '@/types/wedding'
 
@@ -17,8 +17,7 @@ export async function GET(
   }
 
   const supabase = createAdminClient() ?? (await createClient())
-  const config = await getAdminWeddingConfig(supabase, undefined)
-  const rsvps = await listRsvps(supabase, config)
+  const rsvps = await listRsvps(supabase, access.config)
 
   return NextResponse.json(
     {
@@ -60,10 +59,9 @@ export async function DELETE(
   }
 
   const supabase = createAdminClient() ?? (await createClient())
-  const config = await getAdminWeddingConfig(supabase, undefined)
 
   try {
-    await deleteRsvp(supabase, config, rsvpId)
+    await deleteRsvp(supabase, access.config, rsvpId)
 
     return NextResponse.json({
       success: true,

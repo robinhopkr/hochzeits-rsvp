@@ -1,163 +1,105 @@
 import { redirect } from 'next/navigation'
 
-import { BillingPaywall } from '@/components/billing/BillingPaywall'
 import { LoginForm } from '@/components/forms/LoginForm'
+import { ActionLink } from '@/components/ui/ActionLink'
 import { Section } from '@/components/ui/Section'
 import { SectionHeading } from '@/components/ui/SectionHeading'
-import {
-  hasConfiguredCoupleCredentials,
-  hasConfiguredPlannerCredentials,
-} from '@/lib/auth/admin-session'
 import { getServerSession } from '@/lib/auth/get-session'
-import { getBillingAccessState } from '@/lib/billing/access'
-import { finalizeCheckoutSession, type FinalizeCheckoutResult } from '@/lib/billing/service'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
-import { getAdminWeddingConfig } from '@/lib/supabase/repository'
+import { resolveWeddingAccessForSession } from '@/lib/auth/admin-accounts'
+import { getBillingPricing } from '@/lib/billing/constants'
 
-function getSearchParamValue(value: string | string[] | undefined): string | null {
-  if (typeof value === 'string') {
-    return value
-  }
-
-  if (Array.isArray(value)) {
-    return value[0] ?? null
-  }
-
-  return null
-}
-
-function getNotice(
-  billingState: string | null,
-  checkoutResult: FinalizeCheckoutResult | null,
-  requiresPayment: boolean,
-) {
-  if (billingState === 'cancelled') {
-    return {
-      tone: 'warning' as const,
-      title: 'Zahlung abgebrochen',
-      body: 'Der Stripe-Checkout wurde abgebrochen. Der Gastbereich bleibt kostenlos, der Paarbereich wird nach dem Kauf freigeschaltet.',
-    }
-  }
-
-  if (billingState !== 'success') {
-    return null
-  }
-
-  if (checkoutResult?.code === 'PAID' || (!requiresPayment && checkoutResult?.code === 'ALREADY_UNLOCKED')) {
-    return {
-      tone: 'success' as const,
-      title: 'Zahlung bestätigt',
-      body: 'Der Paarbereich ist jetzt freigeschaltet. Ihr könnt euch direkt anmelden.',
-    }
-  }
-
-  return {
-    tone: 'info' as const,
-    title: 'Zahlung wird geprüft',
-    body: 'Wenn ihr den Checkout gerade abgeschlossen habt, wird die Freischaltung in der Regel innerhalb weniger Sekunden sichtbar.',
-  }
-}
-
-interface AdminLoginPageProps {
-  searchParams: Promise<Record<string, string | string[] | undefined>>
-}
-
-export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
-  const resolvedSearchParams = await searchParams
-  const billingState = getSearchParamValue(resolvedSearchParams.billing)
-  const checkoutSessionId = getSearchParamValue(resolvedSearchParams.session_id)
-  const checkoutResult =
-    billingState === 'success' ? await finalizeCheckoutSession(checkoutSessionId) : null
+export default async function AdminLoginPage() {
+  const pricing = getBillingPricing()
   const session = await getServerSession()
-  const supabase = createAdminClient() ?? (await createClient())
-  const config = await getAdminWeddingConfig(supabase, undefined)
-  const billingAccess = await getBillingAccessState(supabase, config)
-  const coupleLoginConfigured = hasConfiguredCoupleCredentials()
-  const plannerLoginConfigured = hasConfiguredPlannerCredentials()
 
-  if (session && !billingAccess.requiresPayment) {
-    redirect('/admin/uebersicht')
+  if (session) {
+    if (session.role === 'planner' && (!session.weddingSource || !session.weddingSourceId)) {
+      redirect('/admin/hochzeiten')
+    }
+
+    try {
+      const { billingAccess } = await resolveWeddingAccessForSession(session)
+      redirect(
+        billingAccess.requiresPayment
+          ? session.role === 'planner'
+            ? '/admin/hochzeiten'
+            : '/admin/kauf'
+          : '/admin/uebersicht',
+      )
+    } catch {}
   }
-
-  const notice = getNotice(billingState, checkoutResult, billingAccess.requiresPayment)
-
-  const noticeStyles =
-    notice?.tone === 'success'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
-      : notice?.tone === 'warning'
-        ? 'border-amber-200 bg-amber-50 text-amber-800'
-        : 'border-sky-200 bg-sky-50 text-sky-800'
 
   return (
     <Section className="space-y-8">
-      <div className="mx-auto max-w-2xl text-center">
+      <div className="mx-auto max-w-3xl text-center">
         <SectionHeading as="h1">Login für Brautpaare und Wedding Planner</SectionHeading>
         <p className="mt-4 text-charcoal-600">
-          Dieser geschützte Bereich steht dem Brautpaar und optional dem Wedding Planner derselben Hochzeit zur Verfügung.
+          Brautpaare registrieren ihre Hochzeit selbst und schließen den Kauf für ihren Paarbereich eigenständig ab.
+          Wedding Planner greifen danach über ihre Kundennummer auf freigegebene Hochzeiten zu.
+        </p>
+        <p className="mt-2 text-sm text-charcoal-600">
+          Paarbereich regulär {pricing.standardPriceLabel} inkl. MwSt.
+          {pricing.promoActive
+            ? ` Aktuell ${pricing.promoPriceLabel} bis ${pricing.promoDeadlineLabel}.`
+            : ''}
         </p>
       </div>
-      {notice ? (
-        <div className={`mx-auto max-w-3xl rounded-[1.75rem] border px-5 py-4 text-sm ${noticeStyles}`}>
-          <p className="font-semibold">{notice.title}</p>
-          <p className="mt-1">{notice.body}</p>
-        </div>
-      ) : null}
-      {billingAccess.requiresPayment ? (
-        <BillingPaywall adminEmail={billingAccess.adminEmail} />
-      ) : (
-        <div className="mx-auto grid w-full max-w-5xl gap-6 lg:grid-cols-2">
-          <div className="surface-card px-6 py-8 sm:px-8">
-            <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.18em] text-gold-700">Brautpaar</p>
-              <h2 className="font-display text-card text-charcoal-900">Zugang für das Paar</h2>
-              <p className="text-charcoal-600">
-                Für alle Inhalte, QR-Code, RSVP-Auswertung, Tischplan und Vorschau.
-              </p>
-            </div>
-            {coupleLoginConfigured ? (
-              <div className="mt-6">
-                <LoginForm
-                  embedded
-                  role="couple"
-                  secondaryReturnUrl="/admin/einrichtung"
-                  secondarySubmitLabel="Fragebogen zur Einrichtung von myWed"
-                  submitLabel="Als Brautpaar anmelden"
-                />
-                <p className="mt-4 text-sm leading-6 text-charcoal-600">
-                  Wenn ihr lieber geführt startet, meldet euch direkt über den Fragebogen-Button an.
-                  myWed fragt euch dann Schritt für Schritt alle wichtigen Inhalte ab.
-                </p>
-              </div>
-            ) : (
-              <div className="mt-6 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-5 py-4 text-sm text-amber-800">
-                Der Brautpaar-Login ist aktuell noch nicht konfiguriert.
-              </div>
-            )}
-          </div>
 
-          <div className="surface-card px-6 py-8 sm:px-8">
-            <div className="space-y-3">
-              <p className="text-sm uppercase tracking-[0.18em] text-sage-700">Wedding Planner</p>
-              <h2 className="font-display text-card text-charcoal-900">Zugang für den Wedding Planner</h2>
-              <p className="text-charcoal-600">
-                Gleiche Rechte wie das Brautpaar. Wenn keine separaten Zugangsdaten hinterlegt sind,
-                funktioniert dieser Login automatisch mit denselben Zugangsdaten wie beim Brautpaar.
+      <div className="mx-auto grid w-full max-w-6xl gap-6 xl:grid-cols-2">
+        <div className="surface-card px-6 py-8 sm:px-8">
+          <div className="space-y-3">
+            <p className="text-sm uppercase tracking-[0.18em] text-gold-700">Brautpaar</p>
+            <h2 className="font-display text-card text-charcoal-900">Eigene Hochzeit verwalten</h2>
+            <p className="text-charcoal-600">
+              Für Inhalte, Einladungslink, RSVP, Tischplan, PDF-Download, Galerie und Freischaltung eurer Hochzeit.
+            </p>
+          </div>
+          <div className="mt-6 space-y-4">
+            <LoginForm
+              embedded
+              role="couple"
+              secondaryReturnUrl="/admin/einrichtung"
+              secondarySubmitLabel="Fragebogen zur Einrichtung von myWed"
+              submitLabel="Als Brautpaar anmelden"
+            />
+            <div className="rounded-[1.5rem] border border-cream-200 bg-cream-50 px-5 py-5">
+              <p className="font-semibold text-charcoal-900">Noch kein Brautpaar-Konto?</p>
+              <p className="mt-2 text-sm leading-6 text-charcoal-600">
+                Registriert eure Hochzeit zuerst selbst. Danach landet ihr direkt in der Freischaltung eures Paarbereichs.
               </p>
+              <div className="mt-4">
+                <ActionLink href="/admin/registrieren?role=couple" variant="secondary">
+                  Brautpaar registrieren
+                </ActionLink>
+              </div>
             </div>
-            {plannerLoginConfigured ? (
-              <div className="mt-6">
-                <LoginForm embedded role="planner" submitLabel="Als Wedding Planner anmelden" />
-              </div>
-            ) : (
-              <div className="mt-6 rounded-[1.5rem] border border-cream-300 bg-cream-50 px-5 py-4 text-sm text-charcoal-700">
-                Dieser Zugang ist optional und aktuell noch nicht vollständig eingerichtet. Für einen
-                separaten Planner-Login setzt `WEDDING_PLANNER_EMAIL` und `WEDDING_PLANNER_PASSWORD`.
-              </div>
-            )}
           </div>
         </div>
-      )}
+
+        <div className="surface-card px-6 py-8 sm:px-8">
+          <div className="space-y-3">
+            <p className="text-sm uppercase tracking-[0.18em] text-sage-700">Wedding Planner</p>
+            <h2 className="font-display text-card text-charcoal-900">Mehrere Brautpaare verwalten</h2>
+            <p className="text-charcoal-600">
+              Nach dem Login wählt ihr aus euren freigegebenen Hochzeiten. Zugriff auf alle Bereiche außer auf private Fotos.
+            </p>
+          </div>
+          <div className="mt-6 space-y-4">
+            <LoginForm embedded role="planner" submitLabel="Als Wedding Planner anmelden" />
+            <div className="rounded-[1.5rem] border border-cream-200 bg-cream-50 px-5 py-5">
+              <p className="font-semibold text-charcoal-900">Noch kein Wedding-Planer-Konto?</p>
+              <p className="mt-2 text-sm leading-6 text-charcoal-600">
+                Erstellt euer Planner-Konto. Ihr erhaltet eine Kundennummer, die euch Brautpaare in ihrem Paarbereich freigeben.
+              </p>
+              <div className="mt-4">
+                <ActionLink href="/admin/registrieren?role=planner" variant="secondary">
+                  Wedding Planner registrieren
+                </ActionLink>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </Section>
   )
 }

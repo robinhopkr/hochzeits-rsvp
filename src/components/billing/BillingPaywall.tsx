@@ -1,8 +1,7 @@
 import { Check, HeartHandshake, ShieldCheck, Users } from 'lucide-react'
 
 import {
-  BILLING_PRICE_LABEL,
-  BILLING_PRICE_NOTE,
+  getBillingPricing,
 } from '@/lib/billing/constants'
 
 import { BillingCheckoutButton } from './BillingCheckoutButton'
@@ -18,6 +17,8 @@ const VALUE_POINTS = [
 ] as const
 
 export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
+  const pricing = getBillingPricing()
+
   return (
     <div className="surface-card mx-auto flex w-full max-w-4xl flex-col gap-8 px-6 py-8 sm:px-10">
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
@@ -41,7 +42,7 @@ export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
             <article className="rounded-[1.75rem] border border-cream-200 bg-cream-50 px-4 py-4">
               <HeartHandshake className="h-5 w-5 text-gold-700" />
               <p className="mt-3 text-sm font-semibold text-charcoal-900">Einmalig statt Abo</p>
-              <p className="mt-1 text-sm text-charcoal-600">{BILLING_PRICE_NOTE}</p>
+              <p className="mt-1 text-sm text-charcoal-600">{pricing.priceNote}</p>
             </article>
             <article className="rounded-[1.75rem] border border-cream-200 bg-cream-50 px-4 py-4">
               <Users className="h-5 w-5 text-gold-700" />
@@ -72,11 +73,27 @@ export function BillingPaywall({ adminEmail }: BillingPaywallProps) {
         </div>
 
         <aside className="rounded-[2rem] border border-gold-200 bg-white px-6 py-6 shadow-elegant">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-700">Preis</p>
-          <div className="mt-4 flex items-end gap-3">
-            <span className="font-display text-5xl text-charcoal-900">{BILLING_PRICE_LABEL}</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold-700">Preis</p>
+            {pricing.promoActive ? (
+              <span className="rounded-full bg-gold-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-gold-800">
+                Launch-Angebot bis {pricing.promoDeadlineLabel}
+              </span>
+            ) : null}
           </div>
-          <p className="mt-3 text-sm text-charcoal-600">{BILLING_PRICE_NOTE}</p>
+          <div className="mt-4 flex flex-wrap items-end gap-3">
+            <span className="font-display text-5xl text-charcoal-900">{pricing.activePriceLabel}</span>
+            {pricing.promoActive ? (
+              <span className="pb-1 text-lg text-charcoal-400 line-through">{pricing.standardPriceLabel}</span>
+            ) : null}
+          </div>
+          <p className="mt-3 text-sm text-charcoal-600">{pricing.priceNote}</p>
+          {pricing.promoActive ? (
+            <p className="mt-2 text-sm text-charcoal-600">
+              Aktuell spart ihr {pricing.promoSavingsLabel}. Ab dem 01.05.2026 gilt wieder {pricing.standardPriceLabel}.
+            </p>
+          ) : null}
+          <p className="mt-2 text-sm text-charcoal-600">Sichere Zahlung direkt per Stripe.</p>
           {adminEmail ? (
             <p className="mt-5 rounded-3xl bg-cream-50 px-4 py-4 text-sm text-charcoal-700">
               Freischaltung für: <span className="font-semibold text-charcoal-900">{adminEmail}</span>

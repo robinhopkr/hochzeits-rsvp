@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import { startTransition, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { BILLING_PRICE_LABEL } from '@/lib/billing/constants'
+import { getBillingPricing } from '@/lib/billing/constants'
 import type { ApiResponse } from '@/types/api'
 
 import { Button } from '../ui/Button'
@@ -20,6 +20,7 @@ interface BillingStatusResponse {
 }
 
 export function BillingCheckoutButton() {
+  const pricing = getBillingPricing()
   const router = useRouter()
   const [isStartingCheckout, setIsStartingCheckout] = useState(false)
   const [isAwaitingConfirmation, setIsAwaitingConfirmation] = useState(false)
@@ -129,7 +130,7 @@ export function BillingCheckoutButton() {
     <div className="space-y-3">
       <Button className="w-full sm:w-auto" loading={isStartingCheckout} size="lg" type="button" onClick={() => void handleCheckout()}>
         <CreditCard className="h-4 w-4" />
-        Jetzt für {BILLING_PRICE_LABEL} freischalten
+        Jetzt für {pricing.activePriceLabel} freischalten
       </Button>
       {isAwaitingConfirmation ? (
         <p className="text-sm text-charcoal-600">

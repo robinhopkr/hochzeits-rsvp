@@ -1,9 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { createPublicClient } from '@/lib/supabase/public'
-import { getAdminWeddingConfig } from '@/lib/supabase/repository'
 import { buildInvitationUrl } from '@/lib/urls'
 import { buildInvitationPdfFilename, createInvitationPdf } from '@/lib/pdf/invitation-pdf'
 
@@ -14,8 +11,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return access.response
   }
 
-  const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
+  const config = access.config
 
   if (!config.sourceId || !config.guestCode) {
     return NextResponse.json(

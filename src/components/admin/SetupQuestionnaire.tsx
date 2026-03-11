@@ -25,6 +25,7 @@ import { PROGRAM_ICON_COMPONENTS, PROGRAM_ICON_OPTIONS } from '@/lib/program-ico
 import { normalizeProgramTimeLabel, sortProgramItemsChronologically } from '@/lib/utils/time'
 import { cn } from '@/lib/utils/cn'
 import { weddingEditorSchema, type WeddingEditorSchema } from '@/lib/validations/wedding-editor.schema'
+import type { AdminSessionRole } from '@/lib/auth/admin-session'
 import type { ApiResponse } from '@/types/api'
 import type { WeddingConfig, WeddingEditorValues } from '@/types/wedding'
 
@@ -39,6 +40,7 @@ const STORAGE_KEY_PREFIX = 'mywed-setup-questionnaire'
 
 interface SetupQuestionnaireProps {
   initialValues: WeddingEditorValues
+  sessionRole: AdminSessionRole
 }
 
 function toDateTimeLocalValue(value: string): string {
@@ -169,7 +171,7 @@ function getFirstValidationMessage(error: ReturnType<typeof weddingEditorSchema.
   return error.error.issues[0]?.message ?? 'Bitte prüft eure Eingaben.'
 }
 
-export function SetupQuestionnaire({ initialValues }: SetupQuestionnaireProps) {
+export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestionnaireProps) {
   const router = useRouter()
   const storageKey = `${STORAGE_KEY_PREFIX}:${initialValues.source}:${initialValues.sourceId}`
   const [values, setValues] = useState<WeddingEditorSchema>(() => buildQuestionnaireValues(initialValues))
@@ -1065,24 +1067,31 @@ export function SetupQuestionnaire({ initialValues }: SetupQuestionnaireProps) {
             </div>
           </label>
 
-          <label className="rounded-[1.6rem] border border-cream-200 bg-white px-5 py-5 shadow-sm">
-            <div className="flex items-start gap-3">
-              <input
-                checked={values.sharePrivateGalleryWithGuests}
-                className="mt-1 h-4 w-4 accent-gold-500"
-                type="checkbox"
-                onChange={(event) =>
-                  updateValues({ sharePrivateGalleryWithGuests: event.target.checked })
-                }
-              />
-              <div>
-                <p className="font-semibold text-charcoal-900">Privaten Fotobereich für Gäste freigeben</p>
-                <p className="mt-2 text-sm leading-6 text-charcoal-600">
-                  Nur aktivieren, wenn private Fotografenbilder später auch im Gästebereich sichtbar werden sollen.
-                </p>
+          {sessionRole === 'couple' ? (
+            <label className="rounded-[1.6rem] border border-cream-200 bg-white px-5 py-5 shadow-sm">
+              <div className="flex items-start gap-3">
+                <input
+                  checked={values.sharePrivateGalleryWithGuests}
+                  className="mt-1 h-4 w-4 accent-gold-500"
+                  type="checkbox"
+                  onChange={(event) =>
+                    updateValues({ sharePrivateGalleryWithGuests: event.target.checked })
+                  }
+                />
+                <div>
+                  <p className="font-semibold text-charcoal-900">Privaten Fotobereich für Gäste freigeben</p>
+                  <p className="mt-2 text-sm leading-6 text-charcoal-600">
+                    Nur aktivieren, wenn private Fotografenbilder später auch im Gästebereich sichtbar werden sollen.
+                  </p>
+                </div>
               </div>
+            </label>
+          ) : (
+            <div className="rounded-[1.6rem] border border-cream-200 bg-cream-50 px-5 py-5 text-sm leading-6 text-charcoal-600 shadow-sm">
+              Private Fotografenbilder bleiben ausschließlich beim Brautpaar. Als Wedding Planner könnt ihr
+              diesen Bereich nicht freigeben.
             </div>
-          </label>
+          )}
         </div>
 
         <Input

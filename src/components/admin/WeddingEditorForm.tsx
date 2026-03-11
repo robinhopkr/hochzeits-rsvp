@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils/cn'
 import { weddingEditorSchema, type WeddingEditorSchema } from '@/lib/validations/wedding-editor.schema'
 import type { ApiResponse } from '@/types/api'
 import type { WeddingConfig, WeddingEditorValues } from '@/types/wedding'
+import type { AdminSessionRole } from '@/lib/auth/admin-session'
 
 import { WeddingDesignSection } from './WeddingDesignSection'
 import { Button } from '../ui/Button'
@@ -24,6 +25,7 @@ import { Textarea } from '../ui/Textarea'
 
 interface WeddingEditorFormProps {
   values: WeddingEditorValues
+  sessionRole: AdminSessionRole
 }
 
 type UploadFieldPath =
@@ -120,7 +122,7 @@ function UploadFileControl({
   )
 }
 
-export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
+export function WeddingEditorForm({ values, sessionRole }: WeddingEditorFormProps) {
   const router = useRouter()
   const [uploadingTargets, setUploadingTargets] = useState<Record<string, boolean>>({})
   const [pendingEmbeddedImages, setPendingEmbeddedImages] = useState<Record<string, string>>({})
@@ -549,20 +551,27 @@ export function WeddingEditorForm({ values }: WeddingEditorFormProps) {
             </span>
           </span>
         </label>
-        <label className="flex items-start gap-3 rounded-[1.5rem] border border-cream-300 bg-white px-5 py-4 text-sm text-charcoal-700">
-          <input
-            className="mt-1 h-4 w-4 accent-gold-500"
-            type="checkbox"
-            {...form.register('sharePrivateGalleryWithGuests')}
-          />
-          <span className="space-y-1">
-            <span className="block font-semibold text-charcoal-900">Privaten Fotobereich für Gäste freigeben</span>
-            <span className="block">
-              Wenn aktiv, sehen Gäste zusätzlich zu den öffentlichen Bildern auch Fotos aus dem privaten Bereich.
-              Wenn deaktiviert, bleibt der private Bereich nur für euch im Paarbereich sichtbar.
+        {sessionRole === 'couple' ? (
+          <label className="flex items-start gap-3 rounded-[1.5rem] border border-cream-300 bg-white px-5 py-4 text-sm text-charcoal-700">
+            <input
+              className="mt-1 h-4 w-4 accent-gold-500"
+              type="checkbox"
+              {...form.register('sharePrivateGalleryWithGuests')}
+            />
+            <span className="space-y-1">
+              <span className="block font-semibold text-charcoal-900">Privaten Fotobereich für Gäste freigeben</span>
+              <span className="block">
+                Wenn aktiv, sehen Gäste zusätzlich zu den öffentlichen Bildern auch Fotos aus dem privaten Bereich.
+                Wenn deaktiviert, bleibt der private Bereich nur für euch im Paarbereich sichtbar.
+              </span>
             </span>
-          </span>
-        </label>
+          </label>
+        ) : (
+          <div className="rounded-[1.5rem] border border-cream-300 bg-cream-50 px-5 py-4 text-sm text-charcoal-600">
+            Der private Fotobereich bleibt ausschließlich beim Brautpaar. Als Wedding Planner könnt ihr
+            diesen Bereich nicht sehen oder freigeben.
+          </div>
+        )}
       </div>
 
       <WeddingDesignSection

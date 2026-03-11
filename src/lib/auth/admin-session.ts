@@ -1,5 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
 
+import type { WeddingSource } from '@/types/wedding'
+
 export const ADMIN_SESSION_COOKIE = 'niiro_admin_session'
 const ADMIN_SESSION_MAX_AGE = 60 * 60 * 24 * 7
 
@@ -11,17 +13,18 @@ type CookieStore = {
   get: (name: string) => CookieValue | undefined
 }
 
-export interface AdminSession {
-  email: string
-  role: AdminSessionRole
-}
-
 export type AdminSessionRole = 'couple' | 'planner'
 
-interface ConfiguredAdminAccount {
+export interface AdminSession {
+  accountId: string
   email: string
-  password: string
   role: AdminSessionRole
+  weddingSource: WeddingSource | null
+  weddingSourceId: string | null
+}
+
+interface SessionPayload extends AdminSession {
+  expiresAt: number
 }
 
 function normalizeEmail(value: string | null | undefined): string | null {
@@ -29,56 +32,15 @@ function normalizeEmail(value: string | null | undefined): string | null {
   return normalized ? normalized : null
 }
 
-function getConfiguredAdminAccount(role: AdminSessionRole): ConfiguredAdminAccount | null {
-  const coupleEmail = normalizeEmail(process.env.ADMIN_EMAIL)
-  const couplePassword = process.env.ADMIN_PASSWORD ?? null
-
-  if (role === 'planner') {
-    const plannerEmail = normalizeEmail(process.env.WEDDING_PLANNER_EMAIL)
-    const plannerPassword = process.env.WEDDING_PLANNER_PASSWORD ?? null
-
-    if (plannerEmail && plannerPassword) {
-      return {
-        email: plannerEmail,
-        password: plannerPassword,
-        role,
-      }
-    }
-
-    if (plannerEmail || plannerPassword) {
-      return null
-    }
-
-    if (!coupleEmail || !couplePassword) {
-      return null
-    }
-
-    return {
-      email: coupleEmail,
-      password: couplePassword,
-      role,
-    }
-  }
-
-  if (!coupleEmail || !couplePassword) {
-    return null
-  }
-
-  return {
-    email: coupleEmail,
-    password: couplePassword,
-    role,
-  }
-}
-
-function getConfiguredAdminAccounts(): ConfiguredAdminAccount[] {
-  return (['couple', 'planner'] as const)
-    .map((role) => getConfiguredAdminAccount(role))
-    .filter((account): account is ConfiguredAdminAccount => Boolean(account))
-}
-
 function getSessionSecret(): string | null {
-  return process.env.ADMIN_SESSION_SECRET ?? process.env.ADMIN_PASSWORD ?? process.env.WEDDING_PLANNER_PASSWORD ?? null
+  return (
+    process.env.ADMIN_SESSION_SECRET ??
+    process.env.SUPABASE_SERVICE_ROLE_KEY ??
+    process.env.STRIPE_SECRET_KEY ??
+    process.env.ADMIN_PASSWORD ??
+    process.env.WEDDING_PLANNER_PASSWORD ??
+    null
+  )
 }
 
 function createSignature(value: string, secret: string): string {
@@ -96,58 +58,54 @@ function safeCompare(left: string, right: string): boolean {
   return timingSafeEqual(leftBuffer, rightBuffer)
 }
 
-export function hasConfiguredAdminCredentials(role?: AdminSessionRole): boolean {
-  if (role) {
-    return Boolean(getConfiguredAdminAccount(role))
-  }
-
-  return getConfiguredAdminAccounts().length > 0
+export function hasConfiguredAdminCredentials(): boolean {
+  return true
 }
 
 export function hasConfiguredCoupleCredentials(): boolean {
-  return hasConfiguredAdminCredentials('couple')
+  return true
 }
 
 export function hasConfiguredPlannerCredentials(): boolean {
-  return hasConfiguredAdminCredentials('planner')
+  return true
 }
 
-export function resolveAdminLogin(
-  role: AdminSessionRole,
-  email: string,
-  password: string,
-): AdminSession | null {
-  const account = getConfiguredAdminAccount(role)
-
-  if (!account) {
-    return null
-  }
-
-  if (account.email !== email.trim().toLowerCase() || !safeCompare(account.password, password)) {
-    return null
-  }
-
-  return {
-    email: account.email,
-    role: account.role,
-  }
-}
-
-export function createAdminSessionToken(email: string, role: AdminSessionRole = 'couple'): string | null {
+export function createAdminSessionToken(session: AdminSession): string | null {
   const secret = getSessionSecret()
+
   if (!secret) {
     return null
   }
 
-  const payload = {
-    email: email.trim().toLowerCase(),
-    role,
+  const payload: SessionPayload = {
+    ...session,
+    email: normalizeEmail(session.email) ?? session.email,
     expiresAt: Date.now() + ADMIN_SESSION_MAX_AGE * 1000,
   }
   const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url')
   const signature = createSignature(encodedPayload, secret)
 
   return `${encodedPayload}.${signature}`
+}
+
+export function withSelectedWedding(
+  session: AdminSession,
+  weddingSource: WeddingSource,
+  weddingSourceId: string,
+): AdminSession {
+  return {
+    ...session,
+    weddingSource,
+    weddingSourceId,
+  }
+}
+
+export function clearSelectedWedding(session: AdminSession): AdminSession {
+  return {
+    ...session,
+    weddingSource: null,
+    weddingSourceId: null,
+  }
 }
 
 export function verifyAdminSessionToken(token: string | null | undefined): AdminSession | null {
@@ -158,23 +116,26 @@ export function verifyAdminSessionToken(token: string | null | undefined): Admin
   }
 
   const [encodedPayload, signature] = token.split('.')
+
   if (!encodedPayload || !signature) {
     return null
   }
 
   const expectedSignature = createSignature(encodedPayload, secret)
+
   if (!safeCompare(signature, expectedSignature)) {
     return null
   }
 
   try {
-    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8')) as {
-      email?: string
-      expiresAt?: number
-      role?: AdminSessionRole
-    }
+    const payload = JSON.parse(Buffer.from(encodedPayload, 'base64url').toString('utf8')) as Partial<SessionPayload>
 
-    if (!payload.email || !payload.expiresAt) {
+    if (
+      !payload.accountId ||
+      !payload.email ||
+      !payload.expiresAt ||
+      (payload.role !== 'couple' && payload.role !== 'planner')
+    ) {
       return null
     }
 
@@ -182,16 +143,16 @@ export function verifyAdminSessionToken(token: string | null | undefined): Admin
       return null
     }
 
-    const role = payload.role === 'planner' ? 'planner' : 'couple'
-    const account = getConfiguredAdminAccount(role)
-
-    if (!account || payload.email !== account.email) {
+    if ((payload.weddingSource && !payload.weddingSourceId) || (!payload.weddingSource && payload.weddingSourceId)) {
       return null
     }
 
     return {
-      email: payload.email,
-      role,
+      accountId: payload.accountId,
+      email: normalizeEmail(payload.email) ?? payload.email,
+      role: payload.role,
+      weddingSource: payload.weddingSource ?? null,
+      weddingSourceId: payload.weddingSourceId ?? null,
     }
   } catch {
     return null

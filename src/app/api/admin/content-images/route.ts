@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getAdminWeddingConfig, uploadContentImageFile } from '@/lib/supabase/repository'
+import { uploadContentImageFile } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024
@@ -66,7 +66,7 @@ export async function POST(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
+  const config = access.config
 
   if (!config.sourceId || config.sourceId !== sourceId) {
     return NextResponse.json(

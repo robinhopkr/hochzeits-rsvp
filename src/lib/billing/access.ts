@@ -73,7 +73,7 @@ export function buildBillingAccessState(
     hasPaid,
     isBypassed,
     paidAt: billingRecord.paidAt,
-    requiresPayment: billingEnabled && Boolean(normalizedAdminEmail) && !isBypassed && !hasPaid,
+    requiresPayment: Boolean(normalizedAdminEmail) && !isBypassed && !hasPaid,
     status: billingRecord.status,
   }
 }
@@ -81,7 +81,8 @@ export function buildBillingAccessState(
 export async function getBillingAccessState(
   supabase: Parameters<typeof getStoredBillingRecord>[0],
   config: WeddingConfig,
+  adminEmailOverride?: string | null,
 ): Promise<BillingAccessState> {
   const billingRecord = await getStoredBillingRecord(supabase, config)
-  return buildBillingAccessState(getConfiguredAdminEmail(), billingRecord)
+  return buildBillingAccessState(adminEmailOverride ?? getConfiguredAdminEmail(), billingRecord)
 }

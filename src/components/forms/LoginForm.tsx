@@ -83,14 +83,18 @@ export function LoginForm({
       }),
     })
 
-    const result = (await response.json()) as ApiResponse<{ authenticated: true }>
+    const result = (await response.json()) as ApiResponse<{ authenticated: true; nextUrl: string }>
 
     if (!response.ok || !result.success) {
       setErrorMessage(result.success ? 'Der Login ist fehlgeschlagen.' : result.error)
       return
     }
 
-    const returnUrl = normalizeReturnUrl(returnUrlOverride || searchParams.get('returnUrl'))
+    const serverNextUrl = normalizeReturnUrl(result.data.nextUrl)
+    const returnUrl =
+      returnUrlOverride && serverNextUrl === DEFAULT_RETURN_URL
+        ? normalizeReturnUrl(returnUrlOverride)
+        : normalizeReturnUrl(serverNextUrl || searchParams.get('returnUrl'))
     startTransition(() => {
       router.replace(returnUrl)
       router.refresh()

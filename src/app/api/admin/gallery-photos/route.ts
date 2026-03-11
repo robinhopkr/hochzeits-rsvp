@@ -5,7 +5,6 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
 import {
   deleteGalleryPhoto,
-  getAdminWeddingConfig,
   moveGalleryPhoto,
 } from '@/lib/supabase/repository'
 import {
@@ -42,11 +41,21 @@ export async function DELETE(
     )
   }
 
+  if (access.session.role === 'planner' && parseResult.data.path.includes('/private/')) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Wedding Planner haben keinen Zugriff auf private Fotos.',
+        code: 'FORBIDDEN',
+      },
+      { status: 403 },
+    )
+  }
+
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
 
   try {
-    await deleteGalleryPhoto(supabase, config, parseResult.data.path)
+    await deleteGalleryPhoto(supabase, access.config, parseResult.data.path)
 
     return NextResponse.json({
       success: true,
@@ -94,13 +103,26 @@ export async function PATCH(
     )
   }
 
+  if (
+    access.session.role === 'planner' &&
+    (parseResult.data.path.includes('/private/') || parseResult.data.targetVisibility === 'private')
+  ) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: 'Wedding Planner haben keinen Zugriff auf private Fotos.',
+        code: 'FORBIDDEN',
+      },
+      { status: 403 },
+    )
+  }
+
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
 
   try {
     const photo = await moveGalleryPhoto(
       supabase,
-      config,
+      access.config,
       parseResult.data.path,
       parseResult.data.targetVisibility,
     )

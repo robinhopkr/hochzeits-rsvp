@@ -5,7 +5,7 @@ const steps = [
   {
     number: '01',
     title: 'Hochzeit einrichten',
-    copy: 'Brautpaarname, Datum, Ort, Rückmeldefrist und Texte festlegen. Danach ist die Seite sofort als digitale Einladung einsatzbereit.',
+    copy: 'Brautpaar-Konto registrieren, die Hochzeit einmalig per Stripe freischalten und danach Brautpaarname, Datum, Ort, Rückmeldefrist und Texte festlegen.',
   },
   {
     number: '02',

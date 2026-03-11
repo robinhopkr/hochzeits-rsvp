@@ -53,6 +53,12 @@ export function AdminDashboardShell({
                   Jeder Bereich hat jetzt eine eigene Seite. So bleibt die Planung klarer, schneller und
                   deutlich weniger überladen.
                 </p>
+                {sessionRole === 'planner' ? (
+                  <p className="mt-3 text-sm leading-7 text-charcoal-600">
+                    Als Wedding Planner habt ihr Zugriff auf alle Bereiche dieser Hochzeit außer auf
+                    private Fotos.
+                  </p>
+                ) : null}
               </div>
               <LogoutButton label="Logout" variant="secondary" />
             </div>
@@ -71,6 +77,14 @@ export function AdminDashboardShell({
               <h2 className="mt-3 font-display text-card text-charcoal-900">Wichtige Links</h2>
             </div>
             <div className="grid gap-3">
+              {sessionRole === 'planner' ? (
+                <Link
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-full border border-gold-300 bg-white px-5 py-3 text-sm font-semibold text-charcoal-800 transition hover:border-gold-500 hover:text-charcoal-900"
+                  href="/admin/hochzeiten"
+                >
+                  Hochzeiten wechseln
+                </Link>
+              ) : null}
               <Link
                 className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
                 href={guestInviteHref}

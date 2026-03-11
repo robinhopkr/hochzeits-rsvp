@@ -43,3 +43,6 @@ ios/App/build
 
 # local temp assets
 tmp-*.png
+
+# supabase local metadata
+supabase/.temp

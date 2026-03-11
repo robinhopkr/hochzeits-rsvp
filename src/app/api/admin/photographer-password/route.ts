@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getAdminWeddingConfig, savePhotographerPassword } from '@/lib/supabase/repository'
+import { savePhotographerPassword } from '@/lib/supabase/repository'
 import type { ApiResponse } from '@/types/api'
 
 const photographerPasswordSchema = z.object({
@@ -36,10 +36,9 @@ export async function POST(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
 
   try {
-    await savePhotographerPassword(supabase, config, parseResult.data.password)
+    await savePhotographerPassword(supabase, access.config, parseResult.data.password)
 
     return NextResponse.json({
       success: true,

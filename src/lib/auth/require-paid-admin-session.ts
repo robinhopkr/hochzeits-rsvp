@@ -1,15 +1,16 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
 import { getAdminSessionFromCookieStore } from '@/lib/auth/admin-session'
-import { getBillingAccessState } from '@/lib/billing/access'
-import { createAdminClient } from '@/lib/supabase/admin'
-import { createPublicClient } from '@/lib/supabase/public'
-import { getAdminWeddingConfig } from '@/lib/supabase/repository'
+import { resolveWeddingAccessForSession } from '@/lib/auth/admin-accounts'
 import type { ApiResponse } from '@/types/api'
+import type { AdminSession } from './admin-session'
+import type { WeddingConfig } from '@/types/wedding'
 
 type RequirePaidAdminSessionResult =
   | {
       ok: true
+      config: WeddingConfig
+      session: AdminSession
     }
   | {
       ok: false
@@ -35,11 +36,45 @@ export async function requirePaidAdminSession(
     }
   }
 
-  const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
-  const access = await getBillingAccessState(supabase, config)
+  if (session.role === 'planner' && (!session.weddingSource || !session.weddingSourceId)) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        {
+          success: false,
+          error: 'Bitte wähle zuerst ein Brautpaar aus.',
+          code: 'WEDDING_SELECTION_REQUIRED',
+        },
+        { status: 409 },
+      ),
+    }
+  }
 
-  if (access.requiresPayment) {
+  let billingAccess: Awaited<ReturnType<typeof resolveWeddingAccessForSession>>['billingAccess']
+  let config: WeddingConfig
+
+  try {
+    const resolvedAccess = await resolveWeddingAccessForSession(session)
+    billingAccess = resolvedAccess.billingAccess
+    config = resolvedAccess.config
+  } catch (error) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        {
+          success: false,
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Die ausgewählte Hochzeit konnte nicht geladen werden.',
+          code: 'WEDDING_NOT_AVAILABLE',
+        },
+        { status: 409 },
+      ),
+    }
+  }
+
+  if (billingAccess.requiresPayment) {
     return {
       ok: false,
       response: NextResponse.json(
@@ -55,5 +90,7 @@ export async function requirePaidAdminSession(
 
   return {
     ok: true,
+    config,
+    session,
   }
 }

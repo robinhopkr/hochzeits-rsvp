@@ -5,7 +5,13 @@ import type Stripe from 'stripe'
 import { getBillingAccessState } from '@/lib/billing/access'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getActiveWeddingConfig, saveStoredBillingRecord } from '@/lib/supabase/repository'
+import {
+  getActiveWeddingConfig,
+  getCoupleAccountByWeddingRef,
+  getWeddingConfigBySourceRef,
+  saveStoredBillingRecord,
+} from '@/lib/supabase/repository'
+import type { WeddingSource } from '@/types/wedding'
 
 import { retrieveBillingCheckoutSession } from './stripe'
 
@@ -23,6 +29,25 @@ function resolveCheckoutAdminEmail(session: Stripe.Checkout.Session): string | n
   const customerEmail = normalizeEmail(session.customer_details?.email ?? session.customer_email)
 
   return metadataEmail ?? customerEmail
+}
+
+function resolveCheckoutWeddingReference(
+  session: Stripe.Checkout.Session,
+): { weddingSource: WeddingSource; weddingSourceId: string } | null {
+  const weddingSource = session.metadata?.weddingSource
+  const weddingSourceId = session.metadata?.weddingSourceId
+
+  if (
+    (weddingSource !== 'modern' && weddingSource !== 'legacy') ||
+    !weddingSourceId?.trim()
+  ) {
+    return null
+  }
+
+  return {
+    weddingSource,
+    weddingSourceId: weddingSourceId.trim(),
+  }
 }
 
 function resolvePaymentIntentId(
@@ -46,8 +71,22 @@ export async function syncBillingFromCheckoutSession(session: Stripe.Checkout.Se
     throw new Error('Der Stripe-Checkout enthaelt keine zuordenbare Admin-E-Mail.')
   }
 
+  const weddingReference = resolveCheckoutWeddingReference(session)
+
+  if (!weddingReference) {
+    throw new Error('Der Stripe-Checkout enthaelt keine zuordenbare Hochzeit.')
+  }
+
   const supabase = getBillingPersistenceClient()
-  const config = await getActiveWeddingConfig(supabase)
+  const config = await getWeddingConfigBySourceRef(
+    supabase,
+    weddingReference.weddingSource,
+    weddingReference.weddingSourceId,
+  )
+
+  if (!config) {
+    throw new Error('Die zugehörige Hochzeit für den Stripe-Checkout wurde nicht gefunden.')
+  }
 
   await saveStoredBillingRecord(supabase, config, {
     status: 'paid',
@@ -71,10 +110,14 @@ export interface FinalizeCheckoutResult {
 
 export async function finalizeCheckoutSession(
   sessionId: string | null | undefined,
+  context?: {
+    adminEmail?: string | null
+    config?: Awaited<ReturnType<typeof getWeddingConfigBySourceRef>> | null
+  },
 ): Promise<FinalizeCheckoutResult> {
   const supabase = getBillingPersistenceClient()
-  const config = await getActiveWeddingConfig(supabase)
-  const accessBefore = await getBillingAccessState(supabase, config)
+  const fallbackConfig = context?.config ?? (await getActiveWeddingConfig(supabase))
+  const accessBefore = await getBillingAccessState(supabase, fallbackConfig, context?.adminEmail ?? null)
 
   if (!sessionId) {
     return {
@@ -115,8 +158,22 @@ export async function finalizeCheckoutSession(
 
   await syncBillingFromCheckoutSession(checkoutSession)
 
+  const weddingReference = resolveCheckoutWeddingReference(checkoutSession)
+  const updatedConfig =
+    weddingReference
+      ? await getWeddingConfigBySourceRef(
+          supabase,
+          weddingReference.weddingSource,
+          weddingReference.weddingSourceId,
+        )
+      : null
+  const coupleAccount =
+    updatedConfig?.sourceId && updatedConfig.source !== 'fallback'
+      ? await getCoupleAccountByWeddingRef(supabase, updatedConfig.source, updatedConfig.sourceId)
+      : null
+
   return {
-    access: await getBillingAccessState(supabase, config),
+    access: await getBillingAccessState(supabase, updatedConfig ?? fallbackConfig, coupleAccount?.email ?? null),
     code: 'PAID',
   }
 }

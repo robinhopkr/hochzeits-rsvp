@@ -4,7 +4,6 @@ import { requirePaidAdminSession } from '@/lib/auth/require-paid-admin-session'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
 import {
-  getAdminWeddingConfig,
   getSeatingPlanData,
   saveSeatingPlanData,
 } from '@/lib/supabase/repository'
@@ -22,8 +21,7 @@ export async function GET(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
-  const data = await getSeatingPlanData(supabase, config)
+  const data = await getSeatingPlanData(supabase, access.config)
 
   return NextResponse.json(
     {
@@ -63,10 +61,9 @@ export async function POST(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getAdminWeddingConfig(supabase, undefined)
 
   try {
-    const data = await saveSeatingPlanData(supabase, config, parseResult.data)
+    const data = await saveSeatingPlanData(supabase, access.config, parseResult.data)
 
     return NextResponse.json({
       success: true,

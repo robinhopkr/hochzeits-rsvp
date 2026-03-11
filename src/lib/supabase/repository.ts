@@ -31,6 +31,7 @@ import type {
   MusicRequestEntry,
   MusicWishlistData,
   PlanningGuest,
+  PlannerWeddingSummary,
   ProgramItem,
   RsvpFormValues,
   RsvpRecord,
@@ -40,6 +41,7 @@ import type {
   VendorProfile,
   WeddingConfig,
   WeddingEditorValues,
+  WeddingSource,
 } from '@/types/wedding'
 
 interface QueryResult<T> {
@@ -106,6 +108,9 @@ function query(client: DbClient, relation: string): SupabaseQuery {
 type LegacyWeddingRow = Database['public']['Tables']['hochzeiten']['Row']
 type WeddingContentRow = Database['public']['Tables']['wedding_content']['Row']
 type AppSettingsRow = Database['public']['Tables']['app_einstellungen']['Row']
+type CoupleAccountRow = Database['public']['Tables']['couple_accounts']['Row']
+type PlannerAccountRow = Database['public']['Tables']['planner_accounts']['Row']
+type PlannerWeddingAccessRow = Database['public']['Tables']['planner_wedding_access']['Row']
 const GALLERY_BUCKET = 'hochzeitsfotos'
 const APP_SETTINGS_ID = 1
 const CONTENT_ASSET_PREFIX = 'content'
@@ -184,6 +189,7 @@ interface AppSettingsTexts extends LegacyTexts {
   billingPaidAt?: string | null
   billingStripeSessionId?: string | null
   billingStripePaymentIntentId?: string | null
+  plannerCustomerNumber?: string | null
   planningGuests?: Array<{
     id?: string
     name?: string
@@ -225,6 +231,22 @@ interface StoredMusicRequest {
   requestedBy: string | null
   createdAt: string
   voterTokens: string[]
+}
+
+export interface CoupleAccount {
+  id: string
+  email: string
+  passwordHash: string
+  weddingSource: WeddingSource
+  weddingSourceId: string
+}
+
+export interface PlannerAccount {
+  id: string
+  customerNumber: string
+  displayName: string
+  email: string
+  passwordHash: string
 }
 
 function isObject(value: Json | null): value is Record<string, Json | undefined> {
@@ -297,6 +319,30 @@ function parseSettingsQuestions(row: ConfigOverlayRow | null): Record<string, Js
 function normalizeOptionalString(value: string | null | undefined): string | null {
   const normalized = value?.trim()
   return normalized ? normalized : null
+}
+
+function normalizeRequiredEmail(value: string): string {
+  return value.trim().toLowerCase()
+}
+
+function mapCoupleAccount(row: CoupleAccountRow): CoupleAccount {
+  return {
+    id: row.id,
+    email: normalizeRequiredEmail(row.email),
+    passwordHash: row.password_hash,
+    weddingSource: row.wedding_source,
+    weddingSourceId: row.wedding_source_id,
+  }
+}
+
+function mapPlannerAccount(row: PlannerAccountRow): PlannerAccount {
+  return {
+    id: row.id,
+    customerNumber: row.customer_number,
+    displayName: row.display_name,
+    email: normalizeRequiredEmail(row.email),
+    passwordHash: row.password_hash,
+  }
 }
 
 function parseStoredBillingRecord(row: ConfigOverlayRow | null): StoredBillingRecord {
@@ -754,6 +800,7 @@ function createFallbackConfig(): WeddingConfig {
     partner2Name: 'Brautpaar',
     coupleLabel: 'Euer Brautpaar',
     guestCode: null,
+    plannerCustomerNumber: null,
     photoPassword: null,
     weddingDate: ENV.weddingDate,
     venueName: 'Unsere Hochzeitslocation',
@@ -797,6 +844,7 @@ function mapModernConfig(row: Database['public']['Tables']['wedding_config']['Ro
     partner2Name: row.partner_2_name,
     coupleLabel: [row.partner_1_name, row.partner_2_name].filter(Boolean).join(' & '),
     guestCode: null,
+    plannerCustomerNumber: null,
     photoPassword: null,
     weddingDate: row.wedding_date,
     venueName: row.venue_name ?? 'Unsere Hochzeitslocation',
@@ -850,6 +898,7 @@ function mapLegacyConfig(row: LegacyWeddingRow): WeddingConfig {
     coupleLabel:
       row.brautpaar_name ?? [couple.partner1Name, couple.partner2Name].filter(Boolean).join(' & '),
     guestCode: row.gastcode,
+    plannerCustomerNumber: normalizeOptionalString(appTexts.plannerCustomerNumber),
     photoPassword: row.foto_passwort,
     weddingDate: normaliseDateInput(row.hochzeitsdatum) ?? ENV.weddingDate,
     venueName: texts.einladungOrt ?? 'Unsere Hochzeitslocation',
@@ -994,6 +1043,505 @@ async function getLegacyWeddingRowById(
 
   if (error && !isMissingRelation(error)) {
     throw error
+  }
+
+  return null
+}
+
+async function getModernWeddingRowById(
+  supabase: DbClient,
+  rowId: string,
+): Promise<Database['public']['Tables']['wedding_config']['Row'] | null> {
+  const { data: rowsRaw, error } = (await query(supabase, 'wedding_config')
+    .select('*')
+    .eq('id', rowId)
+    .limit(1)) as QueryResult<Database['public']['Tables']['wedding_config']['Row'][]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return row
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
+}
+
+export async function getWeddingConfigBySourceRef(
+  supabase: DbClient,
+  weddingSource: WeddingSource,
+  weddingSourceId: string,
+): Promise<WeddingConfig | null> {
+  if (weddingSource === 'modern') {
+    const row = await getModernWeddingRowById(supabase, weddingSourceId)
+
+    if (!row) {
+      return null
+    }
+
+    const overlayRow = await getConfigOverlayRow(supabase, mapModernConfig(row))
+    return applyConfigOverlayToConfig(mapModernConfig(row), overlayRow)
+  }
+
+  const row = await getLegacyWeddingRowById(supabase, weddingSourceId)
+
+  if (!row) {
+    return null
+  }
+
+  const overlayRow = await getConfigOverlayRow(supabase, mapLegacyConfig(row))
+  return applyConfigOverlayToConfig(mapLegacyConfig(row), overlayRow)
+}
+
+export async function getCoupleAccountByEmail(
+  supabase: DbClient,
+  email: string,
+): Promise<CoupleAccount | null> {
+  const normalizedEmail = normalizeRequiredEmail(email)
+  const { data: rowsRaw, error } = (await query(supabase, 'couple_accounts')
+    .select('*')
+    .eq('email', normalizedEmail)
+    .limit(1)) as QueryResult<CoupleAccountRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return mapCoupleAccount(row)
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
+}
+
+export async function getCoupleAccountByWeddingRef(
+  supabase: DbClient,
+  weddingSource: WeddingSource,
+  weddingSourceId: string,
+): Promise<CoupleAccount | null> {
+  const { data: rowsRaw, error } = (await query(supabase, 'couple_accounts')
+    .select('*')
+    .eq('wedding_source', weddingSource)
+    .eq('wedding_source_id', weddingSourceId)
+    .limit(1)) as QueryResult<CoupleAccountRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return mapCoupleAccount(row)
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
+}
+
+export async function getPlannerAccountByEmail(
+  supabase: DbClient,
+  email: string,
+): Promise<PlannerAccount | null> {
+  const normalizedEmail = normalizeRequiredEmail(email)
+  const { data: rowsRaw, error } = (await query(supabase, 'planner_accounts')
+    .select('*')
+    .eq('email', normalizedEmail)
+    .limit(1)) as QueryResult<PlannerAccountRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return mapPlannerAccount(row)
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
+}
+
+export async function getPlannerAccountById(
+  supabase: DbClient,
+  plannerAccountId: string,
+): Promise<PlannerAccount | null> {
+  const { data: rowsRaw, error } = (await query(supabase, 'planner_accounts')
+    .select('*')
+    .eq('id', plannerAccountId)
+    .limit(1)) as QueryResult<PlannerAccountRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return mapPlannerAccount(row)
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
+}
+
+export async function getPlannerAccountByCustomerNumber(
+  supabase: DbClient,
+  customerNumber: string,
+): Promise<PlannerAccount | null> {
+  const normalizedCustomerNumber = customerNumber.trim().toUpperCase()
+  const { data: rowsRaw, error } = (await query(supabase, 'planner_accounts')
+    .select('*')
+    .eq('customer_number', normalizedCustomerNumber)
+    .limit(1)) as QueryResult<PlannerAccountRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    const row = rows[0]
+    if (row) {
+      return mapPlannerAccount(row)
+    }
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return null
+}
+
+async function hasAnyCoupleAccounts(supabase: DbClient): Promise<boolean> {
+  const { data: rowsRaw, error } = (await query(supabase, 'couple_accounts')
+    .select('*')
+    .limit(1)) as QueryResult<CoupleAccountRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    return true
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return false
+}
+
+export async function findClaimableWeddingForRegistration(
+  supabase: DbClient,
+): Promise<WeddingConfig | null> {
+  if (await hasAnyCoupleAccounts(supabase)) {
+    return null
+  }
+
+  const activeConfig = await getActiveWeddingConfig(supabase)
+
+  if (activeConfig.source !== 'fallback' && activeConfig.sourceId) {
+    return activeConfig
+  }
+
+  return null
+}
+
+function slugifyGuestCodeBase(value: string): string {
+  const normalized = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 24)
+
+  return normalized || 'MYWED'
+}
+
+async function isGuestCodeTaken(supabase: DbClient, guestCode: string): Promise<boolean> {
+  const existingConfig = await getWeddingConfigByGuestCode(supabase, guestCode)
+  return Boolean(existingConfig)
+}
+
+export async function generateUniqueGuestCode(
+  supabase: DbClient,
+  coupleLabel: string,
+): Promise<string> {
+  const base = slugifyGuestCodeBase(coupleLabel)
+
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    const suffix = Math.random().toString(36).slice(2, 6).toUpperCase()
+    const candidate = `${base}-${suffix}`
+
+    if (!(await isGuestCodeTaken(supabase, candidate))) {
+      return candidate
+    }
+  }
+
+  return `${base}-${Date.now().toString().slice(-6)}`
+}
+
+function buildDefaultWeddingDate(): string {
+  const date = new Date()
+  date.setMonth(date.getMonth() + 12)
+  date.setHours(14, 0, 0, 0)
+  return date.toISOString()
+}
+
+function buildDefaultRsvpDeadline(weddingDate: string): string {
+  const date = new Date(weddingDate)
+  date.setDate(date.getDate() - 30)
+  date.setHours(23, 59, 59, 0)
+  return date.toISOString()
+}
+
+export async function createWeddingForRegistration(
+  supabase: DbClient,
+  input: {
+    coupleLabel: string
+    guestCode: string
+  },
+): Promise<WeddingConfig> {
+  const splitCouple = splitCoupleLabel(input.coupleLabel)
+  const weddingDate = buildDefaultWeddingDate()
+  const rsvpDeadline = buildDefaultRsvpDeadline(weddingDate)
+
+  const { data: row, error } = (await query(supabase, 'wedding_config')
+    .insert({
+      partner_1_name: splitCouple.partner1Name,
+      partner_2_name: splitCouple.partner2Name,
+      wedding_date: weddingDate,
+      venue_name: 'Eure Hochzeitslocation',
+      venue_address: 'Adresse ergänzt ihr im Paarbereich',
+      welcome_message:
+        'Willkommen zu eurer neuen myWed-Hochzeit. Ergänzt jetzt Schritt für Schritt eure Details.',
+      rsvp_deadline: rsvpDeadline,
+      dress_code: 'Festlich und entspannt. Genaue Hinweise könnt ihr im Paarbereich festlegen.',
+      is_active: false,
+    })
+    .select('*')
+    .single()) as QueryResult<Database['public']['Tables']['wedding_config']['Row']>
+
+  if (error) {
+    throw error
+  }
+
+  if (!row) {
+    throw new Error('Die Hochzeit konnte nicht angelegt werden.')
+  }
+
+  try {
+    await query(supabase, 'wedding_content').upsert(
+      buildWeddingContentPayload(row.id, {
+        texte: {
+          guestCode: input.guestCode.toUpperCase(),
+          welcomeMessage:
+            'Willkommen zu eurer neuen myWed-Hochzeit. Ergänzt jetzt Schritt für Schritt eure Details.',
+          probe: undefined,
+        },
+      }),
+    )
+  } catch (error) {
+    if (!isMissingRelationError(error)) {
+      throw error
+    }
+  }
+
+  return applyConfigOverlayToConfig(mapModernConfig(row), {
+    texte: {
+      guestCode: input.guestCode.toUpperCase(),
+      welcomeMessage:
+        'Willkommen zu eurer neuen myWed-Hochzeit. Ergänzt jetzt Schritt für Schritt eure Details.',
+    },
+  })
+}
+
+export async function createCoupleAccount(
+  supabase: DbClient,
+  input: {
+    email: string
+    passwordHash: string
+    weddingSource: WeddingSource
+    weddingSourceId: string
+  },
+): Promise<CoupleAccount> {
+  const { data: row, error } = (await query(supabase, 'couple_accounts')
+    .insert({
+      email: normalizeRequiredEmail(input.email),
+      password_hash: input.passwordHash,
+      wedding_source: input.weddingSource,
+      wedding_source_id: input.weddingSourceId,
+    })
+    .select('*')
+    .single()) as QueryResult<CoupleAccountRow>
+
+  if (error) {
+    throw error
+  }
+
+  if (!row) {
+    throw new Error('Das Brautpaar-Konto konnte nicht angelegt werden.')
+  }
+
+  return mapCoupleAccount(row)
+}
+
+export async function createPlannerAccount(
+  supabase: DbClient,
+  input: {
+    customerNumber: string
+    displayName: string
+    email: string
+    passwordHash: string
+  },
+): Promise<PlannerAccount> {
+  const { data: row, error } = (await query(supabase, 'planner_accounts')
+    .insert({
+      customer_number: input.customerNumber.trim().toUpperCase(),
+      display_name: input.displayName.trim(),
+      email: normalizeRequiredEmail(input.email),
+      password_hash: input.passwordHash,
+    })
+    .select('*')
+    .single()) as QueryResult<PlannerAccountRow>
+
+  if (error) {
+    throw error
+  }
+
+  if (!row) {
+    throw new Error('Das Wedding-Planer-Konto konnte nicht angelegt werden.')
+  }
+
+  return mapPlannerAccount(row)
+}
+
+export async function listPlannerWeddingAccessRows(
+  supabase: DbClient,
+  plannerAccountId: string,
+): Promise<PlannerWeddingAccessRow[]> {
+  const { data: rowsRaw, error } = (await query(supabase, 'planner_wedding_access')
+    .select('*')
+    .eq('planner_account_id', plannerAccountId)) as QueryResult<PlannerWeddingAccessRow[]>
+  const rows = rowsRaw ?? []
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return rows
+}
+
+export async function linkPlannerAccountToWedding(
+  supabase: DbClient,
+  input: {
+    plannerAccountId: string
+    weddingSource: WeddingSource
+    weddingSourceId: string
+    customerNumber: string | null
+  },
+): Promise<void> {
+  const { error } = await query(supabase, 'planner_wedding_access').upsert({
+    planner_account_id: input.plannerAccountId,
+    wedding_source: input.weddingSource,
+    wedding_source_id: input.weddingSourceId,
+    linked_via_customer_number: normalizeOptionalString(input.customerNumber),
+  })
+
+  if (error) {
+    throw error
+  }
+}
+
+export async function unlinkPlannerAccessFromWedding(
+  supabase: DbClient,
+  weddingSource: WeddingSource,
+  weddingSourceId: string,
+): Promise<void> {
+  const { error } = await query(supabase, 'planner_wedding_access')
+    .delete()
+    .eq('wedding_source', weddingSource)
+    .eq('wedding_source_id', weddingSourceId)
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+}
+
+export async function isPlannerLinkedToWedding(
+  supabase: DbClient,
+  plannerAccountId: string,
+  weddingSource: WeddingSource,
+  weddingSourceId: string,
+): Promise<boolean> {
+  const { data: rowsRaw, error } = (await query(supabase, 'planner_wedding_access')
+    .select('*')
+    .eq('planner_account_id', plannerAccountId)
+    .eq('wedding_source', weddingSource)
+    .eq('wedding_source_id', weddingSourceId)
+    .limit(1)) as QueryResult<PlannerWeddingAccessRow[]>
+  const rows = rowsRaw ?? []
+
+  if (rows.length) {
+    return true
+  }
+
+  if (error && !isMissingRelation(error)) {
+    throw error
+  }
+
+  return false
+}
+
+export async function getLinkedPlannerForWedding(
+  supabase: DbClient,
+  weddingSource: WeddingSource,
+  weddingSourceId: string,
+): Promise<PlannerAccount | null> {
+  const { data: accessRowsRaw, error: accessError } = (await query(supabase, 'planner_wedding_access')
+    .select('*')
+    .eq('wedding_source', weddingSource)
+    .eq('wedding_source_id', weddingSourceId)
+    .limit(1)) as QueryResult<PlannerWeddingAccessRow[]>
+  const accessRows = accessRowsRaw ?? []
+
+  if (accessRows.length) {
+    const accessRow = accessRows[0]
+
+    if (!accessRow) {
+      return null
+    }
+
+    const { data: plannerRowsRaw, error: plannerError } = (await query(supabase, 'planner_accounts')
+      .select('*')
+      .eq('id', accessRow.planner_account_id)
+      .limit(1)) as QueryResult<PlannerAccountRow[]>
+    const plannerRows = plannerRowsRaw ?? []
+
+    if (plannerRows.length) {
+      const plannerRow = plannerRows[0]
+      if (plannerRow) {
+        return mapPlannerAccount(plannerRow)
+      }
+    }
+
+    if (plannerError && !isMissingRelation(plannerError)) {
+      throw plannerError
+    }
+  }
+
+  if (accessError && !isMissingRelation(accessError)) {
+    throw accessError
   }
 
   return null
@@ -1384,6 +1932,122 @@ export async function savePhotographerPassword(
   })
 }
 
+export async function savePlannerCustomerNumber(
+  supabase: DbClient,
+  config: WeddingConfig,
+  customerNumber: string,
+): Promise<PlannerAccount | null> {
+  const normalizedCustomerNumber = normalizeOptionalString(customerNumber)?.toUpperCase() ?? null
+  const linkedPlanner = normalizedCustomerNumber
+    ? await getPlannerAccountByCustomerNumber(supabase, normalizedCustomerNumber)
+    : null
+
+  if (normalizedCustomerNumber && !linkedPlanner) {
+    throw new Error('Zu dieser Kundennummer wurde kein Wedding-Planer-Konto gefunden.')
+  }
+
+  if (!config.sourceId) {
+    throw new Error('Die aktive Hochzeit konnte nicht geladen werden.')
+  }
+
+  if (config.source === 'fallback') {
+    throw new Error('Die aktive Hochzeit konnte nicht geladen werden.')
+  }
+
+  await unlinkPlannerAccessFromWedding(supabase, config.source, config.sourceId)
+
+  if (linkedPlanner) {
+    await linkPlannerAccountToWedding(supabase, {
+      plannerAccountId: linkedPlanner.id,
+      weddingSource: config.source,
+      weddingSourceId: config.sourceId,
+      customerNumber: normalizedCustomerNumber,
+    })
+  }
+
+  if (config.source === 'modern' && config.sourceId) {
+    const currentContentRow = await getWeddingContentRow(supabase, config.sourceId)
+    const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+    const existingTexts = {
+      ...parseSettingsTexts(compatibilityRow),
+      ...parseSettingsTexts(buildContentOverlayRow(currentContentRow)),
+    }
+
+    try {
+      const { error } = await query(supabase, 'wedding_content')
+        .upsert(
+          buildWeddingContentPayload(config.sourceId, {
+            fragen: currentContentRow?.fragen ?? compatibilityRow?.fragen ?? null,
+            texte: {
+              ...existingTexts,
+              plannerCustomerNumber: normalizedCustomerNumber,
+              probe: undefined,
+            },
+          }),
+        )
+        .select('*')
+        .single()
+
+      if (error) {
+        throw error
+      }
+
+      return linkedPlanner
+    } catch (error) {
+      if (!isMissingRelationError(error)) {
+        throw error
+      }
+    }
+  }
+
+  if (config.source === 'legacy' && config.sourceId) {
+    const currentRow = await getLegacyWeddingRowById(supabase, config.sourceId)
+
+    if (!currentRow) {
+      throw new Error('Die aktive Hochzeit konnte nicht geladen werden.')
+    }
+
+    const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, mapLegacyConfig(currentRow))
+    const existingTexts = {
+      ...parseSettingsTexts(compatibilityRow),
+      ...(parseLegacyTexts(currentRow) as AppSettingsTexts),
+    }
+
+    const { error } = await query(supabase, 'hochzeiten')
+      .update({
+        texte: {
+          ...existingTexts,
+          plannerCustomerNumber: normalizedCustomerNumber,
+          probe: undefined,
+        },
+      })
+      .eq('id', config.sourceId)
+
+    if (error) {
+      throw error
+    }
+
+    return linkedPlanner
+  }
+
+  const compatibilityRow = await getCompatibilityAppSettingsRow(supabase, config)
+  const existingTexts = parseSettingsTexts(compatibilityRow)
+  await saveCompatibilityAppSettingsRow(supabase, {
+    id: APP_SETTINGS_ID,
+    brautpaar: compatibilityRow?.brautpaar ?? config.coupleLabel,
+    hochzeitsdatum: compatibilityRow?.hochzeitsdatum ?? config.weddingDate,
+    rsvp_deadline: compatibilityRow?.rsvp_deadline ?? config.rsvpDeadline,
+    fragen: compatibilityRow?.fragen ?? null,
+    texte: {
+      ...existingTexts,
+      plannerCustomerNumber: normalizedCustomerNumber,
+      probe: undefined,
+    },
+  })
+
+  return linkedPlanner
+}
+
 function buildMusicWishlistTexts(
   existingTexts: AppSettingsTexts,
   input: {
@@ -1606,6 +2270,8 @@ function applyConfigOverlayToConfig(baseConfig: WeddingConfig, row: ConfigOverla
     partner2Name: couple.partner2Name,
     coupleLabel,
     guestCode: texts.guestCode?.trim().toUpperCase() || baseConfig.guestCode,
+    plannerCustomerNumber:
+      normalizeOptionalString(texts.plannerCustomerNumber) ?? baseConfig.plannerCustomerNumber,
     photoPassword: texts.photographerPassword?.trim() || baseConfig.photoPassword,
     weddingDate: normaliseDateInput(row.hochzeitsdatum) ?? baseConfig.weddingDate,
     rsvpDeadline: normaliseDateInput(row.rsvp_deadline) ?? baseConfig.rsvpDeadline,

@@ -2,20 +2,29 @@ import { cache } from 'react'
 import { redirect } from 'next/navigation'
 
 import { getServerSession } from '@/lib/auth/get-session'
-import { getBillingAccessState } from '@/lib/billing/access'
+import { resolveWeddingAccessForSession } from '@/lib/auth/admin-accounts'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
-import { getAdminWeddingConfig } from '@/lib/supabase/repository'
 import { buildInvitationPath, buildInvitationUrl } from '@/lib/urls'
 
 export const getProtectedAdminContext = cache(async () => {
   const user = await getServerSession()
-  const supabase = createAdminClient() ?? (await createClient())
-  const config = await getAdminWeddingConfig(supabase, undefined)
-  const billingAccess = await getBillingAccessState(supabase, config)
 
-  if (!user || billingAccess.requiresPayment) {
+  if (!user) {
     redirect('/admin/login')
+  }
+
+  if (user.role === 'planner' && (!user.weddingSource || !user.weddingSourceId)) {
+    redirect('/admin/hochzeiten')
+  }
+
+  const supabase = createAdminClient() ?? (await createClient())
+  const { billingAccess, config } = await resolveWeddingAccessForSession(user).catch(() => {
+    redirect('/admin/login')
+  })
+
+  if (billingAccess.requiresPayment) {
+    redirect(user.role === 'planner' ? '/admin/hochzeiten?status=zahlung-offen' : '/admin/kauf')
   }
 
   return {

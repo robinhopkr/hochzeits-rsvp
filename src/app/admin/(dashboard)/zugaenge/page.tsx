@@ -1,15 +1,20 @@
 import { AdminPageHero } from '@/components/admin/AdminPageHero'
 import { AdminGalleryManager } from '@/components/admin/AdminGalleryManager'
 import { GuestAccessCard } from '@/components/admin/GuestAccessCard'
+import { PlannerAccessCard } from '@/components/admin/PlannerAccessCard'
 import { PhotographerPasswordCard } from '@/components/admin/PhotographerPasswordCard'
 import { ActionLink } from '@/components/ui/ActionLink'
 import { getProtectedAdminContext } from '@/lib/admin/dashboard'
-import { getGalleryCollections } from '@/lib/supabase/repository'
+import { getGalleryCollections, getLinkedPlannerForWedding } from '@/lib/supabase/repository'
 
 export default async function AdminAccessPage() {
-  const { config, galleryHref, guestInviteHref, guestInviteUrl, photographerHref, supabase } =
+  const { config, galleryHref, guestInviteHref, guestInviteUrl, photographerHref, supabase, user } =
     await getProtectedAdminContext()
   const galleryCollections = await getGalleryCollections(supabase, config)
+  const linkedPlanner =
+    config.sourceId && config.source !== 'fallback'
+      ? await getLinkedPlannerForWedding(supabase, config.source, config.sourceId)
+      : null
 
   return (
     <div className="space-y-6">
@@ -28,14 +33,17 @@ export default async function AdminAccessPage() {
         <p className="text-sm uppercase tracking-[0.18em] text-charcoal-500">Wichtig zur Fotofreigabe</p>
         <h2 className="mt-3 font-display text-card text-charcoal-900">Private Fotos für Gäste freigeben</h2>
         <p className="mt-3 max-w-3xl text-charcoal-600">
-          Auf dieser Seite seht ihr den aktuellen Status der öffentlichen und privaten Galerie. Ob
-          private Fotos zusätzlich für Gäste sichtbar werden, stellt ihr auf der Inhaltsseite ein.
+          {user.role === 'couple'
+            ? 'Auf dieser Seite seht ihr den aktuellen Status der öffentlichen und privaten Galerie. Ob private Fotos zusätzlich für Gäste sichtbar werden, stellt ihr auf der Inhaltsseite ein.'
+            : 'Ihr seht hier nur den öffentlichen Galeriebereich. Private Fotos bleiben ausschließlich beim Brautpaar und können nur dort freigegeben werden.'}
         </p>
-        <div className="mt-5">
-          <ActionLink href="/admin/inhalte" variant="secondary">
-            Freigabe in den Inhalten ändern
-          </ActionLink>
-        </div>
+        {user.role === 'couple' ? (
+          <div className="mt-5">
+            <ActionLink href="/admin/inhalte" variant="secondary">
+              Freigabe in den Inhalten ändern
+            </ActionLink>
+          </div>
+        ) : null}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -70,9 +78,25 @@ export default async function AdminAccessPage() {
         />
       </div>
 
+      {user.role === 'couple' ? (
+        <PlannerAccessCard
+          currentCustomerNumber={config.plannerCustomerNumber ?? linkedPlanner?.customerNumber ?? ''}
+          linkedPlannerName={linkedPlanner?.displayName ?? null}
+        />
+      ) : (
+        <div className="surface-card px-6 py-6">
+          <p className="text-sm uppercase tracking-[0.18em] text-sage-700">Wedding Planner</p>
+          <h2 className="mt-3 font-display text-card text-charcoal-900">Euer Zugriff</h2>
+          <p className="mt-3 text-charcoal-600">
+            Ihr habt hier Zugriff auf alle Bereiche dieser Hochzeit außer auf private Fotos. Die Verknüpfung selbst verwaltet das Brautpaar.
+          </p>
+        </div>
+      )}
+
       <AdminGalleryManager
         galleryCollections={galleryCollections}
         sharePrivateWithGuests={config.sharePrivateGalleryWithGuests}
+        sessionRole={user.role}
       />
     </div>
   )

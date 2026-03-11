@@ -12,10 +12,12 @@ import { ExternalLink } from '@/components/ui/ExternalLink'
 import { formatGermanDateTime } from '@/lib/utils/date'
 import type { ApiResponse } from '@/types/api'
 import type { GalleryCollections, GalleryPhoto, GalleryVisibility } from '@/types/wedding'
+import type { AdminSessionRole } from '@/lib/auth/admin-session'
 
 interface AdminGalleryManagerProps {
   galleryCollections: GalleryCollections
   sharePrivateWithGuests: boolean
+  sessionRole: AdminSessionRole
 }
 
 type PhotoActionState = {
@@ -26,6 +28,7 @@ type PhotoActionState = {
 export function AdminGalleryManager({
   galleryCollections,
   sharePrivateWithGuests,
+  sessionRole,
 }: AdminGalleryManagerProps) {
   const router = useRouter()
   const [pendingAction, setPendingAction] = useState<PhotoActionState>(null)
@@ -132,6 +135,7 @@ export function AdminGalleryManager({
               const isDeleting =
                 pendingAction?.path === photo.path && pendingAction.type === 'delete'
               const isMoving = pendingAction?.path === photo.path && pendingAction.type === 'move'
+              const canMoveToTarget = !(sessionRole === 'planner' && targetVisibility === 'private')
 
               return (
                 <article
@@ -160,26 +164,28 @@ export function AdminGalleryManager({
                       </p>
                     </div>
                     <div className="mt-auto grid gap-2">
-                      <Button
-                        className="w-full justify-center"
-                        loading={isMoving}
-                        size="sm"
-                        type="button"
-                        variant="secondary"
-                        onClick={() => handleMove(photo, targetVisibility)}
-                      >
-                        {targetVisibility === 'private' ? (
-                          <>
-                            <EyeOff className="h-4 w-4" />
-                            In privat verschieben
-                          </>
-                        ) : (
-                          <>
-                            <Eye className="h-4 w-4" />
-                            Öffentlich machen
-                          </>
-                        )}
-                      </Button>
+                      {canMoveToTarget ? (
+                        <Button
+                          className="w-full justify-center"
+                          loading={isMoving}
+                          size="sm"
+                          type="button"
+                          variant="secondary"
+                          onClick={() => handleMove(photo, targetVisibility)}
+                        >
+                          {targetVisibility === 'private' ? (
+                            <>
+                              <EyeOff className="h-4 w-4" />
+                              In privat verschieben
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="h-4 w-4" />
+                              Öffentlich machen
+                            </>
+                          )}
+                        </Button>
+                      ) : null}
                       <Button
                         className="w-full justify-center border border-red-200 text-red-700 hover:bg-red-50"
                         loading={isDeleting}
@@ -208,24 +214,28 @@ export function AdminGalleryManager({
   }
 
   return (
-    <div className="grid gap-6 xl:grid-cols-2">
+    <div className={`grid gap-6 ${sessionRole === 'planner' ? '' : 'xl:grid-cols-2'}`}>
       {renderSection(
         'Öffentliche Galerie',
-        'Diese Bilder sehen alle Gäste. Ihr könnt sie löschen oder wieder in den privaten Bereich schieben.',
+        sessionRole === 'planner'
+          ? 'Diese Bilder sehen alle Gäste. Ihr könnt sie prüfen und bei Bedarf löschen.'
+          : 'Diese Bilder sehen alle Gäste. Ihr könnt sie löschen oder wieder in den privaten Bereich schieben.',
         galleryCollections.publicPhotos,
         'private',
         'Noch keine öffentlichen Fotos',
         'Hier erscheinen alle Bilder, die aktuell für alle Gäste sichtbar sind.',
       )}
 
-      {renderSection(
-        'Privater Fotobereich',
-        'Diese Bilder bleiben zunächst intern. Bei Bedarf könnt ihr sie direkt in den öffentlichen Bereich verschieben.',
-        galleryCollections.privatePhotos,
-        'public',
-        'Noch keine privaten Fotos',
-        'Hier erscheinen Bilder, die nur intern sichtbar sind, bis ihr sie freigebt oder verschiebt.',
-      )}
+      {sessionRole !== 'planner'
+        ? renderSection(
+            'Privater Fotobereich',
+            'Diese Bilder bleiben zunächst intern. Bei Bedarf könnt ihr sie direkt in den öffentlichen Bereich verschieben.',
+            galleryCollections.privatePhotos,
+            'public',
+            'Noch keine privaten Fotos',
+            'Hier erscheinen Bilder, die nur intern sichtbar sind, bis ihr sie freigebt oder verschiebt.',
+          )
+        : null}
     </div>
   )
 }

@@ -33,9 +33,16 @@ export async function POST(
   }
 
   const supabase = createAdminClient() ?? createPublicClient()
+  const nextValues =
+    access.session.role === 'planner'
+      ? {
+          ...parseResult.data,
+          sharePrivateGalleryWithGuests: access.config.sharePrivateGalleryWithGuests,
+        }
+      : parseResult.data
 
   try {
-    const config = await saveWeddingEditorValues(supabase, parseResult.data)
+    const config = await saveWeddingEditorValues(supabase, nextValues)
 
     return NextResponse.json({
       success: true,

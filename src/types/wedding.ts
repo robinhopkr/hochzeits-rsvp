@@ -1,6 +1,7 @@
 import type { WeddingFontPresetId, WeddingTemplateId } from '@/lib/wedding-design'
 
 export type DataSource = 'modern' | 'legacy' | 'fallback'
+export type WeddingSource = Exclude<DataSource, 'fallback'>
 export type MenuChoice = 'meat' | 'fish' | 'vegetarian' | 'vegan'
 export type ContentImageSection = 'programm' | 'anfahrt' | 'dresscode' | 'galerie' | 'rsvp' | 'faq'
 export type DressCodeColorHint = 'soft' | 'moderate' | 'strong'
@@ -50,6 +51,7 @@ export interface WeddingConfig {
   partner2Name: string | null
   coupleLabel: string
   guestCode: string | null
+  plannerCustomerNumber: string | null
   photoPassword: string | null
   weddingDate: string
   venueName: string
@@ -176,6 +178,17 @@ export interface SeatingPlanData {
 export interface LoginFormValues {
   email: string
   password: string
+}
+
+export interface PlannerWeddingSummary {
+  weddingSource: WeddingSource
+  weddingSourceId: string
+  coupleLabel: string
+  guestCode: string | null
+  venueName: string
+  weddingDate: string
+  plannerCustomerNumber: string | null
+  billingUnlocked: boolean
 }
 
 export interface GalleryPhoto {

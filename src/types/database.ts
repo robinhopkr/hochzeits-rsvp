@@ -105,6 +105,68 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['wedding_content']['Insert']>
         Relationships: []
       }
+      couple_accounts: {
+        Row: {
+          id: string
+          wedding_source: 'modern' | 'legacy'
+          wedding_source_id: string
+          email: string
+          password_hash: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          wedding_source: 'modern' | 'legacy'
+          wedding_source_id: string
+          email: string
+          password_hash: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['couple_accounts']['Insert']>
+        Relationships: []
+      }
+      planner_accounts: {
+        Row: {
+          id: string
+          customer_number: string
+          display_name: string
+          email: string
+          password_hash: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          customer_number: string
+          display_name: string
+          email: string
+          password_hash: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['planner_accounts']['Insert']>
+        Relationships: []
+      }
+      planner_wedding_access: {
+        Row: {
+          planner_account_id: string
+          wedding_source: 'modern' | 'legacy'
+          wedding_source_id: string
+          linked_via_customer_number: string | null
+          linked_at: string
+        }
+        Insert: {
+          planner_account_id: string
+          wedding_source: 'modern' | 'legacy'
+          wedding_source_id: string
+          linked_via_customer_number?: string | null
+          linked_at?: string
+        }
+        Update: Partial<Database['public']['Tables']['planner_wedding_access']['Insert']>
+        Relationships: []
+      }
       app_einstellungen: {
         Row: {
           id: number

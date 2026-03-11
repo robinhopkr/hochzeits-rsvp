@@ -4,7 +4,7 @@ import { getProtectedAdminContext } from '@/lib/admin/dashboard'
 import { getWeddingEditorValues } from '@/lib/supabase/repository'
 
 export default async function AdminContentPage() {
-  const { config, supabase } = await getProtectedAdminContext()
+  const { config, supabase, user } = await getProtectedAdminContext()
   const editorValues = await getWeddingEditorValues(supabase, config)
 
   return (
@@ -16,7 +16,7 @@ export default async function AdminContentPage() {
 
       {editorValues ? (
         <div className="surface-card px-6 py-6 sm:px-8">
-          <WeddingEditorForm values={editorValues} />
+          <WeddingEditorForm sessionRole={user.role} values={editorValues} />
         </div>
       ) : (
         <div className="surface-card px-6 py-8 text-charcoal-600">
