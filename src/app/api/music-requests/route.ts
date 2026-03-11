@@ -6,6 +6,7 @@ import { createPublicClient } from '@/lib/supabase/public'
 import {
   addMusicRequest,
   getActiveWeddingConfig,
+  getWeddingConfigByGuestCode,
   getMusicWishlistData,
 } from '@/lib/supabase/repository'
 import { musicRequestSchema } from '@/lib/validations/music-wishlist.schema'
@@ -32,11 +33,37 @@ function attachVisitorCookie<T>(response: NextResponse<T>, visitorToken: string)
   return response
 }
 
+function readGuestCodeFromBody(body: unknown): string | null {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return null
+  }
+
+  const guestCode = 'guestCode' in body ? body.guestCode : null
+  return typeof guestCode === 'string' && guestCode.trim() ? guestCode.trim() : null
+}
+
 export async function GET(
   request: NextRequest,
 ): Promise<NextResponse<ApiResponse<MusicWishlistData>>> {
   const supabase = createAdminClient() ?? createPublicClient()
-  const config = await getActiveWeddingConfig(supabase)
+  const guestCode = request.nextUrl.searchParams.get('guestCode')?.trim() ?? null
+  const config = guestCode
+    ? await getWeddingConfigByGuestCode(supabase, guestCode)
+    : await getActiveWeddingConfig(supabase)
+
+  if (!config?.sourceId) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: guestCode
+          ? 'Für diesen Einladungslink wurde keine passende Hochzeit gefunden.'
+          : 'Es ist aktuell keine aktive Hochzeit konfiguriert.',
+        code: guestCode ? 'INVALID_GUEST_CODE' : 'NO_ACTIVE_CONFIG',
+      },
+      { status: guestCode ? 404 : 503 },
+    )
+  }
+
   const visitorToken = getVisitorToken(request)
   const data = await getMusicWishlistData(supabase, config, visitorToken)
 
@@ -79,6 +106,7 @@ export async function POST(
     }
 
     const rawBody: unknown = await request.json().catch(() => null)
+    const guestCode = readGuestCodeFromBody(rawBody)
     const parseResult = musicRequestSchema.safeParse(rawBody)
 
     if (!parseResult.success) {
@@ -94,7 +122,23 @@ export async function POST(
     }
 
     const supabase = createAdminClient() ?? createPublicClient()
-    const config = await getActiveWeddingConfig(supabase)
+    const config = guestCode
+      ? await getWeddingConfigByGuestCode(supabase, guestCode)
+      : await getActiveWeddingConfig(supabase)
+
+    if (!config?.sourceId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: guestCode
+            ? 'Für diesen Einladungslink wurde keine passende Hochzeit gefunden.'
+            : 'Es ist aktuell keine aktive Hochzeit konfiguriert.',
+          code: guestCode ? 'INVALID_GUEST_CODE' : 'NO_ACTIVE_CONFIG',
+        },
+        { status: guestCode ? 404 : 503 },
+      )
+    }
+
     const visitorToken = getVisitorToken(request)
 
     const data = await addMusicRequest(

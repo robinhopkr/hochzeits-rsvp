@@ -1,23 +1,42 @@
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 
 import { WeddingInvitationPage } from '@/components/pages/WeddingInvitationPage'
-import { buildInvitationPath } from '@/lib/urls'
+import { DEMO_GUEST_CODE } from '@/lib/demo-wedding'
 import { createClient } from '@/lib/supabase/server'
 import {
-  getActiveWeddingConfig,
   getFaqItems,
   getMusicWishlistData,
   getProgramItems,
   getSeatingPlanData,
+  getWeddingConfigByGuestCode,
   listGalleryPhotos,
 } from '@/lib/supabase/repository'
 
-export default async function InvitationPage() {
-  const supabase = await createClient()
-  const config = await getActiveWeddingConfig(supabase)
+interface PersonalizedInvitationPageProps {
+  params: Promise<{
+    guestCode: string
+  }>
+}
 
-  if (config.guestCode) {
-    redirect(buildInvitationPath(config.guestCode))
+export default async function PersonalizedInvitationPage({
+  params,
+}: PersonalizedInvitationPageProps) {
+  const resolvedParams = await params
+  const normalizedGuestCode = resolvedParams.guestCode.trim().toUpperCase()
+
+  if (!normalizedGuestCode) {
+    notFound()
+  }
+
+  if (normalizedGuestCode === DEMO_GUEST_CODE) {
+    redirect('/demo')
+  }
+
+  const supabase = await createClient()
+  const config = await getWeddingConfigByGuestCode(supabase, normalizedGuestCode)
+
+  if (!config) {
+    notFound()
   }
 
   const [programItems, faqItems, galleryPhotos, seatingPlanData, musicWishlistData] = await Promise.all([

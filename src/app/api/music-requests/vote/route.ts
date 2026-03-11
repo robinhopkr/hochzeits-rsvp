@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { createMusicVisitorToken, MUSIC_VOTER_COOKIE_NAME } from '@/lib/music-wishlist'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getActiveWeddingConfig, voteForMusicRequest } from '@/lib/supabase/repository'
+import { getActiveWeddingConfig, getWeddingConfigByGuestCode, voteForMusicRequest } from '@/lib/supabase/repository'
 import { musicVoteSchema } from '@/lib/validations/music-wishlist.schema'
 import { checkRateLimit } from '@/lib/utils/rateLimit'
 import type { ApiResponse } from '@/types/api'
@@ -28,6 +28,15 @@ function attachVisitorCookie<T>(response: NextResponse<T>, visitorToken: string)
   return response
 }
 
+function readGuestCodeFromBody(body: unknown): string | null {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return null
+  }
+
+  const guestCode = 'guestCode' in body ? body.guestCode : null
+  return typeof guestCode === 'string' && guestCode.trim() ? guestCode.trim() : null
+}
+
 export async function POST(
   request: NextRequest,
 ): Promise<NextResponse<ApiResponse<MusicWishlistData>>> {
@@ -47,6 +56,7 @@ export async function POST(
     }
 
     const rawBody: unknown = await request.json().catch(() => null)
+    const guestCode = readGuestCodeFromBody(rawBody)
     const parseResult = musicVoteSchema.safeParse(rawBody)
 
     if (!parseResult.success) {
@@ -62,7 +72,23 @@ export async function POST(
     }
 
     const supabase = createAdminClient() ?? createPublicClient()
-    const config = await getActiveWeddingConfig(supabase)
+    const config = guestCode
+      ? await getWeddingConfigByGuestCode(supabase, guestCode)
+      : await getActiveWeddingConfig(supabase)
+
+    if (!config?.sourceId) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: guestCode
+            ? 'Für diesen Einladungslink wurde keine passende Hochzeit gefunden.'
+            : 'Es ist aktuell keine aktive Hochzeit konfiguriert.',
+          code: guestCode ? 'INVALID_GUEST_CODE' : 'NO_ACTIVE_CONFIG',
+        },
+        { status: guestCode ? 404 : 503 },
+      )
+    }
+
     const visitorToken = getVisitorToken(request)
     const data = await voteForMusicRequest(supabase, config, {
       requestId: parseResult.data.requestId,

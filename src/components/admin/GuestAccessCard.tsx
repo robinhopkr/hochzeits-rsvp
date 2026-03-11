@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/Button'
 
 interface GuestAccessCardProps {
+  inviteHref: string
   inviteUrl: string
   guestCode?: string | null
 }
@@ -32,7 +33,7 @@ function dataUrlToBlob(dataUrl: string): Blob {
   return new Blob([bytes], { type: mimeType })
 }
 
-export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) {
+export function GuestAccessCard({ inviteHref, inviteUrl, guestCode }: GuestAccessCardProps) {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState('')
   const [qrCodeObjectUrl, setQrCodeObjectUrl] = useState('')
   const [qrCodeBlob, setQrCodeBlob] = useState<Blob | null>(null)
@@ -188,7 +189,7 @@ export function GuestAccessCard({ inviteUrl, guestCode }: GuestAccessCardProps) 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
-              href="/einladung"
+              href={inviteHref}
             >
               <ExternalLink className="h-4 w-4" />
               Gästeseite öffnen

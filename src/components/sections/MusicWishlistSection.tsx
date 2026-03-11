@@ -13,12 +13,14 @@ import type { ApiResponse } from '@/types/api'
 import type { MusicWishlistData } from '@/types/wedding'
 
 interface MusicWishlistSectionProps {
+  guestCode?: string | null
   initialData: MusicWishlistData
   interactive?: boolean
   mode?: 'demo' | 'live'
 }
 
 export function MusicWishlistSection({
+  guestCode,
   initialData,
   interactive = true,
   mode = 'live',
@@ -39,9 +41,17 @@ export function MusicWishlistSection({
 
     async function loadWishlist() {
       try {
-        const response = await fetch('/api/music-requests', {
+        const params = new URLSearchParams()
+        if (guestCode) {
+          params.set('guestCode', guestCode)
+        }
+
+        const response = await fetch(
+          params.size ? `/api/music-requests?${params.toString()}` : '/api/music-requests',
+          {
           cache: 'no-store',
-        })
+          },
+        )
         const result = (await response.json()) as ApiResponse<MusicWishlistData>
 
         if (!isCancelled && response.ok && result.success) {
@@ -57,7 +67,7 @@ export function MusicWishlistSection({
     return () => {
       isCancelled = true
     }
-  }, [initialData.enabled, interactive, mode])
+  }, [guestCode, initialData.enabled, interactive, mode])
 
   if (!data.enabled) {
     return null
@@ -83,6 +93,7 @@ export function MusicWishlistSection({
           title,
           artist,
           requestedBy,
+          guestCode,
         }),
       })
 
@@ -121,6 +132,7 @@ export function MusicWishlistSection({
         },
         body: JSON.stringify({
           requestId,
+          guestCode,
         }),
       })
 

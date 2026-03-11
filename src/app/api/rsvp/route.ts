@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { ENV } from '@/lib/constants'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createPublicClient } from '@/lib/supabase/public'
-import { getActiveWeddingConfig, submitRsvp } from '@/lib/supabase/repository'
+import { getActiveWeddingConfig, getWeddingConfigByGuestCode, submitRsvp } from '@/lib/supabase/repository'
 import { rsvpSchema } from '@/lib/validations/rsvp.schema'
 import { normaliseDateInput } from '@/lib/utils/date'
 import { checkRateLimit } from '@/lib/utils/rateLimit'
@@ -17,6 +17,15 @@ function hashIp(ipAddress: string | null): string | null {
   }
 
   return createHash('sha256').update(ipAddress).digest('hex')
+}
+
+function readGuestCodeFromBody(body: unknown): string | null {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return null
+  }
+
+  const guestCode = 'guestCode' in body ? body.guestCode : null
+  return typeof guestCode === 'string' && guestCode.trim() ? guestCode.trim() : null
 }
 
 export async function POST(
@@ -49,6 +58,7 @@ export async function POST(
       )
     }
 
+    const guestCode = readGuestCodeFromBody(rawBody)
     const parseResult = rsvpSchema.safeParse(rawBody)
     if (!parseResult.success) {
       return NextResponse.json(
@@ -75,16 +85,20 @@ export async function POST(
 
     // Prefer the service role on the server so RSVP writes also work against legacy schemas with RLS.
     const supabase = createAdminClient() ?? createPublicClient()
-    const config = await getActiveWeddingConfig(supabase)
+    const config = guestCode
+      ? await getWeddingConfigByGuestCode(supabase, guestCode)
+      : await getActiveWeddingConfig(supabase)
 
-    if (!config.sourceId) {
+    if (!config?.sourceId) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Es ist aktuell keine aktive Hochzeit konfiguriert.',
-          code: 'NO_ACTIVE_CONFIG',
+          error: guestCode
+            ? 'Für diesen Einladungslink wurde keine passende Hochzeit gefunden.'
+            : 'Es ist aktuell keine aktive Hochzeit konfiguriert.',
+          code: guestCode ? 'INVALID_GUEST_CODE' : 'NO_ACTIVE_CONFIG',
         },
-        { status: 503 },
+        { status: guestCode ? 404 : 503 },
       )
     }
 

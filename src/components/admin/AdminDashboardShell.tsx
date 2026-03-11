@@ -14,6 +14,7 @@ interface AdminDashboardShellProps {
   children: React.ReactNode
   config: WeddingConfig
   galleryHref: string | null
+  guestInviteHref: string
   guestInviteUrl: string
   photographerHref: string | null
   sessionRole: AdminSessionRole
@@ -23,6 +24,7 @@ export function AdminDashboardShell({
   children,
   config,
   galleryHref,
+  guestInviteHref,
   guestInviteUrl,
   photographerHref,
   sessionRole,
@@ -34,7 +36,7 @@ export function AdminDashboardShell({
       <Header
         brandHref="/admin/uebersicht"
         brandLabel={`${config.coupleLabel} · Paarbereich`}
-        ctaHref="/einladung"
+        ctaHref={guestInviteHref}
         ctaLabel="Gästeseite öffnen"
         navItems={[]}
         showBrandMark
@@ -66,7 +68,7 @@ export function AdminDashboardShell({
             <div className="grid gap-3">
               <Link
                 className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-gold-500 px-5 py-3 text-sm font-semibold text-charcoal-900 shadow-gold transition hover:bg-gold-400"
-                href="/einladung"
+                href={guestInviteHref}
               >
                 Gästeseite
               </Link>

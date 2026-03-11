@@ -7,7 +7,7 @@ import { getProtectedAdminContext } from '@/lib/admin/dashboard'
 import { getGalleryCollections } from '@/lib/supabase/repository'
 
 export default async function AdminAccessPage() {
-  const { config, galleryHref, guestInviteUrl, photographerHref, supabase } =
+  const { config, galleryHref, guestInviteHref, guestInviteUrl, photographerHref, supabase } =
     await getProtectedAdminContext()
   const galleryCollections = await getGalleryCollections(supabase, config)
 
@@ -18,7 +18,11 @@ export default async function AdminAccessPage() {
         description="Hier findet ihr alles, was ihr teilen oder prüfen wollt: Einladung, QR-Code, Galerie und den Fotografen-Zugang."
       />
 
-      <GuestAccessCard inviteUrl={guestInviteUrl} guestCode={config.guestCode} />
+      <GuestAccessCard
+        inviteHref={guestInviteHref}
+        inviteUrl={guestInviteUrl}
+        guestCode={config.guestCode}
+      />
 
       <div className="surface-card px-6 py-6">
         <p className="text-sm uppercase tracking-[0.18em] text-charcoal-500">Wichtig zur Fotofreigabe</p>
@@ -42,7 +46,7 @@ export default async function AdminAccessPage() {
             Öffnet den Gästebereich oder springt direkt in die öffentliche Galerie.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
-            <ActionLink href="/einladung">Einladung öffnen</ActionLink>
+            <ActionLink href={guestInviteHref}>Einladung öffnen</ActionLink>
             {galleryHref ? (
               <ActionLink href={galleryHref} variant="secondary">Galerie-Link</ActionLink>
             ) : null}

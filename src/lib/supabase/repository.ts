@@ -931,6 +931,50 @@ async function getWeddingContentRow(
   return null
 }
 
+async function findModernConfigByGuestCode(
+  supabase: DbClient,
+  guestCode: string,
+): Promise<WeddingConfig | null> {
+  const normalizedGuestCode = guestCode.trim().toUpperCase()
+  const { data: contentRowsRaw, error: contentError } = (await query(supabase, 'wedding_content')
+    .select('*')) as QueryResult<Database['public']['Tables']['wedding_content']['Row'][]>
+  const contentRows = contentRowsRaw ?? []
+
+  const matchingContentRow =
+    contentRows.find((row) => {
+      const guestCodeFromTexts = normalizeOptionalString(parseSettingsTexts(buildContentOverlayRow(row)).guestCode)
+      return guestCodeFromTexts?.toUpperCase() === normalizedGuestCode
+    }) ?? null
+
+  if (matchingContentRow) {
+    const { data: configRowsRaw, error: configError } = (await query(supabase, 'wedding_config')
+      .select('*')
+      .eq('id', matchingContentRow.config_id)
+      .limit(1)) as QueryResult<Database['public']['Tables']['wedding_config']['Row'][]>
+    const configRows = configRowsRaw ?? []
+
+    if (configRows.length) {
+      const configRow = configRows[0]
+      if (configRow) {
+        return applyConfigOverlayToConfig(
+          mapModernConfig(configRow),
+          buildContentOverlayRow(matchingContentRow),
+        )
+      }
+    }
+
+    if (configError && !isMissingRelation(configError)) {
+      throw configError
+    }
+  }
+
+  if (contentError && !isMissingRelation(contentError)) {
+    throw contentError
+  }
+
+  return null
+}
+
 async function getLegacyWeddingRowById(
   supabase: DbClient,
   rowId: string,
@@ -1889,11 +1933,17 @@ export async function getWeddingConfigByGuestCode(
   supabase: DbClient,
   guestCode: string,
 ): Promise<WeddingConfig | null> {
-  const normalizedGuestCode = guestCode.toUpperCase()
+  const normalizedGuestCode = guestCode.trim().toUpperCase()
   const activeConfig = await getActiveWeddingConfig(supabase)
 
   if (activeConfig.guestCode?.toUpperCase() === normalizedGuestCode) {
     return activeConfig
+  }
+
+  const modernConfig = await findModernConfigByGuestCode(supabase, normalizedGuestCode)
+
+  if (modernConfig) {
+    return modernConfig
   }
 
   const { data: legacyRowsRaw, error } = (await query(supabase, 'hochzeiten')

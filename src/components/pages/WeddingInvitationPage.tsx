@@ -114,7 +114,7 @@ export function WeddingInvitationPage({
         images={config.sectionImages.filter((image) => image.section === 'rsvp')}
         mode={mode}
       />
-      <MusicWishlistSection initialData={musicWishlistData} mode={mode} />
+      <MusicWishlistSection guestCode={config.guestCode} initialData={musicWishlistData} mode={mode} />
       <SeatingPlanSection guestNamesById={guestNamesById} plan={seatingPlanData} />
       <FaqSection
         items={faqItems}

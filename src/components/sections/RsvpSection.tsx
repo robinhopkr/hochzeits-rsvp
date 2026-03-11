@@ -22,7 +22,7 @@ export function RsvpSection({
           'Bitte gebt uns bis zum Anmeldeschluss Bescheid, ob ihr dabei sein könnt. So können wir entspannt und verlässlich planen.'}
       </p>
       <SectionImageGallery images={images} className="xl:grid-cols-2" />
-      <RsvpForm config={config} mode={mode} />
+      <RsvpForm config={config} guestCode={config.guestCode} mode={mode} />
     </Section>
   )
 }

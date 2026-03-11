@@ -9,7 +9,7 @@ import { getProtectedAdminContext } from '@/lib/admin/dashboard'
 import { buildAdminSummary, getGalleryCollections, listRsvps } from '@/lib/supabase/repository'
 
 export default async function AdminOverviewPage() {
-  const { config, guestInviteUrl, galleryHref, photographerHref, supabase } =
+  const { config, guestInviteHref, guestInviteUrl, galleryHref, photographerHref, supabase } =
     await getProtectedAdminContext()
   const [rsvps, galleryCollections] = await Promise.all([
     listRsvps(supabase, config),
@@ -67,7 +67,11 @@ export default async function AdminOverviewPage() {
         </article>
       </div>
 
-      <GuestAccessCard inviteUrl={guestInviteUrl} guestCode={config.guestCode} />
+      <GuestAccessCard
+        inviteHref={guestInviteHref}
+        inviteUrl={guestInviteUrl}
+        guestCode={config.guestCode}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <article className="surface-card px-6 py-6">

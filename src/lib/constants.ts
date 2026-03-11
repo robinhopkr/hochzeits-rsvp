@@ -5,9 +5,26 @@ const publicSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 const publicWeddingDate = process.env.NEXT_PUBLIC_WEDDING_DATE
 const publicRsvpDeadline = process.env.NEXT_PUBLIC_RSVP_DEADLINE
 const publicAppUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SITE_URL
+const canonicalAppUrl = 'https://mywed.niiro.ai'
 
 function readAppUrl(): string {
-  return publicAppUrl ?? 'http://localhost:3000'
+  const normalized = publicAppUrl?.trim()
+
+  if (!normalized) {
+    return canonicalAppUrl
+  }
+
+  try {
+    const parsed = new URL(normalized)
+
+    if (parsed.hostname === 'hochzeits-rsvp.vercel.app') {
+      return canonicalAppUrl
+    }
+
+    return parsed.origin
+  } catch {
+    return canonicalAppUrl
+  }
 }
 
 function readRequiredPublicSupabaseConfig(

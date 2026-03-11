@@ -13,6 +13,7 @@ import {
 } from '@/lib/demo-wedding'
 import { createClient } from '@/lib/supabase/server'
 import { getGalleryCollections, getWeddingConfigByGuestCode } from '@/lib/supabase/repository'
+import { buildInvitationPath } from '@/lib/urls'
 
 interface GalleryPageProps {
   params: Promise<{
@@ -79,11 +80,12 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
   const photos = galleryCollections.publicPhotos
   const sharedPrivatePhotos = config.sharePrivateGalleryWithGuests ? galleryCollections.privatePhotos : []
   const photographerHref = config.photoPassword ? `/fotograf/${resolvedParams.guestCode}` : null
+  const invitationHref = buildInvitationPath(config.guestCode ?? resolvedParams.guestCode)
 
   return (
     <main className="min-h-screen bg-cream-50">
       <Header
-        brandHref="/einladung"
+        brandHref={invitationHref}
         brandLabel={config.coupleLabel}
         ctaHref="/admin/login"
         ctaLabel="Login für Brautpaare"
@@ -102,7 +104,7 @@ export default async function GalleryPage({ params }: GalleryPageProps) {
           <div className="flex flex-wrap gap-3">
             <Link
               className="inline-flex min-h-11 items-center justify-center rounded-full border border-gold-300 bg-white px-5 py-3 text-sm font-semibold text-charcoal-800 transition hover:border-gold-500 hover:text-charcoal-900"
-              href="/einladung"
+              href={invitationHref}
             >
               Zur Einladung
             </Link>

@@ -15,13 +15,15 @@ import { RsvpSuccess } from './RsvpSuccess'
 
 export function RsvpForm({
   config,
+  guestCode,
   mode = 'live',
 }: {
   config: WeddingConfig
+  guestCode?: string | null
   mode?: 'demo' | 'live'
 }) {
   const { form, step, isAttending, plusOne, submissionState, submitError, submittedName, nextStep, previousStep, submit } =
-    useRsvpForm(mode)
+    useRsvpForm(mode, guestCode)
   const {
     register,
     control,

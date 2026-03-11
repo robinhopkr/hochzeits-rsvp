@@ -151,9 +151,9 @@ export const ADMIN_HELP_KNOWLEDGE_SECTIONS: AdminHelpKnowledgeSection[] = [
   {
     id: 'guest-area',
     title: 'Öffentlicher Gästebereich',
-    href: '/einladung',
+    href: '/einladung/[GAESTECODE]',
     summary:
-      'Der Gästebereich ist kostenlos und enthält Einladung, Programm, Anfahrt, Dresscode, Galerie, RSVP, FAQ und optionale Zusatzfunktionen.',
+      'Der Gästebereich ist kostenlos und enthält Einladung, Programm, Anfahrt, Dresscode, Galerie, RSVP, FAQ und optionale Zusatzfunktionen. Jede Hochzeit hat dafür einen eigenen personalisierten Link.',
     bullets: [
       'Gäste sehen nur veröffentlichte und freigegebene Inhalte.',
       'Optional sichtbar sind zum Beispiel Dienstleister, Musikwunschliste und veröffentlichter Sitzplan.',

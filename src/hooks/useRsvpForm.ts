@@ -10,7 +10,7 @@ import type { ApiResponse, RsvpSubmitResponse } from '@/types/api'
 type Step = 1 | 2 | 3
 type SubmissionState = 'idle' | 'submitting' | 'success' | 'error'
 
-export function useRsvpForm(mode: 'demo' | 'live' = 'live') {
+export function useRsvpForm(mode: 'demo' | 'live' = 'live', guestCode?: string | null) {
   const form = useForm<RsvpSchema>({
     resolver: zodResolver(rsvpSchema),
     defaultValues: {
@@ -92,7 +92,10 @@ export function useRsvpForm(mode: 'demo' | 'live' = 'live') {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          guestCode,
+        }),
         signal: controller.signal,
       })
 
