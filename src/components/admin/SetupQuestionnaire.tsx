@@ -37,11 +37,24 @@ import { Select } from '../ui/Select'
 import { Textarea } from '../ui/Textarea'
 
 const STORAGE_KEY_PREFIX = 'mywed-setup-questionnaire'
+const MAX_IMAGE_DIMENSIONS: Record<'cover' | 'couple' | 'section' | 'vendor', number> = {
+  cover: 2400,
+  couple: 1800,
+  section: 1800,
+  vendor: 1400,
+}
+const OPTIMIZED_IMAGE_QUALITY = 0.84
 
 interface SetupQuestionnaireProps {
   initialValues: WeddingEditorValues
   sessionRole: AdminSessionRole
 }
+
+type UploadFieldPath =
+  | 'coverImageUrl'
+  | `couplePhotos.${number}.imageUrl`
+  | `sectionImages.${number}.imageUrl`
+  | `vendorProfiles.${number}.imageUrl`
 
 function toDateTimeLocalValue(value: string): string {
   const date = new Date(value)
@@ -139,6 +152,24 @@ function StepImagePreview({ imageUrl, altText }: { imageUrl: string; altText: st
   )
 }
 
+function UploadFileControl({
+  isLoading,
+  label,
+  onChange,
+}: {
+  isLoading: boolean
+  label: string
+  onChange: React.ChangeEventHandler<HTMLInputElement>
+}) {
+  return (
+    <label className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-gold-300 bg-white px-5 py-3 text-sm font-semibold text-charcoal-800 transition hover:border-gold-500 hover:text-charcoal-900">
+      <ImagePlus className="h-4 w-4" />
+      <span>{isLoading ? 'Lädt hoch...' : label}</span>
+      <input accept="image/*" className="hidden" type="file" onChange={onChange} />
+    </label>
+  )
+}
+
 function QuestionnaireInfo({
   title,
   body,
@@ -178,10 +209,12 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
   const [currentStep, setCurrentStep] = useState(0)
   const [hasHydratedDraft, setHasHydratedDraft] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const [uploadingTargets, setUploadingTargets] = useState<Record<string, boolean>>({})
 
   const currentStepData =
     SETUP_QUESTIONNAIRE_STEPS[currentStep] ?? SETUP_QUESTIONNAIRE_STEPS[0]!
   const progressPercent = ((currentStep + 1) / SETUP_QUESTIONNAIRE_STEPS.length) * 100
+  const sourceId = values.sourceId || initialValues.sourceId
 
   useEffect(() => {
     if (typeof window === 'undefined') {
@@ -232,10 +265,50 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
 
   const summaryBadges = useMemo(
     () => [
+      values.coverImageUrl.trim() ? 'Titelbild gesetzt' : 'Titelbild offen',
+      `${values.couplePhotos.length} Paarfotos`,
       `${values.programItems.length} Programmpunkte`,
       `${values.faqItems.length} FAQ`,
       `${values.vendorProfiles.length} Dienstleister`,
       `${values.sectionImages.length} Zusatzbilder`,
+    ],
+    [values],
+  )
+
+  const guestAreaReadiness = useMemo(
+    () => [
+      {
+        label: 'Einladung mit Namen, Datum, Ort und Begrüßung',
+        ready:
+          Boolean(values.coupleLabel.trim()) &&
+          Boolean(values.weddingDate.trim()) &&
+          Boolean(values.venueName.trim()) &&
+          Boolean(values.welcomeMessage.trim()),
+      },
+      {
+        label: 'Look & Feel mit Design und Titelbild',
+        ready: Boolean(values.templateId && values.fontPresetId && values.coverImageUrl.trim()),
+      },
+      {
+        label: 'Persönliche Wirkung mit Paarfotos',
+        ready: values.couplePhotos.some((photo) => photo.imageUrl.trim()),
+      },
+      {
+        label: 'Tagesablauf für eure Gäste',
+        ready: values.programItems.some((item) => item.timeLabel.trim() && item.title.trim()),
+      },
+      {
+        label: 'Dresscode und Farbwelt',
+        ready: Boolean(values.dressCodeNote.trim()) || values.dressCodeColors.length > 0,
+      },
+      {
+        label: 'FAQ für typische Rückfragen',
+        ready: values.faqItems.some((item) => item.question.trim() && item.answer.trim()),
+      },
+      {
+        label: 'Optionale Bereiche wie Dienstleister oder Musikwünsche',
+        ready: values.vendorProfiles.some((vendor) => vendor.name.trim() && vendor.role.trim()) || values.musicWishlistEnabled,
+      },
     ],
     [values],
   )
@@ -348,6 +421,150 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
     }
 
     return true
+  }
+
+  function setImageValue(targetPath: UploadFieldPath, imageUrl: string) {
+    if (targetPath === 'coverImageUrl') {
+      updateValues({ coverImageUrl: imageUrl })
+      return
+    }
+
+    const match = targetPath.match(/^(couplePhotos|sectionImages|vendorProfiles)\.(\d+)\.imageUrl$/)
+
+    if (!match) {
+      return
+    }
+
+    const [, collection, rawIndex] = match
+    if (!collection || !rawIndex) {
+      return
+    }
+    const index = Number.parseInt(rawIndex, 10)
+
+    if (collection === 'couplePhotos') {
+      updateCouplePhoto(index, { imageUrl })
+      return
+    }
+
+    if (collection === 'sectionImages') {
+      updateSectionImage(index, { imageUrl })
+      return
+    }
+
+    updateVendorProfile(index, { imageUrl })
+  }
+
+  function resolveOptimizedImageType(file: File): 'image/jpeg' | 'image/webp' {
+    return file.type === 'image/png' || file.type === 'image/webp' ? 'image/webp' : 'image/jpeg'
+  }
+
+  function replaceFileExtension(fileName: string, nextExtension: 'jpg' | 'webp'): string {
+    const sanitized = fileName.replace(/\.[a-z0-9]+$/i, '')
+    return `${sanitized || 'bild'}.${nextExtension}`
+  }
+
+  async function buildOptimizedImageFile(
+    file: File,
+    folder: 'cover' | 'couple' | 'section' | 'vendor',
+  ): Promise<File> {
+    const imageUrl = URL.createObjectURL(file)
+
+    try {
+      const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const element = new Image()
+        element.onload = () => resolve(element)
+        element.onerror = () => reject(new Error('Das Bild konnte nicht verarbeitet werden.'))
+        element.src = imageUrl
+      })
+
+      const maxDimension = MAX_IMAGE_DIMENSIONS[folder]
+      const longestSide = Math.max(image.width, image.height)
+      const scale = longestSide > maxDimension ? maxDimension / longestSide : 1
+      const width = Math.max(1, Math.round(image.width * scale))
+      const height = Math.max(1, Math.round(image.height * scale))
+      const canvas = document.createElement('canvas')
+      const context = canvas.getContext('2d')
+
+      if (!context) {
+        throw new Error('Das Bild konnte nicht verarbeitet werden.')
+      }
+
+      canvas.width = width
+      canvas.height = height
+      context.drawImage(image, 0, 0, width, height)
+
+      const outputType = resolveOptimizedImageType(file)
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, outputType, OPTIMIZED_IMAGE_QUALITY)
+      })
+
+      if (!blob) {
+        throw new Error('Das Bild konnte nicht verarbeitet werden.')
+      }
+
+      return new File(
+        [blob],
+        replaceFileExtension(file.name, outputType === 'image/webp' ? 'webp' : 'jpg'),
+        {
+          type: outputType,
+          lastModified: file.lastModified,
+        },
+      )
+    } finally {
+      URL.revokeObjectURL(imageUrl)
+    }
+  }
+
+  async function handleImageUpload(
+    event: React.ChangeEvent<HTMLInputElement>,
+    input: {
+      targetKey: string
+      targetPath: UploadFieldPath
+      folder: 'cover' | 'couple' | 'section' | 'vendor'
+    },
+  ) {
+    const file = event.target.files?.[0]
+
+    if (!file) {
+      return
+    }
+
+    setUploadingTargets((current) => ({
+      ...current,
+      [input.targetKey]: true,
+    }))
+
+    try {
+      const optimizedFile = await buildOptimizedImageFile(file, input.folder)
+      const formData = new FormData()
+      formData.append('sourceId', sourceId)
+      formData.append('folder', input.folder)
+      formData.append('file', optimizedFile)
+
+      const response = await fetch('/api/admin/content-images', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = (await response.json()) as ApiResponse<{ publicUrl: string; path: string }>
+
+      if (!response.ok || !result.success) {
+        toast.error(result.success ? 'Upload fehlgeschlagen.' : result.error)
+        return
+      }
+
+      setImageValue(input.targetPath, result.data.publicUrl)
+      toast.success('Das Bild wurde hochgeladen und dem Fragebogen hinzugefügt.')
+    } catch {
+      toast.error('Das Bild konnte gerade nicht hochgeladen werden.')
+    } finally {
+      setUploadingTargets((current) => {
+        const nextState = { ...current }
+        delete nextState[input.targetKey]
+        return nextState
+      })
+      event.target.value = ''
+    }
   }
 
   async function persistQuestionnaire(successMessage: string, clearLocalDraft = false) {
@@ -533,16 +750,31 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
     return (
       <div className="space-y-6">
         <QuestionnaireInfo
-          title="Tipp für den Fragebogen"
-          body="Im Fragebogen hinterlegt ihr Bilder am einfachsten per URL. Im Bereich Inhalte könnt ihr später Bilder zusätzlich direkt hochladen."
+          title="Titelbild und Stil"
+          body="Ihr könnt euer Titelbild hier direkt hochladen oder wie bisher per URL einfügen. So ist euer Gästebereich sofort visuell aufgesetzt."
         />
-        <Input
-          helperText="Optional: großes Titelbild ganz oben im Gästebereich."
-          label="Titelbild / Coverbild als URL"
-          value={values.coverImageUrl}
-          onChange={(event) => updateValues({ coverImageUrl: event.target.value })}
-        />
-        <StepImagePreview imageUrl={values.coverImageUrl} altText={values.coupleLabel} />
+        <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-4">
+            <Input
+              helperText="Optional: großes Titelbild ganz oben im Gästebereich."
+              label="Titelbild / Coverbild als URL"
+              value={values.coverImageUrl}
+              onChange={(event) => updateValues({ coverImageUrl: event.target.value })}
+            />
+            <UploadFileControl
+              isLoading={Boolean(uploadingTargets.cover)}
+              label="Titelbild hochladen"
+              onChange={(event) =>
+                void handleImageUpload(event, {
+                  targetKey: 'cover',
+                  targetPath: 'coverImageUrl',
+                  folder: 'cover',
+                })
+              }
+            />
+          </div>
+          <StepImagePreview imageUrl={values.coverImageUrl} altText={values.coupleLabel} />
+        </div>
         <WeddingDesignSection
           selectedFontPresetId={values.fontPresetId}
           selectedTemplateId={values.templateId}
@@ -589,6 +821,17 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
                     label="Bild-URL"
                     value={photo.imageUrl}
                     onChange={(event) => updateCouplePhoto(index, { imageUrl: event.target.value })}
+                  />
+                  <UploadFileControl
+                    isLoading={Boolean(uploadingTargets[`couple-${photo.id}`])}
+                    label="Paarfoto hochladen"
+                    onChange={(event) =>
+                      void handleImageUpload(event, {
+                        targetKey: `couple-${photo.id}`,
+                        targetPath: `couplePhotos.${index}.imageUrl`,
+                        folder: 'couple',
+                      })
+                    }
                   />
                   <Input
                     label="Alternativtext"
@@ -868,6 +1111,17 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
                     value={image.imageUrl}
                     onChange={(event) => updateSectionImage(index, { imageUrl: event.target.value })}
                   />
+                  <UploadFileControl
+                    isLoading={Boolean(uploadingTargets[`section-${image.id}`])}
+                    label="Zusatzbild hochladen"
+                    onChange={(event) =>
+                      void handleImageUpload(event, {
+                        targetKey: `section-${image.id}`,
+                        targetPath: `sectionImages.${index}.imageUrl`,
+                        folder: 'section',
+                      })
+                    }
+                  />
                   <Input
                     label="Alternativtext"
                     value={image.altText}
@@ -958,6 +1212,17 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
                       label="Profilbild-URL"
                       value={vendor.imageUrl}
                       onChange={(event) => updateVendorProfile(index, { imageUrl: event.target.value })}
+                    />
+                    <UploadFileControl
+                      isLoading={Boolean(uploadingTargets[`vendor-${vendor.id}`])}
+                      label="Profilbild hochladen"
+                      onChange={(event) =>
+                        void handleImageUpload(event, {
+                          targetKey: `vendor-${vendor.id}`,
+                          targetPath: `vendorProfiles.${index}.imageUrl`,
+                          folder: 'vendor',
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -1103,9 +1368,44 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
         />
 
         <QuestionnaireInfo
-          title="Nicht Teil des Erstfragebogens"
-          body="RSVP-Antworten, Gästeliste, Sitzplan, Fotografen-Uploads und die PDF-Einladung selbst entstehen oder greifen erst nach dieser Einrichtung. Diese Bereiche bleiben anschließend weiterhin separat im Paarbereich verfügbar."
+          title="Was danach schon live für Gäste sichtbar ist"
+          body="Nach dem Speichern aktualisiert myWed direkt eure Einladung mit Namen, Datum, Begrüßung, Design, Titelbild, Paarfotos, Ablauf, Dresscode, FAQ, optionalen Dienstleistern und optionalen Musikwünschen."
           tone="accent"
+        />
+        <div className="grid gap-3 lg:grid-cols-2">
+          {guestAreaReadiness.map((item) => (
+            <div
+              key={item.label}
+              className={cn(
+                'rounded-[1.35rem] border px-4 py-4 text-sm leading-6',
+                item.ready
+                  ? 'border-sage-200 bg-sage-50 text-charcoal-700'
+                  : 'border-cream-200 bg-white text-charcoal-600',
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <span
+                  className={cn(
+                    'mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full',
+                    item.ready ? 'bg-sage-100 text-sage-700' : 'bg-cream-100 text-charcoal-500',
+                  )}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </span>
+                <div>
+                  <p className="font-semibold text-charcoal-900">{item.label}</p>
+                  <p className="mt-1 text-xs uppercase tracking-[0.18em]">
+                    {item.ready ? 'Bereit' : 'Noch offen'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <QuestionnaireInfo
+          title="Was bewusst danach separat bleibt"
+          body="RSVP-Antworten, Gästeliste, Sitzplan, Fotografen-Uploads und die PDF-Einladung greifen erst nach dieser Einrichtung. Diese Bereiche bleiben danach separat im Paarbereich verfügbar."
         />
       </div>
     )
@@ -1216,7 +1516,7 @@ export function SetupQuestionnaire({ initialValues, sessionRole }: SetupQuestion
 
           <QuestionnaireInfo
             title="Wichtig zu Bildern"
-            body="Im Fragebogen hinterlegt ihr Bilder am schnellsten per URL. Komfortable Uploads stehen euch danach weiterhin im Bereich Inhalte zur Verfügung."
+            body="Titelbild, Paarfotos, Zusatzbilder und Dienstleisterbilder könnt ihr jetzt direkt im Fragebogen hochladen. Der Bereich Inhalte bleibt später trotzdem für Feinschliff verfügbar."
           />
         </aside>
 

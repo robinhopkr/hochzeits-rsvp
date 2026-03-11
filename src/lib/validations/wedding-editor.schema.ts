@@ -26,6 +26,12 @@ const imageUrlSchema = z
   .max(2_000_000)
   .regex(/^(https?:\/\/|\/|data:image\/)/, 'Bitte gib eine gültige Bild-URL ein.')
 
+const optionalImageUrlSchema = z
+  .string()
+  .trim()
+  .max(2_000_000)
+  .refine((value) => !value || /^(https?:\/\/|\/|data:image\/)/.test(value), 'Bitte gib eine gültige Bild-URL ein.')
+
 const editableProgramItemSchema = z.object({
   id: z.string().min(1),
   timeLabel: z.string().trim().max(50),
@@ -108,7 +114,7 @@ export const weddingEditorSchema = z.object({
   fontPresetId: z.enum(weddingFontPresetIds),
   musicWishlistEnabled: z.boolean().default(false),
   sharePrivateGalleryWithGuests: z.boolean().default(false),
-  coverImageUrl: z.string().trim().max(2_000_000),
+  coverImageUrl: optionalImageUrlSchema,
   couplePhotos: z.array(editableCouplePhotoSchema).max(8),
   sectionImages: z.array(editableSectionImageSchema).max(24),
   vendorProfiles: z.array(editableVendorProfileSchema).max(24),
