@@ -35,10 +35,10 @@ export function LocationSection({
         <div className="surface-card h-full space-y-6 px-6 py-6">
           <div className="flex items-start gap-3">
             <MapPin className="mt-1 h-5 w-5 shrink-0 text-gold-500" />
-            <address className="not-italic text-charcoal-700">
-              <strong className="font-semibold text-charcoal-900">{config.venueName}</strong>
+            <address className="min-w-0 not-italic text-charcoal-700">
+              <strong className="text-safe-wrap font-semibold text-charcoal-900">{config.venueName}</strong>
               <br />
-              <span className="break-words">{config.venueAddress}</span>
+              <span className="text-safe-wrap">{config.venueAddress}</span>
             </address>
           </div>
           <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">

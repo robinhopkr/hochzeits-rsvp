@@ -58,10 +58,12 @@ export function VendorSection({ vendors }: VendorSectionProps) {
               )}
             </div>
 
-            <div className="space-y-5 px-6 py-6">
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.22em] text-gold-700">{vendor.role}</p>
-                <h3 className="font-display text-card text-charcoal-900">{vendor.name}</h3>
+            <div className="min-w-0 space-y-5 px-6 py-6">
+              <div className="min-w-0 space-y-2">
+                <p className="text-safe-wrap text-xs uppercase tracking-[0.22em] text-gold-700">
+                  {vendor.role}
+                </p>
+                <h3 className="text-safe-wrap font-display text-card text-charcoal-900">{vendor.name}</h3>
               </div>
 
               <div className={cn('flex flex-wrap gap-3', !vendor.websiteUrl && !vendor.instagramUrl && 'pt-1')}>
@@ -81,7 +83,7 @@ export function VendorSection({ vendors }: VendorSectionProps) {
                   </ExternalLink>
                 ) : null}
                 {!vendor.websiteUrl && !vendor.instagramUrl ? (
-                  <p className="text-sm text-charcoal-500">
+                  <p className="text-safe-wrap text-sm text-charcoal-500">
                     Für diesen Dienstleister wurden noch keine öffentlichen Links hinterlegt.
                   </p>
                 ) : null}

@@ -40,8 +40,8 @@ export function GalleryGrid({
               />
             </div>
           </ExternalLink>
-          <div className="space-y-2 px-5 py-4">
-            <p className="truncate text-sm font-semibold text-charcoal-800">{photo.name}</p>
+          <div className="min-w-0 space-y-2 px-5 py-4">
+            <p className="text-safe-wrap text-sm font-semibold leading-6 text-charcoal-800">{photo.name}</p>
             <p className="text-xs uppercase tracking-[0.18em] text-charcoal-500">
               {formatGermanDateTime(photo.createdAt)}
             </p>

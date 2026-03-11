@@ -176,8 +176,8 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
         )}
       >
         <div className="surface-card overflow-hidden px-6 py-6 sm:px-8">
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)] lg:items-start">
-            <div className="space-y-3">
+          <div className="space-y-6">
+            <div className="max-w-3xl space-y-3">
               <p className="text-eyebrow uppercase text-sage-600">Auf einen Blick</p>
               <h2 className="font-display text-card text-charcoal-900">
                 Alles Wichtige für euren Tag mit uns
@@ -188,19 +188,21 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
               </p>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))]">
               {heroHighlights.map((item) => (
                 <article
                   key={item.title}
-                  className="rounded-[1.35rem] border border-cream-200 bg-white/90 px-4 py-4 shadow-elegant"
+                  className="min-w-0 rounded-[1.35rem] border border-cream-200 bg-white/90 px-4 py-4 shadow-elegant"
                 >
                   <div className="flex items-start gap-3">
                     <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream-100 text-gold-700">
                       <item.icon className="h-4 w-4" />
                     </span>
-                    <div className="space-y-1">
+                    <div className="min-w-0 space-y-1">
                       <p className="text-xs uppercase tracking-[0.18em] text-charcoal-500">{item.title}</p>
-                      <p className="text-sm font-medium leading-6 text-charcoal-800">{item.copy}</p>
+                      <p className="text-safe-wrap text-sm font-medium leading-6 text-charcoal-800">
+                        {item.copy}
+                      </p>
                     </div>
                   </div>
                 </article>
