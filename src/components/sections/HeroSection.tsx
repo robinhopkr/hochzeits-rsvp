@@ -52,6 +52,50 @@ function buildVisibleCouplePhotos(config: WeddingConfig): CouplePhoto[] {
   return config.couplePhotos.filter((photo) => photo.imageUrl !== heroImageUrl)
 }
 
+function HeroHighlightsPanel({
+  heroHighlights,
+}: {
+  heroHighlights: ReturnType<typeof buildHeroHighlights>
+}) {
+  return (
+    <div className="surface-card overflow-hidden px-6 py-6 sm:px-8">
+      <div className="space-y-6">
+        <div className="max-w-3xl space-y-3">
+          <p className="text-eyebrow uppercase text-sage-600">Auf einen Blick</p>
+          <h2 className="font-display text-card text-charcoal-900">
+            Alles Wichtige für euren Tag mit uns
+          </h2>
+          <p className="max-w-xl text-body-md text-charcoal-600">
+            Hier findet ihr die wichtigsten Informationen direkt gesammelt. Weiter unten könnt ihr
+            eure Rückmeldung senden und alle Details noch einmal in Ruhe nachlesen.
+          </p>
+        </div>
+
+        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))]">
+          {heroHighlights.map((item) => (
+            <article
+              key={item.title}
+              className="min-w-0 rounded-[1.35rem] border border-cream-200 bg-white/90 px-4 py-4 shadow-elegant"
+            >
+              <div className="flex items-start gap-3">
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream-100 text-gold-700">
+                  <item.icon className="h-4 w-4" />
+                </span>
+                <div className="min-w-0 space-y-1">
+                  <p className="text-xs uppercase tracking-[0.18em] text-charcoal-500">{item.title}</p>
+                  <p className="text-safe-wrap text-sm font-medium leading-6 text-charcoal-800">
+                    {item.copy}
+                  </p>
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function HeroSection({ config }: { config: WeddingConfig }) {
   const heroHighlights = buildHeroHighlights(config)
   const heroCoverImage = config.heroImageUrl?.trim() || null
@@ -133,19 +177,31 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
           <motion.div variants={itemVariants}>
             <WeddingInfoBadges config={config} />
           </motion.div>
+
+          <motion.div variants={itemVariants} className="hidden lg:block">
+            <HeroHighlightsPanel heroHighlights={heroHighlights} />
+          </motion.div>
         </motion.div>
 
         <motion.aside
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className={cn('space-y-4 lg:self-start', heroCoverImage ? 'lg:-mt-16' : null)}
+          className={cn('space-y-4 lg:self-start', heroCoverImage ? 'lg:-mt-8' : null)}
         >
           {visibleCouplePhotos.length ? (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-              {visibleCouplePhotos.slice(0, heroCoverImage ? 2 : 3).map((photo) => (
-                <article key={photo.id} className="surface-card overflow-hidden">
-                  <div className="aspect-[4/5] w-full overflow-hidden bg-cream-100">
+              {visibleCouplePhotos.slice(0, heroCoverImage ? 2 : 3).map((photo, index) => (
+                <article
+                  key={photo.id}
+                  className={cn('surface-card overflow-hidden', heroCoverImage && index > 0 ? 'lg:hidden' : null)}
+                >
+                  <div
+                    className={cn(
+                      'aspect-[4/5] w-full overflow-hidden bg-cream-100',
+                      heroCoverImage ? 'lg:aspect-[4/3]' : null,
+                    )}
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       alt={photo.altText ?? `${config.coupleLabel} auf einem Foto`}
@@ -171,45 +227,11 @@ export function HeroSection({ config }: { config: WeddingConfig }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.28, duration: 0.5 }}
         className={cn(
-          'relative mx-auto max-w-6xl px-6 pb-[clamp(3.25rem,6vw,5.5rem)] sm:px-10',
+          'relative mx-auto max-w-6xl px-6 pb-[clamp(3.25rem,6vw,5.5rem)] sm:px-10 lg:hidden',
           heroCoverImage ? 'pt-2 lg:-mt-6' : 'pt-0 lg:-mt-2',
         )}
       >
-        <div className="surface-card overflow-hidden px-6 py-6 sm:px-8">
-          <div className="space-y-6">
-            <div className="max-w-3xl space-y-3">
-              <p className="text-eyebrow uppercase text-sage-600">Auf einen Blick</p>
-              <h2 className="font-display text-card text-charcoal-900">
-                Alles Wichtige für euren Tag mit uns
-              </h2>
-              <p className="max-w-xl text-body-md text-charcoal-600">
-                Hier findet ihr die wichtigsten Informationen direkt gesammelt. Weiter unten könnt ihr
-                eure Rückmeldung senden und alle Details noch einmal in Ruhe nachlesen.
-              </p>
-            </div>
-
-            <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,15rem),1fr))]">
-              {heroHighlights.map((item) => (
-                <article
-                  key={item.title}
-                  className="min-w-0 rounded-[1.35rem] border border-cream-200 bg-white/90 px-4 py-4 shadow-elegant"
-                >
-                  <div className="flex items-start gap-3">
-                    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream-100 text-gold-700">
-                      <item.icon className="h-4 w-4" />
-                    </span>
-                    <div className="min-w-0 space-y-1">
-                      <p className="text-xs uppercase tracking-[0.18em] text-charcoal-500">{item.title}</p>
-                      <p className="text-safe-wrap text-sm font-medium leading-6 text-charcoal-800">
-                        {item.copy}
-                      </p>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </div>
+        <HeroHighlightsPanel heroHighlights={heroHighlights} />
       </motion.div>
     </section>
   )
